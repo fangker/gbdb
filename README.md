@@ -3,7 +3,7 @@
 
 ### 挖坑相关
 
-感谢 gaopengtttt 李丹 对我的帮助, 由于智力的缺陷，本坑将缓慢填埋，目前正在理清概念。
+感谢 gaopengtttt 李丹 对我的帮助, 由于智力的缺陷，本坑将缓慢填埋 。
 
 ### 文档相关
 
@@ -19,3 +19,5 @@
 [理解B+树算法和Innodb索引](https://www.cnblogs.com/huqiang/p/5604722.html)
 
 [innodb 页概念](https://segmentfault.com/a/1190000008545713)
+
+
