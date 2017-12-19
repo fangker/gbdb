@@ -7,7 +7,7 @@
 
 ### 文档相关
 
-以下是基本概念，具体详知请看《MySQL 技术内幕》《MySQL运维内参》, innodb储存文件观察 py_innodb_page_info 。
+以下是基本概念，具体详知请看《MySQL 技术内幕》《MySQL运维内参》, innodb储存文件观察 py_innodb_page_info .
 
 [索引查询原理](http://blog.jobbole.com/24006/)
 
