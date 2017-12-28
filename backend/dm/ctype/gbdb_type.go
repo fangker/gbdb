@@ -1,8 +1,16 @@
-package ctype
+package cType
 
+// Filed type
 const (
-	GBDB_TYPE_STRING = 0
-	GBDB_TYPE_VARCHAR = 1
-	GBDB_TYPE_BIT = 2
-	GBDB_TYPE_INT = 4
+	FIELD_TYPE_STRING = 0
+	FIELD_TYPE_VARCHAR = 1
+	FIELD_TYPE_BIT = 2
+	FIELD_TYPE_INT = 3
 )
+
+// Character type
+const(
+	CHAR_TYPE_UTF8 = 0
+)
+
+
