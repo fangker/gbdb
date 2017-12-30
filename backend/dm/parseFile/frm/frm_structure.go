@@ -70,7 +70,7 @@ func CreateField(name string, character uint8, length uint32, filedType uint8, c
 }
 
 // 创建 Key
-func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...keyPart) *key {
+func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...*keyPart) *key {
 	var num uint32
 	tKey := &key{KName: name}
 	for _, keyPart := range keyParts {
@@ -81,7 +81,7 @@ func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...keyP
 					keyPart.length=this.Fields[index].fLength
 				}
 				keyPart.index = uint32(index)
-				tKey.kPart = append(tKey.kPart,keyPart)
+				tKey.kPart = append(tKey.kPart,*keyPart)
 				break
 			}
 		}
@@ -89,9 +89,4 @@ func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...keyP
 	tKey.kType = kType
 	tKey.fieldNum = num
 	return tKey
-}
-
-// 创建 KeyPart
-func CreateKeyPart(name string, length uint32) *keyPart {
-	return &keyPart{name, length, 0}
 }
