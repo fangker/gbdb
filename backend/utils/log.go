@@ -1,4 +1,4 @@
-package log
+package utils
 
 import (
 	"log"
@@ -32,7 +32,7 @@ const (
 )
 
 const (
-	log_caller = true
+	log_caller = false
 )
 
 func Trace(content string,  details ...interface{}) {

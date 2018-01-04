@@ -1,23 +1,25 @@
 package frm
 
 import (
-	//ctype "../../ctype"
 	"errors"
-	"strings"
+	"math"
 )
 
 type TableStructure struct {
 	Name   string
 	Keys   []key
-	Fields []field
+	Fields map[string]field
 	Char   uint8
+	Common string
 }
 
+
 type key struct {
-	KName    string
+	kName    string
 	fieldNum uint32
 	kType    uint8
 	kPart    [] keyPart
+	kCommon  string
 }
 
 type keyPart struct {
@@ -31,31 +33,25 @@ type field struct {
 	fType    uint8
 	fChar    uint8
 	fLength  uint32
+	fIndex   uint32
 	fComment string
 	fDefault interface{}
 }
 
 // 创建表结构
 func CreateTableStructure(tableName string) *TableStructure {
-	return &TableStructure{Name: tableName}
+	return &TableStructure{Name: tableName,Fields:make(map[string]field)}
 }
 
 // 增加 Fields
-func (this *TableStructure) addFields(fields ...*field) (err error) {
+func (this *TableStructure) AddFields(fields ...*field) (err error) {
 	for _, field := range fields {
-		for _, mum := range this.Fields {
-			if (strings.Compare(mum.fName, field.fName) == 0) {
+			if _, ok := this.Fields[field.fName]; ok {
 				return errors.New("[duplicate failed]" + string(field.fName))
 			}
-		}
-		this.Fields = append(this.Fields, *field)
+		this.Fields[field.fName] = *field
 	}
 	return nil
-}
-
-// 添加Key
-func (this *TableStructure) addKeys(a key) {
-	this.Keys = append(this.Keys, a)
 }
 
 // 创建Field
@@ -70,23 +66,34 @@ func CreateField(name string, character uint8, length uint32, filedType uint8, c
 }
 
 // 创建 Key
-func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...*keyPart) *key {
+func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...*keyPart) (*key,error) {
 	var num uint32
-	tKey := &key{KName: name}
+	var isDuplicate bool
+	tKey := &key{kName: name}
 	for _, keyPart := range keyParts {
 		tKey.fieldNum += 1
-		for index, field := range this.Fields {
-			if (strings.Compare(keyPart.name, field.fName) == 0) {
-				if keyPart.length==0{
-					keyPart.length=this.Fields[index].fLength
-				}
-				keyPart.index = uint32(index)
-				tKey.kPart = append(tKey.kPart,*keyPart)
-				break
-			}
-		}
+		keyPart.index  =  this.Fields[keyPart.name].fIndex
+		tKey.kPart =  append(tKey.kPart,*keyPart)
 	}
 	tKey.kType = kType
 	tKey.fieldNum = num
-	return tKey
+	for _, key := range this.Keys{
+			min :=int(math.Min(float64(len(key.kPart)),float64(len(tKey.kPart))))
+			for i:=0;i<min;i++{
+				if(key.kPart[i].index==tKey.kPart[i].index){
+					if(i==min){
+						isDuplicate=true
+						break
+					}
+					continue
+				}else{
+					break
+				}
+			}
+	}
+	if(isDuplicate){
+		return nil,errors.New("[duplicate key in]" + tKey.KName)
+	}
+	this.Keys = append(this.Keys, *tKey)
+	return tKey,nil
 }
