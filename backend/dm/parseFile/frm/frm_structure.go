@@ -92,7 +92,7 @@ func (this *TableStructure) CreateKey(name string, kType uint8, keyParts ...*key
 			}
 	}
 	if(isDuplicate){
-		return nil,errors.New("[duplicate key in]" + tKey.KName)
+		return nil,errors.New("[duplicate key in]" + tKey.kName)
 	}
 	this.Keys = append(this.Keys, *tKey)
 	return tKey,nil

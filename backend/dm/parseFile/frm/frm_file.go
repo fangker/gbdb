@@ -3,6 +3,7 @@ package frm
 import (
 	"../../../utils"
 	//"../../ctype"
+	"math"
 )
 
 const (
@@ -15,6 +16,10 @@ const (
 	frm_engine = 0
 )
 
+const (
+	frm_chunk = 1024
+)
+
 func CreateFrmFile(ts *TableStructure) {
 	//file,err := os.OpenFile(patch+"."+SUFFIX_DB,os.O_APPEND|os.O_CREATE|os.O_TRUNC,0777)
 	//if err != nil {
@@ -25,8 +30,11 @@ func CreateFrmFile(ts *TableStructure) {
 }
 
 func NewFrmFile(ts *TableStructure) {
-	//var header [34]byte
-	//// frm type
+	//var  headerLength uint32=34
+	var chunkNum uint32
+	//var header [frm_chunk]byte
+	chunkNum++
+	// frm type
 	//header[0:2] = utils.PutUint16(frm_type)
 	//// engine type
 	//header[2:2] = utils.PutUint16(frm_engine)
@@ -36,8 +44,7 @@ func NewFrmFile(ts *TableStructure) {
 	//header[8:2] = utils.PutUint16(1000)
 	//header[16:2] = utils.PutUint16(cType.CHAR_TYPE_UTF8)
 	//// 行类型 default dynamic
-	//copy(header[0:2],utils.PutUint16(1))
-	//var keyPlaceholder [] byte
+	//copy(header[0:2], utils.PutUint16(1))
 	var keyLength, fieldLength uint32
 	keyLength = 6
 	for _, key := range ts.Keys {
@@ -48,16 +55,27 @@ func NewFrmFile(ts *TableStructure) {
 		// keyName and keyComment
 		keyLength += uint32(len(key.kPart)*8 + len(key.kPart)*4)
 	}
+	keyPlace := math.Ceil(float64(keyLength)/frm_chunk) * frm_chunk
 	// 计算表字段字节占用
-	fieldLength = uint32(len(ts.Common))+300
+	fieldLength = uint32(len(ts.Common))*8 + 300
 	for _, field := range ts.Fields {
 		common_len := uint32(len(field.fComment))
 		name_len := uint32(len(field.fName))
 		fieldLength += common_len
 		fieldLength += name_len
-		fieldLength += (common_len +name_len)*2
-
+		fieldLength += (common_len + name_len) * 2
 	}
-	utils.Trace("key长度", keyLength)
+	fieldPlace := math.Ceil(float64(fieldLength)/frm_chunk) * frm_chunk
+	// 设置key
+	keyNum:= len(ts.Keys)
+	var partNum uint32
+	for _,kmum:= range ts.Keys{
+		partNum+=uint32(len(kmum.kPart))
+	}
+	keyDataPlace:=make([]byte,uint(keyPlace))
+	//keyDataPlace[0:1]=utils.PutUint16(keyNum);
+	//utils.Trace("",keyPlace,fieldPlace,keyNum)
+	utils.Info("",fieldPlace,keyNum,keyDataPlace,keyPlace)
 
 }
+
