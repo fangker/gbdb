@@ -2,9 +2,7 @@
    GbDB   折腾数据库玩具
 
 ### 挖坑相关
-
-感谢 gaopengtttt 李丹 对我的帮助, 由于智力的缺陷，本坑将缓慢填埋 。
-已经观察近1月,先立flag. 
+18年3月8日正式开始挖坑,辞去了北京的实习工作，回家可能呆1个月左右。
 ### 文档相关
 
 以下是基本概念，具体详知请看《MySQL 技术内幕》《MySQL运维内参》, innodb储存文件观察 py_innodb_page_info .以下是摸索阶段的入门概念,相比《数据库系统实现》更
@@ -27,5 +25,9 @@
 #### 1. 物理文件储存逻辑
    规划,看到简单的实现基本的都是以0号页储存表元信息,采用页的形式来组织整个储存结构。gbdb还是使用类似于innodb采用系统表空间的方法构建索引和表文件结构记录等
    这一阶段主要实现物理文件结构的划分和实现。
+   参考:
    
+[innodb引擎页结构](https://dev.mysql.com/doc/internals/en/innodb-page-overview.html)   
+[innodb储存结构](https://www.kancloud.cn/digest/innodb-zerok/195090)
 
+s

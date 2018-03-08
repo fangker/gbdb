@@ -15,4 +15,7 @@ func NewSpaceManager(filePath string, tableNo uint32) *SpaceManager {
 	}
 	return &SpaceManager{filePath,tableNo,file}
 }
+// 初始化一个文件 设定初始页面构造文件结构
+func (sm *SpaceManager) InitFileStructure(){
 
+}
