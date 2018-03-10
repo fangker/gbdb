@@ -1,9 +1,9 @@
 package frm
 
 import (
-	"testing"
-	"../../ctype"
-	"../../../utils"
+"testing"
+"../../ctype"
+"../../../utils"
 )
 
 

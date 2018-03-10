@@ -27,6 +27,7 @@
    这一阶段主要实现物理文件结构的划分和实现。
    参考:
    
+[innodb空间管理页结构](https://blog.jcole.us/2013/01/04/page-management-in-innodb-space-files/)
 [innodb引擎页结构](https://dev.mysql.com/doc/internals/en/innodb-page-overview.html)   
 [innodb储存结构](https://www.kancloud.cn/digest/innodb-zerok/195090)
 

@@ -1,7 +1,6 @@
 package page
 
 // fsp file header 104byte
-
 var (
 	FSP_SPACE_ID        [4]byte  //表空间ID
 	FSP_SIZE            [4]byte  //表空间总page数量
