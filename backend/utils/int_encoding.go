@@ -21,8 +21,19 @@ func PutUint32(n int) []byte {
 	return bytesBuffer.Bytes()
 }
 
-func getUint16(byte []byte) uint16 {
+func GetUint16(byte []byte) uint16 {
 	var x uint16
+	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
+	return x
+}
+
+func GetUint64(byte []byte) uint64 {
+	var x uint64
+	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
+	return x
+}
+func GetUint32(byte []byte) uint32 {
+	var x uint32
 	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
 	return x
 }

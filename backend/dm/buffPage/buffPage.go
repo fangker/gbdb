@@ -27,5 +27,8 @@ func NewBuffPage() *BuffPage {
 }
 
 func (bp *BuffPage) parseHeader() {
- bp.pType = bp.data[page.FIL_PAGE_TYPE:]
+	data := bp.data
+	bp.pType = utils.GetUint16(data[page.FIL_PAGE_TYPE:page.FIL_PAGE_TYPE+page.FIL_PAGE_TYPE_SIZE])
+	bp.lastLSN = utils.GetUint64(data[page.FIL_PAGE_LSN:page.FIL_PAGE_LSN+page.FIL_PAGE_LSN_SIZE])
+	bp.space = utils.GetUint32(data[page.FIL_PAGE_SPACE:page.FIL_PAGE_SPACE+page.FIL_PAGE_SPACE_SIZE])
 }
