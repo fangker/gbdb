@@ -10,3 +10,10 @@ var (
 	FSEG_FULL [16]byte
 	FSEG_INODE_ENTRY_INIT_MARK [4]byte //标识位初始化
 )
+
+
+type INodePage struct {
+	FH  FilHeader
+	data *PageData
+}
+

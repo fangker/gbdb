@@ -3,17 +3,18 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
+	"github.com/fangker/gbdb/backend/dm/page"
 )
 
 
-func PutUint16(n int) []byte {
+func PutUint16(n uint16) []byte {
 	x := uint16(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
 	return bytesBuffer.Bytes()
 }
 
-func PutUint32(n int) []byte {
+func PutUint32(n uint32) []byte {
 	x := uint32(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
@@ -33,6 +34,12 @@ func GetUint64(byte []byte) uint64 {
 }
 func GetUint32(byte []byte) uint32 {
 	var x uint32
+	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
+	return x
+}
+
+func GetPageDate(byte []byte) page.PageData {
+	var x page.PageData
 	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
 	return x
 }
