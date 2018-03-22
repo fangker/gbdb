@@ -3,7 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/fangker/gbdb/backend/dm/page"
+	"github.com/fangker/gbdb/backend/dm/constants/cType"
 )
 
 
@@ -38,8 +38,8 @@ func GetUint32(byte []byte) uint32 {
 	return x
 }
 
-func GetPageDate(byte []byte) page.PageData {
-	var x page.PageData
+func GetPageDate(byte []byte) cType.PageData {
+	var x cType.PageData
 	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
 	return x
 }

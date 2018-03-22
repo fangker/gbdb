@@ -34,9 +34,9 @@ func NewFrmFile(ts *TableStructure) {
 	var chunkNum uint32
 	 header:= make([]byte,frm_chunk)
 	chunkNum++
-	// frm type
+	// frm cType
 	copy(header[0:2],utils.PutUint16(frm_type))
-	// engine type
+	// engine cType
 	copy(header[2:4],utils.PutUint16(frm_engine))
 	copy(header[4:6],utils.PutUint16(6))
 	copy(header[6:8],utils.PutUint16(6))

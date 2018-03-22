@@ -1,6 +1,6 @@
 package cType
 
-// page type
+// page cType
 
 type pageType uint16
 
@@ -10,3 +10,8 @@ const (
 	FIL_PAGE_TYPE_XDES // 簇描述页
 
 )
+const (
+	PAGE_SIZE = 16384
+)
+
+type PageData [PAGE_SIZE]byte

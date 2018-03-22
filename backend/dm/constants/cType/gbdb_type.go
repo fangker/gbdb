@@ -1,6 +1,6 @@
 package cType
 
-// Filed type
+// Filed cType
 const (
 	FIELD_TYPE_STRING  = iota
 	FIELD_TYPE_VARCHAR
@@ -8,7 +8,7 @@ const (
 	FIELD_TYPE_BIT
 )
 
-// Character type
+// Character cType
 const (
 	CHAR_TYPE_UTF8 = iota
 )

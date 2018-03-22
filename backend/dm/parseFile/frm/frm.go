@@ -10,7 +10,7 @@ package frm
 //	SUFFIX_DB = "gbdb"
 //)
 //
-//type frm struct {
+//cType frm struct {
 //	file os.File
 //	fileLock sync.Mutex
 //}

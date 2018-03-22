@@ -2,37 +2,29 @@ package pcache
 
 import (
 	"sync"
-	"github.com/fangker/gbdb/backend/dm/page"
+	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"os"
 )
-
-type BuffPager interface {
-	NewBuffPage()
-	SetType()
-}
+//
+//cType BuffPager interface {
+//	NewBuffPage()
+//	SetType()
+//}
 
 type BuffPage struct {
 	dirty bool
-	rwLock *sync.RWMutex
-	data   page.PageData
+	rwLock sync.RWMutex
+	data   cType.PageData
 	pType  uint16
-	Page   *page.Page
-	//IndexPage
-	//Inode
-	Fsp    *page.FSPage
+	//Page   *page.Page
+	////IndexPage
+	////Inode
+	//Fsp    *page.FSPage
+	File *os.File
 }
 
 func NewBuffPage() *BuffPage {
-	return &BuffPage{data: page.PageData{}}
-}
-
-func (bp *BuffPage) SetType(pType uint16) {
-	bp.pType = pType
-	switch pType {
-	case page.PAGE_TYPE_PAGE:
-		bp.Page = page.NewPage(&bp.data)
-	case page.PAGE_TYPE_FSP:
-		bp.Fsp = page.NewFSPage(&bp.data)
-	}
+	return &BuffPage{data: cType.PageData{}}
 }
 
 func (bp *BuffPage) Dirty() {
@@ -43,21 +35,16 @@ func (bp *BuffPage) RLock(){
 	bp.rwLock.RLock()
 }
 
-func (bp *BuffPage) WLock(){
+func (bp *BuffPage) Lock(){
 	bp.rwLock.Lock()
 }
-
-func (bp *BuffPage)GetPosition() (uint32,uint32){
-	switch bp.pType {
-	case page.PAGE_TYPE_PAGE:
-		return bp.Page.FH.Space,bp.Page.FH.Offset
-	case page.PAGE_TYPE_FSP:
-		return bp.Page.FH.Space,bp.Page.FH.Offset
-	default:
-		return 0,0
-	}
+func (bp *BuffPage) Unlock(){
+	bp.rwLock.Unlock()
 }
 
-func (bp *BuffPage)Date() *page.PageData{
+func (bp *BuffPage)GetData() *cType.PageData{
 	return &bp.data
+}
+func (bp *BuffPage)SetData(data cType.PageData) {
+	 bp.data=data
 }
