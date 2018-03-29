@@ -31,3 +31,7 @@ func NewINodePage(bf *pcache.BuffPage) *INodePage {
 	page.FBN.ParseFistBaseNode(bf)
 	return page
 }
+
+func GetFreeInode()  {
+	
+}

@@ -29,8 +29,8 @@ func (fbn *FistBaseNode)GetLen()uint32{
 }
 
 func (fbn *FistBaseNode)GetFirst()(uint32,uint16){
-	page:=utils.GetUint32(fbn.data[FLST_FIRST_OFFSET:FIL_HEADER_OFFSET+4])
-	offset:=utils.GetUint16(fbn.data[FLST_FIRST_OFFSET+4:FIL_HEADER_OFFSET+6])
+	page:=utils.GetUint32(fbn.data[FLST_FIRST_OFFSET:FLST_FIRST_OFFSET+4])
+	offset:=utils.GetUint16(fbn.data[FLST_FIRST_OFFSET+4:FLST_FIRST_OFFSET+6])
 	return page,offset
 }
 
