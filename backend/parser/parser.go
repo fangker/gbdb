@@ -5,6 +5,26 @@ import (
 	"fmt"
 )
 
+func parseError(tk *tokenizer, i interface{}) ParseError {
+	var pe ParseError
+	pe.err = ErrInvalidStat;
+	switch i.(type) {
+	case *UpdateStmt:
+		pe.info = "update error: " + tk.token().val.(string)
+	case *WhereStmt:
+		pe.info = "where error: " + tk.token().val.(string)
+	case *SingleExpStmt:
+		pe.info = "singleExpStmt error: " + tk.token().val.(string)
+	case *SelectStmt:
+		pe.info = "SelectStmt error: " + tk.token().val.(string)
+	}
+	return pe
+}
+
+func (e ParseError) Error() string {
+	return e.info
+}
+
 var (
 	ErrInvalidStat = errors.New("InvalidStat")
 )
@@ -126,10 +146,30 @@ func parseInsert() {
 
 }
 
-func ParseSelect(tkn *tokenizer)(*SelectStmt, error) {
-	fmt.Print(222222)
-	fmt.Print(getField(tkn))
-	return nil,nil
+func ParseSelect(tkn *tokenizer) (*SelectStmt, error) {
+	selectStmt := new(SelectStmt)
+	for {
+		field, ok := getField(tkn)
+		fmt.Println(field,ok)
+		if (!ok) {
+			if (field.kind==KEYWORD&&field.val=="from") {
+				break
+			}
+			return nil, parseError(tkn, selectStmt)
+		}
+		selectStmt.Fields = append(selectStmt.Fields, field.val)
+	}
+	_, ok := getTableName(tkn)
+	if (!ok) {
+		return nil, nil
+	}
+	_, ok = getKeyword(tkn, "where")
+	where, err := parseWhere(tkn)
+	if (err != nil) {
+		return nil, err
+	}
+	selectStmt.Where = where
+	return selectStmt, nil
 
 }
 
@@ -153,38 +193,26 @@ type ParseError struct {
 	info string
 }
 
-func parseError(tk *tokenizer, i interface{}) ParseError {
-	var pe ParseError
-	pe.err = ErrInvalidStat;
-	switch i.(type) {
-	case UpdateStmt:
-		pe.info = "update error:" + tk.token().val.(string)
-	case WhereStmt:
-		pe.info = "where error:" + tk.token().val.(string)
-	case SingleExpStmt:
-		pe.info = "singleExpStmt error:" + tk.token().val.(string)
-	}
-	return pe
-}
-
 func getField(tkn *tokenizer) (token, bool) {
 	tkn.popToken()
 	field := tkn.token()
-	if (field.kind != IDENTIFIER) {
-		return field, false
-	} else {
-		tkn.popToken()
-		return field, true
-	}
+	return field, field.kind == IDENTIFIER
 }
 
 func getValue(tkn *tokenizer) (token, bool) {
 	tkn.popToken()
+	value := tkn.token()
+	return value, value.kind == LITERAL
+}
+
+func getKeyword(tkn *tokenizer, kw string) (token, bool) {
+	tkn.popToken()
 	field := tkn.token()
-	if (field.kind != LITERAL) {
-		return field, false
-	} else {
-		tkn.popToken()
-		return field, true
-	}
+	return field, field.kind == KEYWORD || field.val == kw
+}
+
+func getTableName(tkn *tokenizer) (token, bool) {
+	tkn.popToken()
+	field := tkn.token()
+	return field, field.kind == IDENTIFIER
 }

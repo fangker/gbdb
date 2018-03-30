@@ -32,6 +32,7 @@ var keywords = map[string]int{
 	"update": 1,
 	"values": 3,
 	"set":3,
+	"from":3,
 	"where":4,
 }
 
@@ -232,4 +233,13 @@ func isSymbol(b byte) bool {
 
 func statSymbol(b byte) bool  {
 	return b=='\''||b=='`'
+}
+
+
+func isEof(tk token) bool {
+	return tk.kind==EOF
+}
+
+func isKeyword(tk token) bool {
+	return tk.kind==KEYWORD
 }

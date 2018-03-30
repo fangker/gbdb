@@ -31,7 +31,7 @@ type InsertStmt struct {
 
 type SelectStmt struct {
 	TableName string
-	Fields    []string
+	Fields    []interface{}
 	Where     *WhereStmt
 }
 

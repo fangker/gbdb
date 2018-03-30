@@ -12,7 +12,7 @@ func TestTokenizer(t *testing.T) {
 		t.Fail()
 	}
 	t.Log(update)
-	a= "select name from people where age = 3 "
+	a= "select name gender  from people where age = 3 "
 	read,err:=Parse(a)
 		if(err!=nil){
 			t.Log(err)
