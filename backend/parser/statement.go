@@ -29,7 +29,7 @@ type InsertStmt struct {
 	Values    []string
 }
 
-type ReadStmt struct {
+type SelectStmt struct {
 	TableName string
 	Fields    []string
 	Where     *WhereStmt

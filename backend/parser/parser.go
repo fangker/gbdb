@@ -2,11 +2,13 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 )
 
-var(
+var (
 	ErrInvalidStat = errors.New("InvalidStat")
 )
+
 func Parse(stat string) (interface{}, error) {
 	tkn := newTokenizer(stat)
 	tkn.getToken()
@@ -18,6 +20,8 @@ func Parse(stat string) (interface{}, error) {
 	switch token.val {
 	case "update":
 		return ParseUpdate(tkn)
+	case "select":
+		return ParseSelect(tkn)
 	default:
 		return nil, ErrInvalidStat
 	}
@@ -30,12 +34,12 @@ func ParseUpdate(tkn *tokenizer) (*UpdateStmt, error) {
 	tkn.popToken()
 	set := tkn.token()
 	if (set.val.(string) != "set" || set.kind != KEYWORD) {
-		return nil,ErrInvalidStat
+		return nil, ErrInvalidStat
 	}
 	tkn.popToken()
 	fieldName := tkn.token()
 	if (fieldName.kind != IDENTIFIER) {
-		return nil,ErrInvalidStat
+		return nil, ErrInvalidStat
 	}
 	updateStmt.FieldName = fieldName.val.(string)
 	tkn.popToken()
@@ -55,7 +59,7 @@ func ParseUpdate(tkn *tokenizer) (*UpdateStmt, error) {
 		updateStmt.Where = nil
 		return updateStmt, nil
 	} else {
-		updateStmt.Where,_=parseWhere(tkn)
+		updateStmt.Where, _ = parseWhere(tkn)
 	}
 	return updateStmt, nil
 }
@@ -72,7 +76,7 @@ func parseWhere(tkn *tokenizer) (*WhereStmt, error) {
 		if (err != nil) {
 			return whereStmt, err
 		}
-		whereStmt.SingleExp= append(whereStmt.SingleExp,singleExp)
+		whereStmt.SingleExp = append(whereStmt.SingleExp, singleExp)
 		if (singleExp.LogicOp == "") {
 			break
 		}
@@ -82,7 +86,6 @@ func parseWhere(tkn *tokenizer) (*WhereStmt, error) {
 
 func parseExp(tkn *tokenizer) (*SingleExpStmt, error) {
 	var err error
-	tkn.popToken()
 	field := tkn.token()
 	var singleExp *SingleExpStmt
 	for {
@@ -93,7 +96,7 @@ func parseExp(tkn *tokenizer) (*SingleExpStmt, error) {
 		logicOp := tkn.token()
 		if (logicOp.kind != EOF) {
 			singleExp.LogicOp = logicOp.val.(string)
-		}else {
+		} else {
 			break
 		}
 	}
@@ -119,13 +122,69 @@ func parseSingleExp(tkn *tokenizer) (*SingleExpStmt, error) {
 	return singleStmt, nil
 }
 
+func parseInsert() {
+
+}
+
+func ParseSelect(tkn *tokenizer)(*SelectStmt, error) {
+	fmt.Print(222222)
+	fmt.Print(getField(tkn))
+	return nil,nil
+
+}
+
+func parseDelete() {
+
+}
+
 func isComOp(t token) bool {
-	for _,e:=range []byte(t.val.(string)){
-		if(e=='>'||e=='='||e=='<'){
+	for _, e := range []byte(t.val.(string)) {
+		if (e == '>' || e == '=' || e == '<') {
 			continue
-		}else{
+		} else {
 			return false
 		}
 	}
 	return true
+}
+
+type ParseError struct {
+	err  error
+	info string
+}
+
+func parseError(tk *tokenizer, i interface{}) ParseError {
+	var pe ParseError
+	pe.err = ErrInvalidStat;
+	switch i.(type) {
+	case UpdateStmt:
+		pe.info = "update error:" + tk.token().val.(string)
+	case WhereStmt:
+		pe.info = "where error:" + tk.token().val.(string)
+	case SingleExpStmt:
+		pe.info = "singleExpStmt error:" + tk.token().val.(string)
+	}
+	return pe
+}
+
+func getField(tkn *tokenizer) (token, bool) {
+	tkn.popToken()
+	field := tkn.token()
+	if (field.kind != IDENTIFIER) {
+		return field, false
+	} else {
+		tkn.popToken()
+		return field, true
+	}
+}
+
+func getValue(tkn *tokenizer) (token, bool) {
+	tkn.popToken()
+	field := tkn.token()
+	if (field.kind != LITERAL) {
+		return field, false
+	} else {
+		tkn.popToken()
+		return field, true
+	}
 }

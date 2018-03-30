@@ -27,10 +27,12 @@ var symbol = []byte{'+', '-', '*', '/', '='}
 
 var keywords = map[string]int{
 	"insert": 1,
+	"select":1,
 	"into":1,
 	"update": 1,
 	"values": 3,
 	"set":3,
+	"where":4,
 }
 
 type token struct {
@@ -73,7 +75,7 @@ func (tkn *tokenizer) track() {
 func (tkn *tokenizer) getDigit() token {
 	var buf []byte
 	var isFloat bool
-	tk := token{kind: SEMICOLON}
+	tk := token{kind: LITERAL}
 	p := tkn.getByte()
 	buf = append(buf, p)
 	for {
