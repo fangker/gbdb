@@ -1,46 +1,52 @@
 package parser
 
-import "fmt"
+import (
+	"errors"
+)
 
+var(
+	ErrInvalidStat = errors.New("InvalidStat")
+)
 func Parse(stat string) (interface{}, error) {
 	tkn := newTokenizer(stat)
 	tkn.getToken()
 	token := tkn.token()
 	if (token.kind != KEYWORD) {
 		// error
+		return nil, ErrInvalidStat
 	}
 	switch token.val {
 	case "update":
 		return ParseUpdate(tkn)
 	default:
-		return nil, nil
+		return nil, ErrInvalidStat
 	}
-	return nil, nil
 }
 
 func ParseUpdate(tkn *tokenizer) (*UpdateStmt, error) {
 	updateStmt := new(UpdateStmt)
 	tkn.popToken()
 	updateStmt.TableName = tkn.token().val.(string)
+	tkn.popToken()
 	set := tkn.token()
 	if (set.val.(string) != "set" || set.kind != KEYWORD) {
-		// err
+		return nil,ErrInvalidStat
 	}
 	tkn.popToken()
 	fieldName := tkn.token()
-	if (fieldName.kind != LITERAL) {
-		// err
+	if (fieldName.kind != IDENTIFIER) {
+		return nil,ErrInvalidStat
 	}
 	updateStmt.FieldName = fieldName.val.(string)
 	tkn.popToken()
 	equal := tkn.token()
-	if (equal.kind != SYMBOL || equal.val.(byte) != '=') {
-		// err
+	if (equal.kind != SYMBOL || []byte(equal.val.(string))[0] != '=') {
+		return nil, ErrInvalidStat
 	}
 	tkn.popToken()
 	value := tkn.token()
-	if (equal.kind != LITERAL) {
-		// err
+	if (value.kind != LITERAL) {
+		return nil, ErrInvalidStat
 	}
 	updateStmt.Value = value.val.(string)
 	tkn.popToken()
@@ -59,7 +65,7 @@ func parseWhere(tkn *tokenizer) (*WhereStmt, error) {
 	where := tkn.token()
 	tkn.popToken()
 	if where.kind != KEYWORD || where.val.(string) != "where" {
-		//err
+		return nil, ErrInvalidStat
 	}
 	for {
 		singleExp, err := parseExp(tkn)
@@ -100,19 +106,26 @@ func parseSingleExp(tkn *tokenizer) (*SingleExpStmt, error) {
 	singleStmt.Field = tkn.token().val.(string)
 	tkn.popToken()
 	comOP := tkn.token()
-	if (comOP.kind != SYMBOL || !isComOp()) {
-		// err
+	if (comOP.kind != SYMBOL || !isComOp(comOP)) {
+		return nil, ErrInvalidStat
 	}
 	singleStmt.CmpOp = comOP.val.(string)
 	tkn.popToken()
 	value := tkn.token()
 	if (value.kind != LITERAL) {
-		// err
+		return nil, ErrInvalidStat
 	}
 	singleStmt.Value = value.val
 	return singleStmt, nil
 }
 
-func isComOp() bool {
+func isComOp(t token) bool {
+	for _,e:=range []byte(t.val.(string)){
+		if(e=='>'||e=='='||e=='<'){
+			continue
+		}else{
+			return false
+		}
+	}
 	return true
 }
