@@ -5,6 +5,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"os"
 )
+
 //
 //cType BuffPager interface {
 //	NewBuffPage()
@@ -12,7 +13,7 @@ import (
 //}
 
 type BuffPage struct {
-	dirty bool
+	dirty  bool
 	rwLock sync.RWMutex
 	data   cType.PageData
 	pType  uint16
@@ -28,23 +29,26 @@ func NewBuffPage() *BuffPage {
 }
 
 func (bp *BuffPage) Dirty() {
-	bp.dirty=true
+	bp.dirty = true
 }
 
-func (bp *BuffPage) RLock(){
+func (bp *BuffPage) RLock() {
 	bp.rwLock.RLock()
 }
 
-func (bp *BuffPage) Lock(){
+func (bp *BuffPage) Lock() {
 	bp.rwLock.Lock()
 }
-func (bp *BuffPage) Unlock(){
+func (bp *BuffPage) Unlock() {
 	bp.rwLock.Unlock()
 }
 
-func (bp *BuffPage)GetData() *cType.PageData{
+func (bp *BuffPage) GetData() *cType.PageData {
 	return &bp.data
 }
-func (bp *BuffPage)SetData(data cType.PageData) {
-	 bp.data=data
+func (bp *BuffPage) SetData(data cType.PageData) {
+	bp.data = data
+}
+func (bp *BuffPage) getPtype() uint16 {
+	return bp.pType
 }

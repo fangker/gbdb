@@ -4,7 +4,6 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
-
 )
 
 const (
@@ -40,7 +39,7 @@ const (
 	FS_PAGE_SPACE      = 0
 	FS_PAGE_MAX_PAGE   = 3  // 当前space最大可容纳的page数,文件扩大时才会改变这个值
 	FS_PAGE_LIMIT      = 7  // 当前space已经分配初始化的page数,包括空闲的和已经使用的
-	FS_PAGE_FRAGE_USED = 11 //FSP_FREE_FRAG列表中已经被使用的page数
+	FS_PAGE_FRAG_USED  = 11 // FSP_FREE_FRAG列表中已经被使用的page数
 	FS_FREE_LIST       = 15 //    space中可用的extent对象列表，extent里面没有一个page被使用
 	FS_FRAG_FREE_LIST  = 31 // 有可用碎叶page的extent列表，exntent里面有部分page被使用
 	FS_FRAG_FULL_LIST  = 47 //  没有有可用page的extent列表，exntent里面全部page被使用
@@ -54,7 +53,7 @@ const (
 	FS_PAGE_SPACE_SIZE      = 4
 	FS_PAGE_MAX_PAGE_SIZE   = 4  // 当前space最大可容纳的page数,文件扩大时才会改变这个值
 	FS_PAGE_LIMIT_SIZE      = 4  // 当前space已经分配初始化的page数,包括空闲的和已经使用的
-	FS_PAGE_FRAGE_USED_SIZE = 4  //FSP_FREE_FRAG列表中已经被使用的page数
+	FS_PAGE_FRAG_USED_SIZE  = 4  //FSP_FREE_FRAG列表中已经被使用的page数
 	FS_FREE_LIST_SIZE       = 16 //    space中可用的extent对象列表，extent里面没有一个page被使用
 	FS_FRAG_FREE_LIST_SIZE  = 16 // 有可用碎叶page的extent列表，exntent里面有部分page被使用
 	FS_FRAG_FULL_LIST_SIZE  = 16 //  没有有可用page的extent列表，exntent里面全部page被使用
@@ -89,10 +88,6 @@ type FilHeader struct {
 	flushLSN uint32
 }
 
-type FSHeader struct {
-	data *cType.PageData
-}
-
 func (fh *FilHeader) ParseFilHeader(bp *pcache.BuffPage) *FilHeader {
 	data := bp.GetData()
 	fh.pType = utils.GetUint16(data[FIL_PAGE_TYPE:FIL_PAGE_TYPE+FIL_PAGE_TYPE_SIZE])
@@ -106,16 +101,53 @@ func (fh *FilHeader) ParseFilHeader(bp *pcache.BuffPage) *FilHeader {
 }
 
 func (fh *FilHeader) SetPtype(pType uint16) {
-	fh.pType = pType
-	copy(fh.data[FIL_PAGE_TYPE:FIL_PAGE_TYPE+FIL_PAGE_TYPE_SIZE],utils.PutUint16(pType))
+	copy(fh.data[FIL_PAGE_TYPE:FIL_PAGE_TYPE+FIL_PAGE_TYPE_SIZE], utils.PutUint16(pType))
 }
 
 func (fh *FilHeader) SetSpace(space uint32) {
-	fh.Space = space
-	copy(fh.data[FIL_PAGE_SPACE:FIL_PAGE_SPACE+FIL_PAGE_SPACE_SIZE],utils.PutUint32(space))
+	copy(fh.data[FIL_PAGE_SPACE:FIL_PAGE_SPACE+FIL_PAGE_SPACE_SIZE], utils.PutUint32(space))
 }
 
 func (fh *FilHeader) SetOffset(offset uint32) {
-	fh.Offset = offset
-	copy(fh.data[FIL_PAGE_OFFSET:FIL_PAGE_OFFSET+FIL_PAGE_OFFSET_SIZE],utils.PutUint32(offset))
+	copy(fh.data[FIL_PAGE_OFFSET:FIL_PAGE_OFFSET+FIL_PAGE_OFFSET_SIZE], utils.PutUint32(offset))
+}
+
+type FSPHeader struct {
+	data          *cType.PageData
+	_offset       int
+	space         uint32
+	maxPage       uint32
+	limitPage     uint32
+	fragUsed      uint32
+	freeList      uint64
+	fragFreeList  *FistBaseNode
+	fragFullList  *FistBaseNode
+	segmentID     uint64
+	fullInodeList *FistBaseNode
+	freeInodeList *FistBaseNode
+}
+
+func newFSPHeader(offset int, data *cType.PageData) *FSPHeader {
+	fspHeader := new(FSPHeader)
+	fspHeader.data = data
+	fspHeader._offset = offset
+	fspHeader.fragFreeList = &FistBaseNode{_offset: offset + FS_FRAG_FREE_LIST, data: fspHeader.data}
+	fspHeader.fragFullList = &FistBaseNode{_offset: offset + FS_FRAG_FULL_LIST, data: fspHeader.data}
+	fspHeader.fullInodeList = &FistBaseNode{_offset: offset + FS_FULL_INODE_LIST, data: fspHeader.data}
+	fspHeader.freeInodeList = &FistBaseNode{_offset: offset + FS_FREE_INODE_LIST, data: fspHeader.data}
+	return fspHeader
+}
+
+
+func (fsp *FSPHeader)getSpace() uint32 {
+	return utils.GetUint32(fsp.reOffset(FS_PAGE_SPACE,FS_PAGE_SPACE_SIZE))
+}
+
+func (fsp *FSPHeader)setSpace (s uint32){
+	copy(fsp.reOffset(FS_PAGE_SPACE,FS_PAGE_SPACE_SIZE),utils.PutUint32(s))
+}
+
+
+func (fsp *FSPHeader) reOffset(start int, end int) []byte {
+	return fsp.data[fsp._offset+start:fsp._offset+end]
 }

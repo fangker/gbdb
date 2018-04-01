@@ -3,49 +3,50 @@ package page
 import (
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/dm/buffPage"
 )
 
-const(
-	FLST_LEN_OFFSET = 1 + FIL_HEADER_OFFSET
-	FLST_FIRST_OFFSET = 4 + FLST_LEN_OFFSET
-	FLST_LAST_OFFSET = 6 + FLST_FIRST_OFFSET
+const (
+	FLST_LEN_OFFSET   = 0
+	FLST_FIRST_OFFSET = 4
+	FLST_LAST_OFFSET  = 10
 )
+const (
+	FLST_LEN_SIZE   = 4
+	FLST_FIRST_SIZE = 6
+	FLST_LAST_SIZE  = 6
+)
+
 type FistBaseNode struct {
-	data  *cType.PageData
-	Len   uint32
-	FirstPageNo uint32
-	FirstOffSet uint16
-	LastPageNo  uint32
-	lastOffSet uint16
+	_offset     int
+	data        *cType.PageData
 }
 
-func (fbn FistBaseNode)ParseFistBaseNode(bp *pcache.BuffPage)  {
-
+func (fbn *FistBaseNode) GetLen() uint32 {
+	return utils.GetUint32(fbn.reOffset(FLST_LEN_OFFSET, FLST_LEN_SIZE))
 }
 
-func (fbn *FistBaseNode)GetLen()uint32{
-	return utils.GetUint32(fbn.data[FLST_LEN_OFFSET:FLST_LEN_OFFSET+4])
+func (fbn *FistBaseNode) GetFirst() (uint32, uint16) {
+	page := utils.GetUint32(fbn.reOffset(FLST_FIRST_OFFSET,4))
+	offset := utils.GetUint16(fbn.reOffset(FLST_FIRST_OFFSET+4,2))
+	return page, offset
 }
 
-func (fbn *FistBaseNode)GetFirst()(uint32,uint16){
-	page:=utils.GetUint32(fbn.data[FLST_FIRST_OFFSET:FLST_FIRST_OFFSET+4])
-	offset:=utils.GetUint16(fbn.data[FLST_FIRST_OFFSET+4:FLST_FIRST_OFFSET+6])
-	return page,offset
+func (fbn *FistBaseNode) GetLast() (uint32, uint16) {
+	pageNo := utils.GetUint32(fbn.reOffset(FLST_LAST_OFFSET,4))
+	offset := utils.GetUint16(fbn.reOffset(FLST_LAST_OFFSET+4,2))
+	return pageNo, offset
 }
 
-func (fbn *FistBaseNode)GetLast()(uint32,uint16){
-	pageNo:=utils.GetUint32(fbn.data[FLST_LAST_OFFSET:FLST_LAST_OFFSET+4])
-	offset:=utils.GetUint16(fbn.data[FLST_LAST_OFFSET+4:FLST_LAST_OFFSET+6])
-	return pageNo,offset
+func (fbn *FistBaseNode) SetFirst(pageNo uint32, offset uint16) {
+	copy(fbn.reOffset(FLST_FIRST_OFFSET,4), utils.PutUint32(pageNo))
+	copy(fbn.reOffset(FLST_FIRST_OFFSET+4,2), utils.PutUint32(pageNo))
 }
 
-func(fbn *FistBaseNode)SetFirst(pageNo uint32, offset uint16){
-	copy(fbn.data[FLST_FIRST_OFFSET:FLST_FIRST_OFFSET+4],utils.PutUint32(pageNo))
-	copy(fbn.data[FLST_FIRST_OFFSET+4:FLST_FIRST_OFFSET+6],utils.PutUint32(pageNo))
+func (fbn *FistBaseNode) SetLast(pageNo uint32, offset uint16) {
+	copy(fbn.reOffset(FLST_LAST_OFFSET,4), utils.PutUint32(pageNo))
+	copy(fbn.data[FLST_LAST_OFFSET+4:FLST_LAST_OFFSET+6], utils.PutUint16(offset))
 }
 
-func (fbn *FistBaseNode)SetLast(pageNo uint32, offset uint16){
-	copy(fbn.data[FLST_LAST_OFFSET+3:FLST_LAST_OFFSET+7],utils.PutUint32(pageNo))
-	copy(fbn.data[FLST_LAST_OFFSET+4:FLST_LAST_OFFSET+6],utils.PutUint16(offset))
+func (fbn *FistBaseNode) reOffset(start int, end int) []byte {
+	return fbn.data[fbn._offset+start:fbn._offset+end]
 }
