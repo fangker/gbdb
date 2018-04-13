@@ -3,19 +3,19 @@ package spaceManage
 import (
 	"os"
 	"fmt"
-	"github.com/fangker/gbdb/backend/dm/cacheBuffer"
+	"github.com/fangker/gbdb/backend/cache"
 )
 
 
 var SM *SpaceManage
 
 type SpaceManage struct {
-	cb  *cacheBuffer.CacheBuffer
+	cb  *cache.CachePool
 	tf  map[uint32] *tableFileManage
 }
 
 
-func NewSpaceManage(cb *cacheBuffer.CacheBuffer)*SpaceManage{
+func NewSpaceManage(cb *cache.CachePool)*SpaceManage{
 	return &SpaceManage{cb:cb,tf:make(map[uint32] *tableFileManage)}
 }
 

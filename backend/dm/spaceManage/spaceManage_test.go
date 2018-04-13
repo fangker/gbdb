@@ -7,6 +7,6 @@ import (
 
 
 func TestSpaceManage(t *testing.T) {
-	 sm:=NewSpaceManage("../temData/a.db",0)
-	 sm.writeSync(2,page.PageData{1,1,1,1,1,1})
+	 //sm:=NewSpaceManage("../temData/a.db",0)
+	 //sm.writeSync(2,page.PageData{1,1,1,1,1,1})
 }

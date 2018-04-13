@@ -1,4 +1,4 @@
-package cacheBuffer
+package cache
 
 import (
 	"testing"

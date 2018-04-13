@@ -1,4 +1,4 @@
-package cacheBuffer
+package cache
 
 import (
 	"container/list"
@@ -8,7 +8,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 )
 
-type CacheBuffer struct {
+type CachePool struct {
 	pagePool    map[uint32]map[uint64]*pcache.BuffPage
 	maxCacheNum uint32
 	freeList    *list.List
@@ -17,10 +17,10 @@ type CacheBuffer struct {
 	mux         *sync.Mutex
 }
 
-var CB *CacheBuffer
+var CB *CachePool
 
-func NewCacheBuffer(maxCacheNum uint32) *CacheBuffer {
-	cb:= &CacheBuffer{
+func NewCacheBuffer(maxCacheNum uint32) *CachePool {
+	cb:= &CachePool{
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
 		flushList:   list.New(),
@@ -32,7 +32,7 @@ func NewCacheBuffer(maxCacheNum uint32) *CacheBuffer {
 	return cb
 }
 
-func (cb *CacheBuffer) GetPage(tsID uint32, pageNo uint64,file *os.File) *pcache.BuffPage{
+func (cb *CachePool) GetPage(tsID uint32, pageNo uint64,file *os.File) *pcache.BuffPage{
 	// 如果缓存中存在使用缓存
 	if pg,exist:=cb.pagePool[tsID][pageNo];exist{
 		return pg
@@ -45,7 +45,7 @@ func (cb *CacheBuffer) GetPage(tsID uint32, pageNo uint64,file *os.File) *pcache
 	return pg
 }
 
-func (cb *CacheBuffer) init()  {
+func (cb *CachePool) init()  {
 	num:=int(cb.maxCacheNum)
 	for i:=0;i<num;i++ {
 		cb.freeList.PushBack(pcache.NewBuffPage())
@@ -53,7 +53,7 @@ func (cb *CacheBuffer) init()  {
 	CB=cb
 }
 
-func (cb *CacheBuffer) GetFreePage(file *os.File)  *pcache.BuffPage{
+func (cb *CachePool) GetFreePage(file *os.File)  *pcache.BuffPage{
 	listEle:= cb.freeList.Front()
 	pg:=cb.freeList.Front().Value.(*pcache.BuffPage)
 	cb.freeList.Remove(listEle)
@@ -61,7 +61,7 @@ func (cb *CacheBuffer) GetFreePage(file *os.File)  *pcache.BuffPage{
 	return pg
 }
 
-//func (cb *CacheBuffer) SetPage(page  *pcache.BuffPage) *pcache.BuffPage {
+//func (cb *CachePool) SetPage(page  *pcache.BuffPage) *pcache.BuffPage {
 //	tsID,pageNo = page.GetGPos()
 //	if tbPool, exist := cb.pagePool[tsID]; exist {
 //		tbPool[pageNo] = page

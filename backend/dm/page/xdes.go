@@ -20,3 +20,7 @@ var (
 	XDES_STATE     [4]byte  //状态
 	XDES_BITMA     [16]byte //表示簇的页使用状态
 )
+
+const(
+	XDES_ENTRY_SIZE = 40
+)

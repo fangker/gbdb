@@ -3,14 +3,14 @@ package spaceManage
 import (
 	"os"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
-	"github.com/fangker/gbdb/backend/dm/cacheBuffer"
+	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/page"
 )
 
 
 type tableFileManage struct {
-	cacheBuffer *cacheBuffer.CacheBuffer
+	cacheBuffer *cache.CachePool
 	filePath string
 	tableID  uint32
 	file     *os.File
@@ -43,7 +43,8 @@ func (sm *tableFileManage)getPage(pageNo uint64)*pcache.BuffPage{
 func (sm *tableFileManage)initSysFile(){
 	fsp_bp:=sm.getPage(0)
 	fsp_bp.Lock()
-	page.NewFSPage(fsp_bp)
+	fsp:=page.NewFSPage(fsp_bp)
+	fsp.InitSysExtend()
 	inode_bp:=sm.getPage(1)
 	// 创建段描述页
 	inode_bp.Lock()
@@ -51,7 +52,6 @@ func (sm *tableFileManage)initSysFile(){
 	inode:=page.NewINodePage(inode_bp)
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
-
 	// 第三个页面创建索引树
 	sysIndex_bp:= sm.getPage(3)
 	sysIndex_bp.Lock()
@@ -61,10 +61,6 @@ func (sm *tableFileManage)initSysFile(){
 	// sys_indexes
 	// sys_fields
 	//sysIndexPage.GetDate()[page.FIL_HEADER_OFFSET:page.FIL_HEADER_OFFSET+8]
-
-
-
-
 
 }
 
@@ -79,8 +75,18 @@ func (sm *tableFileManage) createSegment(){
 //	return utils.GetPageDate(buf)
 //}
 //
-//// 将表空间扩展至
-//func (sm *tableFileManage) extendTo(strat uint32,end uint32){
-//	//dv:=strat-end
-//
-//}
+
+// 将表空间扩展至
+func (sm *tableFileManage) FSPExtendFile(){
+	fsp_bp:=sm.getPage(0)
+	fsp:=page.NewFSPage(fsp_bp)
+	fsp.FSH.SetMaxPage(64)
+
+	// 设定初始化成功
+	fsp.FSH.SetLimitPage(64)
+
+}
+
+func (sm *tableFileManage) crateFSPExtend(){
+
+}
