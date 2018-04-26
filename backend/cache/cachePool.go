@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"os"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"fmt"
 )
 
 type CachePool struct {
@@ -34,7 +35,9 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 
 func (cb *CachePool) GetPage(tsID uint32, pageNo uint64,file *os.File) *pcache.BuffPage{
 	// 如果缓存中存在使用缓存
+	fmt.Println(2333333,tsID,pageNo)
 	if pg,exist:=cb.pagePool[tsID][pageNo];exist{
+		fmt.Println(99999)
 		return pg
 	}
 	pg:=cb.GetFreePage(file)
@@ -42,6 +45,14 @@ func (cb *CachePool) GetPage(tsID uint32, pageNo uint64,file *os.File) *pcache.B
 	var data cType.PageData
 	pg.File.Read(data[:])
 	pg.SetData(data)
+	if ts,exist:=cb.pagePool[tsID];exist{
+		fmt.Println(11111111)
+		ts[pageNo]=pg
+		return pg
+	}
+	pn := make(map[uint64]*pcache.BuffPage)
+	pn[pageNo]=pg
+	cb.pagePool[tsID]=pn
 	return pg
 }
 

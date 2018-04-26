@@ -33,18 +33,28 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 }
 
 func (fsp *FSPage) InitSysExtend() {
-	fsp.FSH.fragFreeList.SetFirst(2,FSPAGE_XDES_OFFSET)
-	//fsp.FSH.fragFreeList.SetLast(0,FSPAGE_XDES_OFFSET)
-	//fsp.FSH.fragFreeList.SetLen(1)
+	fsp.FSH.FragFreeList.SetFirst(1,FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetLast(1,FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetLen(1)
 	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1],utils.PutUint32(1))
-	//fsp.setUsedExtendPage(1)
-	//fsp.setUsedExtendPage(2)
+	fsp.setUsedExtendPage(1)
+	fsp.setUsedExtendPage(2)
+	fsp.setUsedExtendPage(3)
+	fsp.setUsedExtendPage(4)
+	fsp.setUsedExtendPage(5)
 }
 
 func (fsp *FSPage) setUsedExtendPage(p int) {
-	var enum =[4]uint8{192,48,12,3}
+	var enum =[5]uint8{0,192,48,12,3}
 	remain:=enum[(p%64)%4]
 	offset:=FSPAGE_XDES_OFFSET+int(p/64)*XDES_ENTRY_SIZE+int((p%64)/8)
 	remain=[]byte(fsp.data[offset+24:offset+25])[0]|remain
 	copy(fsp.data[offset+24:offset+25],[]byte{remain})
+}
+
+func (fsp *FSPage) SetFreeInodFirst(page uint32,offset uint16) {
+	fsp.FSH.freeInodeList.SetFirst(page,offset)
+}
+func (fsp *FSPage) SetFreeInodeLen(len uint32) {
+	fsp.FSH.freeInodeList.SetLen(len)
 }

@@ -120,7 +120,7 @@ type FSPHeader struct {
 	limitPage     uint32
 	fragUsed      uint32
 	freeList      uint64
-	fragFreeList  *FistBaseNode
+	FragFreeList  *FistBaseNode
 	FragFullList  *FistBaseNode
 	segmentID     uint64
 	fullInodeList *FistBaseNode
@@ -131,7 +131,7 @@ func newFSPHeader(offset int, data *cType.PageData) *FSPHeader {
 	fspHeader := new(FSPHeader)
 	fspHeader.data = data
 	fspHeader._offset = offset
-	fspHeader.fragFreeList = &FistBaseNode{_offset: offset + FS_FRAG_FREE_LIST, data: fspHeader.data}
+	fspHeader.FragFreeList = &FistBaseNode{_offset: offset + FS_FRAG_FREE_LIST, data: fspHeader.data}
 	fspHeader.FragFullList = &FistBaseNode{_offset: offset + FS_FRAG_FULL_LIST, data: fspHeader.data}
 	fspHeader.fullInodeList = &FistBaseNode{_offset: offset + FS_FULL_INODE_LIST, data: fspHeader.data}
 	fspHeader.freeInodeList = &FistBaseNode{_offset: offset + FS_FREE_INODE_LIST, data: fspHeader.data}

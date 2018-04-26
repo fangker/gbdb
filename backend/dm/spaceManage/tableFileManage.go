@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/page"
+	"fmt"
 )
 
 
@@ -45,17 +46,21 @@ func (sm *tableFileManage)initSysFile(){
 	fsp_bp.Lock()
 	fsp:=page.NewFSPage(fsp_bp)
 	fsp.InitSysExtend()
+	// segment
+	//fsp.FSH.
 	inode_bp:=sm.getPage(1)
 	// 创建段描述页
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode:=page.NewINodePage(inode_bp)
+	inode.SetFreeInode(1,1)
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树
-	sysIndex_bp:= sm.getPage(3)
+	sysIndex_bp:= sm.getPage(2)
 	sysIndex_bp.Lock()
-	page.NewPage(fsp_bp)
+	sm.getFragmentPage()
+	//page.NewPage(fsp_bp)
 	// sys_tables
 	// sys_columns
 	// sys_indexes
@@ -89,4 +94,12 @@ func (sm *tableFileManage) FSPExtendFile(){
 
 func (sm *tableFileManage) crateFSPExtend(){
 
+}
+
+func (sm *tableFileManage) space() *page.FSPage {
+	return page.NewFSPage(sm.getPage(0))
+}
+func(sm *tableFileManage) getFragmentPage() {
+	fmt.Println("sssssssss")
+	fmt.Print(sm.space().FSH.FragFreeList.GetFirst())
 }
