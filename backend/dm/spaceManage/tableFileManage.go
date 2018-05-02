@@ -99,7 +99,6 @@ func (sm *tableFileManage) crateFSPExtend(){
 func (sm *tableFileManage) space() *page.FSPage {
 	return page.NewFSPage(sm.getPage(0))
 }
-func(sm *tableFileManage) getFragmentPage() {
-	fmt.Println("sssssssss")
-	fmt.Print(sm.space().FSH.FragFreeList.GetFirst())
+func(sm *tableFileManage) getFragmentPage() (uint32,uint16) {
+	return sm.space().FSH.FragFreeList.GetFirst()
 }
