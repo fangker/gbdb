@@ -35,6 +35,6 @@ func NewTableFileManage(filePath string, tableID uint32) *tableFileManage {
 }
 
 func (sm *SpaceManage) InitSysFileStructure()  {
-    sm.tf[0].initSysFile()
+	sm.tf[0].initSysFile()
 }
 

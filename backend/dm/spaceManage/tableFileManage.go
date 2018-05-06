@@ -6,7 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/page"
-	"fmt"
+	//"github.com/fangker/gbdb/backend/utils/log"
 )
 
 
@@ -45,7 +45,7 @@ func (sm *tableFileManage)initSysFile(){
 	fsp_bp:=sm.getPage(0)
 	fsp_bp.Lock()
 	fsp:=page.NewFSPage(fsp_bp)
-	fsp.InitSysExtend()
+	fsp.InitSysExtend(sm.cacheBuffer)
 	// segment
 	//fsp.FSH.
 	inode_bp:=sm.getPage(1)
@@ -53,6 +53,8 @@ func (sm *tableFileManage)initSysFile(){
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode:=page.NewINodePage(inode_bp)
+	// 为了建立索引树先初始化一个Inode entity
+	sm.getFragmentPage()
 	inode.SetFreeInode(1,1)
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
@@ -99,6 +101,7 @@ func (sm *tableFileManage) crateFSPExtend(){
 func (sm *tableFileManage) space() *page.FSPage {
 	return page.NewFSPage(sm.getPage(0))
 }
-func(sm *tableFileManage) getFragmentPage() (uint32,uint16) {
-	return sm.space().FSH.FragFreeList.GetFirst()
+func(sm *tableFileManage) getFragmentPage() {
+	//pageID,offset :=sm.space().FSH.FragFreeList.GetFirst()
+	//page.FSPage.GetFreePage()
 }

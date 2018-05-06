@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/cache"
 )
 
 const (
@@ -32,9 +33,9 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 	return fsPage
 }
 
-func (fsp *FSPage) InitSysExtend() {
-	fsp.FSH.FragFreeList.SetFirst(1,FSPAGE_XDES_OFFSET)
-	fsp.FSH.FragFreeList.SetLast(1,FSPAGE_XDES_OFFSET)
+func (fsp *FSPage) InitSysExtend(cache *cache.CachePool) {
+	fsp.FSH.FragFreeList.SetFirst(0,FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetLast(0,FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
 	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1],utils.PutUint32(1))
 	fsp.setUsedExtendPage(1)
@@ -57,4 +58,8 @@ func (fsp *FSPage) SetFreeInodFirst(page uint32,offset uint16) {
 }
 func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
+}
+
+func( FSPage) GetFreePage(data *pcache.BuffPage,offset uint16){
+
 }
