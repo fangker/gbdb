@@ -66,7 +66,7 @@ func (sm *tableFileManage) initSysFile() {
 	// sys_columns
 	// sys_indexes
 	// sys_fields
-	//sysIndexPage.GetDate()[page.FIL_HEADER_OFFSET:page.FIL_HEADER_OFFSET+8]
+	// sysIndexPage.GetDate()[page.FIL_HEADER_OFFSET:page.FIL_HEADER_OFFSET+8]
 
 }
 
