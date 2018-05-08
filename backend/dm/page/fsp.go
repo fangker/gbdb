@@ -1,10 +1,11 @@
 package page
 
 import (
+	// "github.com/fangker/gbdb/backend/cache"
+	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/cache"
 )
 
 const (
@@ -14,18 +15,18 @@ const (
 )
 
 type FSPage struct {
-	FH  *FilHeader
-	FSH *FSPHeader
-	BP  *pcache.BuffPage
+	FH   *FilHeader
+	FSH  *FSPHeader
+	BP   *pcache.BuffPage
 	data *cType.PageData
 }
 
 func NewFSPage(bp *pcache.BuffPage) *FSPage {
 	fsPage := &FSPage{
 		data: bp.GetData(),
-		FH: &FilHeader{data: bp.GetData()},
-		BP: bp,
-		FSH: newFSPHeader(FSPAGE_FSPH_OFFSET,bp.GetData()),
+		FH:   &FilHeader{data: bp.GetData()},
+		BP:   bp,
+		FSH:  newFSPHeader(FSPAGE_FSPH_OFFSET, bp.GetData()),
 	}
 	fsPage.FH.SetPtype(PAGE_TYPE_FSP)
 	fsPage.FH.SetSpace(0)
@@ -33,11 +34,11 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 	return fsPage
 }
 
-func (fsp *FSPage) InitSysExtend(cache *cache.CachePool) {
-	fsp.FSH.FragFreeList.SetFirst(0,FSPAGE_XDES_OFFSET)
-	fsp.FSH.FragFreeList.SetLast(0,FSPAGE_XDES_OFFSET)
+func (fsp *FSPage) InitSysExtend(cache cache.Wrapper) {
+	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
-	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1],utils.PutUint32(1))
+	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1], utils.PutUint32(1))
 	fsp.setUsedExtendPage(1)
 	fsp.setUsedExtendPage(2)
 	fsp.setUsedExtendPage(3)
@@ -46,20 +47,20 @@ func (fsp *FSPage) InitSysExtend(cache *cache.CachePool) {
 }
 
 func (fsp *FSPage) setUsedExtendPage(p int) {
-	var enum =[5]uint8{0,192,48,12,3}
-	remain:=enum[(p%64)%4]
-	offset:=FSPAGE_XDES_OFFSET+int(p/64)*XDES_ENTRY_SIZE+int((p%64)/8)
-	remain=[]byte(fsp.data[offset+24:offset+25])[0]|remain
-	copy(fsp.data[offset+24:offset+25],[]byte{remain})
+	var enum = [5]uint8{0, 192, 48, 12, 3}
+	remain := enum[(p%64)%4]
+	offset := FSPAGE_XDES_OFFSET + int(p/64)*XDES_ENTRY_SIZE + int((p%64)/8)
+	remain = []byte(fsp.data[offset+24 : offset+25])[0] | remain
+	copy(fsp.data[offset+24:offset+25], []byte{remain})
 }
 
-func (fsp *FSPage) SetFreeInodFirst(page uint32,offset uint16) {
-	fsp.FSH.freeInodeList.SetFirst(page,offset)
+func (fsp *FSPage) SetFreeInodFirst(page uint32, offset uint16) {
+	fsp.FSH.freeInodeList.SetFirst(page, offset)
 }
 func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
 }
 
-func( FSPage) GetFreePage(data *pcache.BuffPage,offset uint16){
-
+func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) {
+	cache.CB.GetPage(wrap, page)
 }

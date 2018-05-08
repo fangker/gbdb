@@ -1,6 +1,4 @@
 package cache
 
-type  CacheSystem struct {
-
+type CacheSystem struct {
 }
-

@@ -2,14 +2,15 @@ package cache
 
 import (
 	"container/list"
-	"sync"
-	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"os"
+	"sync"
+
+	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 )
 
 type CachePool struct {
-	pagePool    map[uint32]map[uint64]*pcache.BuffPage
+	pagePool    map[uint32]map[uint32]*pcache.BuffPage
 	maxCacheNum uint32
 	freeList    *list.List
 	flushList   *list.List
@@ -20,51 +21,53 @@ type CachePool struct {
 var CB *CachePool
 
 func NewCacheBuffer(maxCacheNum uint32) *CachePool {
-	cb:= &CachePool{
+	cb := &CachePool{
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
 		flushList:   list.New(),
 		readList:    list.New(),
-		pagePool: make(map[uint32]map[uint64]*pcache.BuffPage),
+		pagePool:    make(map[uint32]map[uint32]*pcache.BuffPage),
 	}
 	cb.init()
-	CB=cb
+	CB = cb
 	return cb
 }
 
-func (cb *CachePool) GetPage(tsID uint32, pageNo uint64,file *os.File) *pcache.BuffPage{
+func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	// 如果缓存中存在使用缓存
-	if pg,exist:=cb.pagePool[tsID][pageNo];exist{
+	tsID := wrap.TableID
+	file := wrap.File
+	if pg, exist := cb.pagePool[tsID][pageNo]; exist {
 		return pg
 	}
-	pg:=cb.GetFreePage(file)
-	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE,0)
+	pg := cb.GetFreePage(file)
+	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
 	var data cType.PageData
 	pg.File.Read(data[:])
 	pg.SetData(data)
-	if ts,exist:=cb.pagePool[tsID];exist{
-		ts[pageNo]=pg
+	if ts, exist := cb.pagePool[tsID]; exist {
+		ts[pageNo] = pg
 		return pg
 	}
-	pn := make(map[uint64]*pcache.BuffPage)
-	pn[pageNo]=pg
-	cb.pagePool[tsID]=pn
+	pn := make(map[uint32]*pcache.BuffPage)
+	pn[pageNo] = pg
+	cb.pagePool[tsID] = pn
 	return pg
 }
 
-func (cb *CachePool) init()  {
-	num:=int(cb.maxCacheNum)
-	for i:=0;i<num;i++ {
+func (cb *CachePool) init() {
+	num := int(cb.maxCacheNum)
+	for i := 0; i < num; i++ {
 		cb.freeList.PushBack(pcache.NewBuffPage())
 	}
-	CB=cb
+	CB = cb
 }
 
-func (cb *CachePool) GetFreePage(file *os.File)  *pcache.BuffPage{
-	listEle:= cb.freeList.Front()
-	pg:=cb.freeList.Front().Value.(*pcache.BuffPage)
+func (cb *CachePool) GetFreePage(file *os.File) *pcache.BuffPage {
+	listEle := cb.freeList.Front()
+	pg := cb.freeList.Front().Value.(*pcache.BuffPage)
 	cb.freeList.Remove(listEle)
-	pg.File= file
+	pg.File = file
 	return pg
 }
 
