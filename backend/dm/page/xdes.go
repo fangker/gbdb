@@ -13,6 +13,7 @@ var (
 	FSP_SEG_INODES_FULL [16]byte // 满Inode节点链表
 	FSP_SEG_INODES_FREE [16]byte // 半满Inode链表
 )
+
 // xdes Entry 40byte
 var (
 	XDES_ID        [8]byte
@@ -21,6 +22,14 @@ var (
 	XDES_BITMA     [16]byte //表示簇的页使用状态
 )
 
-const(
+const (
 	XDES_ENTRY_SIZE = 40
 )
+
+type Xdes struct {
+	data [40]byte
+}
+
+func parseXdes([]byte) {
+
+}
