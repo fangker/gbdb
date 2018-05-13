@@ -1,5 +1,11 @@
 package page
 
+import (
+	"github.com/fangker/gbdb/backend/utils"
+	"text/template/parse"
+	"bytes"
+)
+
 // fsp file header 104byte
 var (
 	FSP_SPACE_ID        [4]byte  //表空间ID
@@ -19,17 +25,34 @@ var (
 	XDES_ID        [8]byte
 	XDES_FLST_NODE [12]byte // Extent链表双向链表
 	XDES_STATE     [4]byte  //状态
-	XDES_BITMA     [16]byte //表示簇的页使用状态
+	XDES_BITMAP     [16]byte //表示簇的页使用状态
 )
 
 const (
 	XDES_ENTRY_SIZE = 40
 )
 
-type Xdes struct {
-	data [40]byte
+type xdes struct {
+	fn     *FirstNode
+	data []byte
 }
 
-func parseXdes([]byte) {
-
+func parseXdes(d []byte) *xdes {
+	xdes:= &xdes{}
+	xdes.fn = &FirstNode{_offset: 8}
+	xdes.data=d
+	return xdes
 }
+
+func (this *xdes) ID() uint32{
+	return utils.GetUint32(this.data[:8])
+}
+
+func (this *xdes) State() uint32{
+	return utils.GetUint32(this.data[8:20])
+}
+
+func (this *xdes) BitMap() []byte{
+	return this.data[24:]
+}
+

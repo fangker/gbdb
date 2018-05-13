@@ -64,6 +64,6 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) {
 	pcache := cache.CB.GetPage(wrap, page)
 	fsp_bp := NewFSPage(pcache)
-	parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
-
+	xdes:=parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
+	
 }
