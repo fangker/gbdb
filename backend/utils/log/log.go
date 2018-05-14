@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	color_black = uint8(iota + 30)
+	color_black   = uint8(iota + 30)
 	color_red
 	color_green
 	color_yellow
@@ -34,49 +34,49 @@ const (
 	log_caller = false
 )
 
-func Trace(content string,  details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n",color_cyan,background(0),1,formatLog(trac,content,details...))
+func Trace(details ...interface{}) {
+	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
 }
 
-func Info(content string, details ...interface{}){
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n",color_white,background(0),1,formatLog(info,content,details...))
+func Info(details ...interface{}) {
+	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
 }
 
-func Error(content string, details ...interface{}){
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n",color_red,background(0),1,formatLog(erro,content,details...))
+func Error(details ...interface{}) {
+	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
 }
 
-func Success(content string, details ...interface{}){
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n",color_green,background(0),1,formatLog(succ,content,details...))
+func Success(details ...interface{}) {
+	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
 }
 
-func Warn(content string, details ...interface{}){
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n",color_magenta,background(0),1,formatLog(warn,content,details...))
+func Warn(details ...interface{}) {
+	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
 }
 
-func Caption(content string, details ...interface{}){
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n",color_black,background(color_white),1,formatLog(capt,content,details...))
+func Caption(details ...interface{}) {
+	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
 }
 
-func formatLog(prefix,content string,details ...interface{}) string {
+func formatLog(prefix string, details ...interface{}) string {
 	log.SetFlags(0)
 	var detailsInfo string
-	for _,value := range details{
-		detailsInfo = detailsInfo+" "+fmt.Sprint("",value)
+	for _, value := range details {
+		detailsInfo = detailsInfo + " " + fmt.Sprint("", value)
 	}
-	line:= fmt.Sprintf("%s|| %s",time.Now().Format("2006-01-02 03:04:05") + " " + prefix + ": "+ content,detailsInfo)
-	if(log_caller){
+	line := fmt.Sprintf("%s|| %s", time.Now().Format("2006-01-02 03:04:05")+" "+prefix+": ", detailsInfo)
+	if (log_caller) {
 		line = line + caller()
 	}
 	return line
 }
-func caller() string{
+func caller() string {
 	_, file, line, _ := runtime.Caller(1)
-	return "  <file>"+string(file)+ " <line> "+strconv.Itoa(line)
+	return "  <file>" + string(file) + " <line> " + strconv.Itoa(line)
 }
 
-func background(color uint8) uint8{
- 	return  color+10
+func background(color uint8) uint8 {
+	return color + 10
 }
 
 // 前景 背景 颜色

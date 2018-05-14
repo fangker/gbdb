@@ -2,8 +2,6 @@ package page
 
 import (
 	"github.com/fangker/gbdb/backend/utils"
-	"text/template/parse"
-	"bytes"
 )
 
 // fsp file header 104byte

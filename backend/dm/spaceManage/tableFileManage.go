@@ -7,7 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
-	//"github.com/fangker/gbdb/backend/utils/log"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 type tableFileManage struct {
@@ -54,7 +54,7 @@ func (sm *tableFileManage) initSysFile() {
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
 	// 为了建立索引树先初始化一个Inode entity
-	sm.getFragmentPage()
+	log.Info("",sm.getFragmentPage())
 	inode.SetFreeInode(1, 1)
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
@@ -102,9 +102,9 @@ func (sm *tableFileManage) space() *page.FSPage {
 	return page.NewFSPage(sm.getPage(0))
 }
 
-func (sm *tableFileManage) getFragmentPage() {
+func (sm *tableFileManage) getFragmentPage() int {
 	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
-	page.GetFragFreePage(wrapper(sm), pageID, offset)
+	return page.GetFragFreePage(wrapper(sm), pageID, offset)
 }
 
 func wrapper(sm *tableFileManage) cache.Wrapper {
