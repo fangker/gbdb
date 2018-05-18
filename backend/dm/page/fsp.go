@@ -6,7 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/utils/log"
+	// "github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
@@ -16,10 +16,11 @@ const (
 )
 
 type FSPage struct {
-	FH   *FilHeader
-	FSH  *FSPHeader
-	BP   *pcache.BuffPage
-	data *cType.PageData
+	FH           *FilHeader
+	FSH          *FSPHeader
+	BP           *pcache.BuffPage
+	data         *cType.PageData
+	cacheWrapper cache.Wrapper
 }
 
 func NewFSPage(bp *pcache.BuffPage) *FSPage {
@@ -34,8 +35,11 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 	fsPage.FH.SetOffset(0)
 	return fsPage
 }
+func (fsp *FSPage) SetCacheWrapper(c cache.Wrapper) {
+	fsp.cacheWrapper = c
+}
 
-func (fsp *FSPage) InitSysExtend(cache cache.Wrapper) {
+func (fsp *FSPage) InitSysExtend() {
 	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
@@ -46,23 +50,16 @@ func (fsp *FSPage) InitSysExtend(cache cache.Wrapper) {
 	fsp.setUsedExtendPage(3)
 	fsp.setUsedExtendPage(4)
 	fsp.setUsedExtendPage(5)
+
 }
 
 func (fsp *FSPage) setUsedExtendPage(p int) {
-<<<<<<< HEAD
 	site := int(p / 4)
 	mod := uint(p % 4)
 	offset := FSPAGE_XDES_OFFSET + site + 24
 	pos := &fsp.data[offset]
 	*pos = *pos | (3 << ((3 - mod) * 2))
-=======
-	log.Success(p)
-	site:=int(p/4)
-	mod:=uint(p%4)
-	offset := FSPAGE_XDES_OFFSET + site
-	pos := &fsp.data[offset+1]
-	*pos=*pos|(3<<((3-mod)*2))
->>>>>>> 2edf28d1cb7e87ee1151ad57615168d6a30f45cd
+
 }
 
 func (fsp *FSPage) SetFreeInodFirst(page uint32, offset uint16) {
@@ -72,38 +69,19 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
 }
 
-<<<<<<< HEAD
 func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) uint32 {
 	fpge := cache.CB.GetPage(wrap, page)
 	fsp_bp := NewFSPage(fpge)
 	xdes := parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
 	var freePage int
 	for k, v := range xdes.BitMap() {
-		for i := uint(3); int(i) >= 0; i = i - 1 {
-			log.Caption(i)
+		for i := uint(3); i > 0; i = i - 1 {
 			if (2<<(i*2)&v)>>(i*2) != 2 {
-				log.Caption(k, i)
 				freePage = k*4 + int(4-i) - 1
-=======
-func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) (int) {
-	fpge := cache.CB.GetPage(wrap, page)
-	fsp_bp := NewFSPage(fpge)
-	xdes := parseXdes(fsp_bp.data[offset: offset+XDES_ENTRY_SIZE])
-	log.Info(xdes.BitMap(),offset)
-	var freePage int
-	for k, v := range xdes.BitMap() {
-		for i := uint(3); i >= 0; i-- {
-			if (2<<(i*2)&v)>>(i*2) != 2 {
-				freePage = k*4 + int(4-i)
->>>>>>> 2edf28d1cb7e87ee1151ad57615168d6a30f45cd
 				goto result
 			}
 		}
 	}
 result:
-<<<<<<< HEAD
 	return uint32(freePage) + page*256*64
-=======
-	return freePage
->>>>>>> 2edf28d1cb7e87ee1151ad57615168d6a30f45cd
 }

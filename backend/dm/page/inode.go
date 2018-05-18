@@ -39,13 +39,15 @@ func NewINodePage(bf *pcache.BuffPage) *INodePage {
 	return page
 }
 
-func (inp *INodePage) SetFreeInode(pageNo uint32, innode uint32) {
+// 创建FreeInode并初始化首页
+func (inp *INodePage) SetFreeInode(pageNo uint32) {
 	for i := 0; i < cType.PAGE_SIZE; i++ {
 		offset := INODEPAGE_INN_OFFSET + 16 + 192*i
-		if (0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8])) {
+		if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
 			copy(inp.BF.GetData()[offset:offset+8], utils.PutUint32(pageNo))
 			return
 		}
 		return
 	}
+	// 超出范围改链
 }

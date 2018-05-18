@@ -7,7 +7,6 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
-	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 type tableFileManage struct {
@@ -45,22 +44,25 @@ func (sm *tableFileManage) initSysFile() {
 	fsp_bp := sm.getPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
-	fsp.InitSysExtend(wrapper(sm))
+	fsp.InitSysExtend()
 	// segment
 	//fsp.FSH.
+	// 为了建立索引树先初始化一个Inode entity
 	inode_bp := sm.getPage(1)
 	// 创建段描述页
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
-	// 为了建立索引树先初始化一个Inode entity
-	log.Info("",sm.getFragmentPage())
-	inode.SetFreeInode(1, 1)
+	inode.SetFreeInode(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage())
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树
 	sysIndex_bp := sm.getPage(2)
 	sysIndex_bp.Lock()
+
 	//page.NewPage(fsp_bp)
 	// sys_tables
 	// sys_columns
@@ -102,7 +104,7 @@ func (sm *tableFileManage) space() *page.FSPage {
 	return page.NewFSPage(sm.getPage(0))
 }
 
-func (sm *tableFileManage) getFragmentPage() int {
+func (sm *tableFileManage) getFragmentPage() uint32 {
 	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
 	return page.GetFragFreePage(wrapper(sm), pageID, offset)
 }
