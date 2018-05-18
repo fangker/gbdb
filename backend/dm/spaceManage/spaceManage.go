@@ -1,7 +1,6 @@
 package spaceManage
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/fangker/gbdb/backend/cache"
@@ -27,7 +26,6 @@ func (sm *SpaceManage) Add(tfm *tableFileManage) *tableFileManage {
 func NewTableFileManage(filePath string, tableID uint32) *tableFileManage {
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
-		fmt.Print(err)
 		panic(err)
 	}
 	return &tableFileManage{nil, filePath, tableID, file}
