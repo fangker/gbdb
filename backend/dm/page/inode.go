@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/cache"
 )
 
 const (
@@ -40,7 +41,8 @@ func NewINodePage(bf *pcache.BuffPage) *INodePage {
 }
 
 // 创建FreeInode并初始化首页
-func (inp *INodePage) SetFreeInode(pageNo uint32) {
+func (inp *INodePage) SetFreeInode(pageNo uint32,wrapper cache.Wrapper) {
+	SetUsedPage(wrapper,pageNo)
 	for i := 0; i < cType.PAGE_SIZE; i++ {
 		offset := INODEPAGE_INN_OFFSET + 16 + 192*i
 		if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
@@ -51,3 +53,4 @@ func (inp *INodePage) SetFreeInode(pageNo uint32) {
 	}
 	// 超出范围改链
 }
+

@@ -45,6 +45,8 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	var data cType.PageData
 	pg.File.Read(data[:])
 	pg.SetData(data)
+	pg.SetTableId(tsID)
+	pg.SetPageNo(pageNo)
 	if ts, exist := cb.pagePool[tsID]; exist {
 		ts[pageNo] = pg
 		return pg
@@ -58,7 +60,7 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 func (cb *CachePool) init() {
 	num := int(cb.maxCacheNum)
 	for i := 0; i < num; i++ {
-		cb.freeList.PushBack(pcache.NewBuffPage())
+		cb.freeList.PushBack(pcache.NewBuffPage(0,0))
 	}
 	CB = cb
 }

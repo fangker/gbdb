@@ -6,7 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
-	// "github.com/fangker/gbdb/backend/utils/log"
+
 )
 
 const (
@@ -54,9 +54,10 @@ func (fsp *FSPage) InitSysExtend() {
 }
 
 func (fsp *FSPage) setUsedExtendPage(p int) {
+	i := (p+1)/64 + 1
 	site := int(p / 4)
 	mod := uint(p % 4)
-	offset := FSPAGE_XDES_OFFSET + site + 24
+	offset := FSPAGE_XDES_OFFSET + (site+24)*i
 	pos := &fsp.data[offset]
 	*pos = *pos | (3 << ((3 - mod) * 2))
 
@@ -69,13 +70,17 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
 }
 
+// page 为extend page
 func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) uint32 {
 	fpge := cache.CB.GetPage(wrap, page)
 	fsp_bp := NewFSPage(fpge)
 	xdes := parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
 	var freePage int
 	for k, v := range xdes.BitMap() {
-		for i := uint(3); i > 0; i = i - 1 {
+		if(v==255){
+			continue
+		}
+		for i := uint(3); i >= 0; i = i - 1 {
 			if (2<<(i*2)&v)>>(i*2) != 2 {
 				freePage = k*4 + int(4-i) - 1
 				goto result
@@ -84,4 +89,14 @@ func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) uint32 {
 	}
 result:
 	return uint32(freePage) + page*256*64
+}
+
+func SetUsedPage(wrap cache.Wrapper, p uint32) {
+	xdesPageNo := uint32(p/64*256) * 64 * 256
+	mod := int(xdesPageNo % (64 * 256))
+	if (mod == 0) {
+		mod = int(p)
+	}
+	xdes := NewFSPage(cache.CB.GetPage(wrap, xdesPageNo))
+	xdes.setUsedExtendPage(mod)
 }

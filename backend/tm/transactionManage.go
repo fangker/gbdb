@@ -1,8 +1,12 @@
 package tm
 
-import "github.com/fangker/gbdb/backend/cache"
+import ("github.com/fangker/gbdb/backend/dm/buffPage")
+type Transaction struct {
+	usePage [] *pcache.BuffPage
 
-type transactionManage struct {
-	usePage []*cache.CachePool
-	TID     string
+}
+
+
+func NewTransaction(){
+	
 }
