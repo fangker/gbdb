@@ -53,6 +53,8 @@ func (sm *tableFileManage) initSysFile() {
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
+	dict_bp:=sm.getPage(8)
+	dirct:=page.NewDictPage(dict_bp)
 	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))
 	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))
 	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))

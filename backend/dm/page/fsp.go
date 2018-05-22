@@ -50,6 +50,9 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.setUsedExtendPage(3)
 	fsp.setUsedExtendPage(4)
 	fsp.setUsedExtendPage(5)
+	fsp.setUsedExtendPage(6)
+	fsp.setUsedExtendPage(7)
+	fsp.setUsedExtendPage(8)
 
 }
 

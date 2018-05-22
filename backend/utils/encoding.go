@@ -21,6 +21,13 @@ func PutUint32(n uint32) []byte {
 	return bytesBuffer.Bytes()
 }
 
+func PutUint64(n uint64) []byte {
+	x := uint64(n)
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	binary.Write(bytesBuffer, binary.BigEndian, x)
+	return bytesBuffer.Bytes()
+}
+
 func GetUint16(byte []byte) uint16 {
 	var x uint16
 	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
