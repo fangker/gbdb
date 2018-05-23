@@ -72,9 +72,9 @@ func (this *DictPage) HdrSpaceID() uint32 {
 func (this *DictPage) SetHdrSpaceID(spaceId uint32) {
 	copy(this.BF.GetData()[DICT_SPACE_ID_OFFSET:DICT_SPACE_ID_OFFSET+4], utils.PutUint32(spaceId))
 }
-
+// table root
 func (this *DictPage) HdrTables() uint32 {
-	return utils.GetUint32(this.BF.GetData()[ DICT_TABLE_IDS_OFFSET : DICT_TABLE_IDS_OFFSET+4])
+	return utils.GetUint32(this.BF.GetData()[ DICT_TABLE_IDS_OFFSET: DICT_TABLE_IDS_OFFSET+4])
 }
 
 func (this *DictPage) SetHdrTables(tableId uint32) {
@@ -100,5 +100,4 @@ func (this *DictPage) HdrFields() uint32 {
 
 func (this *DictPage) SetHdrFields(field uint32) {
 	copy(this.BF.GetData()[DICT_FIELDS_OFFSET:DICT_FIELDS_OFFSET+4], utils.PutUint32(field))
-
 }

@@ -24,8 +24,8 @@ const (
 const (
 	FIL_PAGE_SPACE_SIZE          = 4 //   page所属的表空间的space id
 	FIL_PAGE_OFFSET_SIZE         = 4 //   page no，一般是在表空间的物理偏移量
-	FIL_PAGE_PREV_SIZE           = 4 //    前一页的page no (B+tree的叶子节点是通过链表串起来的，有前后关系
-	FIL_PAGE_NEXT_SIZE           = 4 //      后一页的page no
+	FIL_PAGE_PREV_SIZE           = 4 //   前一页的page no (B+tree的叶子节点是通过链表串起来的，有前后关系
+	FIL_PAGE_NEXT_SIZE           = 4 //   后一页的page no
 	FIL_PAGE_LSN_SIZE            = 8 //   最后被修改的LSN日志号
 	FIL_PAGE_FILE_FLUSH_LSN_SIZE = 8 //   该表空间最后一次被更新的LSN号
 	FIL_PAGE_TYPE_SIZE           = 2 //        page的类型
@@ -40,12 +40,12 @@ const (
 	FS_PAGE_MAX_PAGE   = 3  // 当前space最大可容纳的page数,文件扩大时才会改变这个值
 	FS_PAGE_LIMIT      = 7  // 当前space已经分配初始化的page数,包括空闲的和已经使用的
 	FS_PAGE_FRAG_USED  = 11 // FSP_FREE_FRAG列表中已经被使用的page数
-	FS_FREE_LIST       = 15 //    space中可用的extent对象列表，extent里面没有一个page被使用
+	FS_FREE_LIST       = 15 // space中可用的extent对象列表，extent里面没有一个page被使用
 	FS_FRAG_FREE_LIST  = 31 // 有可用碎叶page的extent列表，exntent里面有部分page被使用
-	FS_FRAG_FULL_LIST  = 47 //  没有有可用page的extent列表，exntent里面全部page被使用
+	FS_FRAG_FULL_LIST  = 47 // 没有有可用page的extent列表，exntent里面全部page被使用
 	FS_SEGMENT_ID      = 53 // 下一个可利用的segment id
-	FS_FULL_INODE_LIST = 61 //  space当前完全占满的segment inode页列表
-	FS_FREE_INODE_LIST = 77 //  space当前完全占满的segment inode页列表
+	FS_FULL_INODE_LIST = 61 // space当前完全占满的segment inode页列表
+	FS_FREE_INODE_LIST = 77 // space当前完全占满的segment inode页列表
 )
 
 //  FSP header  104byte

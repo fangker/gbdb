@@ -53,12 +53,16 @@ func (sm *tableFileManage) initSysFile() {
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
-	dict_bp:=sm.getPage(8)
-	dirct:=page.NewDictPage(dict_bp)
-	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))
-	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))
-	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))
-	inode.SetFreeInode(sm.getFragmentPage(),wrapper(sm))
+	dict_bp := sm.getPage(8)
+	dirct := page.NewDictPage(dict_bp)
+	dirct.SetHdrTables(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
+	dirct.SetHdrColumns(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
+	dirct.SetHdrIndex(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
+	dirct.SetHdrFields(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树
@@ -70,7 +74,7 @@ func (sm *tableFileManage) initSysFile() {
 	// sys_columns
 	// sys_indexes
 	// sys_fields
-	// sysIndexPage.GetDate()[page.FIL_HEADER_OFFSET:page.FIL_HEADER_OFFSET+8]
+	//sm.cacheBuffer.
 
 }
 
