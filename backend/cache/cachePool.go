@@ -1,20 +1,20 @@
 package cache
 
 import (
-	"container/list"
 	"os"
 	"sync"
 
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"container/list"
 )
 
 type CachePool struct {
 	pagePool    map[uint32]map[uint32]*pcache.BuffPage
 	maxCacheNum uint32
 	freeList    *list.List
-	flushList   *list.List
-	lurList     *list.List
+	flushList   *LRUCache
+	lruList      *list.List
 	mux         *sync.Mutex
 }
 
@@ -24,8 +24,8 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 	cb := &CachePool{
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
-		flushList:   list.New(),
-		lurList:    list.New(),
+		flushList:   NewLRUCache(maxCacheNum),
+		lruList:     list.New(),
 		pagePool:    make(map[uint32]map[uint32]*pcache.BuffPage),
 	}
 	cb.init()
