@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"os"
 	"log"
+	"fmt"
+	"strings"
 )
 
 func main() {
@@ -13,6 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(strings.Split(os.Environ()[14],"=")[1])
 	// 创建缓冲池子
 	cb := cache.NewCacheBuffer(22)
 	// 加载字典表的过程
