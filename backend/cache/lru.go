@@ -41,7 +41,7 @@ func (lru *LRUCache) Set(k, v interface{}) {
 
 	newElement := lru.dlist.PushFront(&CacheNode{k, v})
 	lru.cacheMap[k] = newElement
-	if lru.dlist.Len() > lru.Capacity {
+	if lru.dlist.Len() > lru.Capacity&&lru.Capacity!=0{
 		lastElement := lru.dlist.Back()
 		if lastElement == nil {
 			return
@@ -73,4 +73,7 @@ func (lru *LRUCache) Remove(k interface{}) (bool) {
 		return true
 	}
 	return false
+}
+func (lru *LRUCache) List() (*list.List) {
+	return lru.dlist
 }

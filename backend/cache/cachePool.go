@@ -7,6 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"container/list"
+	"strconv"
 )
 
 type CachePool struct {
@@ -14,7 +15,7 @@ type CachePool struct {
 	maxCacheNum uint32
 	freeList    *list.List
 	flushList   *LRUCache
-	lruList      *list.List
+	lruList     *LRUCache
 	mux         *sync.Mutex
 }
 
@@ -25,7 +26,7 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
 		flushList:   NewLRUCache(maxCacheNum),
-		lruList:     list.New(),
+		lruList:     NewLRUCache(maxCacheNum),
 		pagePool:    make(map[uint32]map[uint32]*pcache.BuffPage),
 	}
 	cb.init()
@@ -60,7 +61,7 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 func (cb *CachePool) init() {
 	num := int(cb.maxCacheNum)
 	for i := 0; i < num; i++ {
-		cb.freeList.PushBack(pcache.NewBuffPage(0,0))
+		cb.freeList.PushBack(pcache.NewBuffPage(0, 0))
 	}
 	CB = cb
 }
@@ -73,3 +74,20 @@ func (cb *CachePool) GetFreePage(file *os.File) *pcache.BuffPage {
 	return pg
 }
 
+func (cb *CachePool) GetFlushPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
+	pg := cb.GetPage(wrap, pageNo)
+	pg.SetDirty()
+	cb.flushList.Set(strconv.Itoa(int(wrap.TableID))+strconv.Itoa(int(pageNo)), pg)
+	return pg;
+}
+
+func (cb *CachePool) ForceFlush(wrap Wrapper) {
+	for l := cb.flushList.List().Front(); l != nil; l = l.Next() {
+		val:=l.Value.(*CacheNode);
+		pg:=val.Value.(*pcache.BuffPage);
+		if(pg.Dirty()==true){
+			wrap.File.WriteAt(pg.GetData()[:],int64(pg.PageNo()*cType.PAGE_SIZE))
+			wrap.File.Sync()
+		}
+	}
+}

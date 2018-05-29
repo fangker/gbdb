@@ -30,10 +30,13 @@ func NewBuffPage(tId uint32, pNo uint32) *BuffPage {
 	return &BuffPage{tableId: tId, pageNo: pNo, data: cType.PageData{}}
 }
 
-func (bp *BuffPage) Dirty() {
+func (bp *BuffPage) SetDirty() {
 	bp.dirty = true
 }
 
+func (bp *BuffPage) Dirty() bool {
+	return bp.dirty
+}
 func (bp *BuffPage) RLock() {
 	bp.rwLock.RLock()
 }

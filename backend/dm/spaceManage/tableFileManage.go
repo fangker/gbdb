@@ -36,24 +36,24 @@ func (sm *tableFileManage) getFreePage() *pcache.BuffPage {
 	return sm.cacheBuffer.GetFreePage(sm.file)
 }
 
-func (sm *tableFileManage) getPage(pageNo uint32) *pcache.BuffPage {
-	return sm.cacheBuffer.GetPage(wrapper(sm), pageNo)
+func (sm *tableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
+	return sm.cacheBuffer.GetFlushPage(wrapper(sm), pageNo)
 }
 
 func (sm *tableFileManage) initSysFile() {
-	fsp_bp := sm.getPage(0)
+	fsp_bp := sm.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
 	fsp.InitSysExtend()
 	// segment
 	//fsp.FSH.
 	// 为了建立索引树先初始化一个Inode entity
-	inode_bp := sm.getPage(1)
+	inode_bp := sm.getFlushPage(1)
 	// 创建段描述页
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
-	dict_bp := sm.getPage(8)
+	dict_bp := sm.getFlushPage(8)
 	dirct := page.NewDictPage(dict_bp)
 	dirct.SetHdrTables(sm.getFragmentPage())
 	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
@@ -66,9 +66,9 @@ func (sm *tableFileManage) initSysFile() {
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树
-	sysIndex_bp := sm.getPage(2)
+	sysIndex_bp := sm.getFlushPage(2)
 	sysIndex_bp.Lock()
-
+	sm.cacheBuffer.ForceFlush(wrapper(sm))
 	//page.NewPage(fsp_bp)
 	// sys_tables
 	// sys_columns
@@ -93,7 +93,7 @@ func (sm *tableFileManage) createSegment() {
 
 // 将表空间扩展至
 func (sm *tableFileManage) FSPExtendFile() {
-	fsp_bp := sm.getPage(0)
+	fsp_bp := sm.getFlushPage(0)
 	fsp := page.NewFSPage(fsp_bp)
 	fsp.FSH.SetMaxPage(64)
 
@@ -107,7 +107,7 @@ func (sm *tableFileManage) crateFSPExtend() {
 }
 
 func (sm *tableFileManage) space() *page.FSPage {
-	return page.NewFSPage(sm.getPage(0))
+	return page.NewFSPage(sm.getFlushPage(0))
 }
 
 func (sm *tableFileManage) getFragmentPage() uint32 {
