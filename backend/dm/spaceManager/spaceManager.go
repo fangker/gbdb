@@ -1,4 +1,4 @@
-package spaceManage
+package spaceManager
 
 import (
 	"os"
@@ -19,7 +19,7 @@ func NewSpaceManage(cb *cache.CachePool) *SpaceManage {
 
 func (sm *SpaceManage) Add(tfm *tableFileManage) *tableFileManage {
 	tfm.cacheBuffer = sm.cb
-	sm.tf[tfm.tableID] = tfm
+	sm.tf[tfm.TableID] = tfm
 	return tfm
 }
 
@@ -28,9 +28,13 @@ func NewTableFileManage(filePath string, tableID uint32) *tableFileManage {
 	if err != nil {
 		panic(err)
 	}
-	return &tableFileManage{nil, filePath, tableID, file}
+	return &tableFileManage{nil, filePath,cache.Wrapper{TableID:tableID,File:file}}
 }
 
 func (sm *SpaceManage) InitSysFileStructure() {
 	sm.tf[0].initSysFile()
+}
+
+func (sm *SpaceManage) IsInitialized(i uint32) bool{
+	return sm.tf[i].IsInitialized()
 }

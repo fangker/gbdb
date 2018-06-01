@@ -2,25 +2,26 @@ package main
 
 import (
 	"github.com/fangker/gbdb/backend/cache"
-	"github.com/fangker/gbdb/backend/dm/spaceManage"
-	"path/filepath"
-	"os"
-	"log"
-	"fmt"
-	"strings"
+	"github.com/fangker/gbdb/backend/dm/spaceManager"
+	"github.com/fangker/gbdb/backend/utils"
 )
 
 func main() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(strings.Split(os.Environ()[14],"=")[1])
+	loadDBSys()
+}
+
+func loadDBSys() {
+	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	// 创建缓冲池子
 	cb := cache.NewCacheBuffer(22)
 	// 加载字典表的过程
-	sm := spaceManage.NewSpaceManage(cb)
-	sm.Add(spaceManage.NewTableFileManage( dir+"a.db", 0))
-	sm.InitSysFileStructure()
+	sm := spaceManager.NewSpaceManage(cb)
+	sm.Add(spaceManager.NewTableFileManage(utils.ENV_DIR+"/a.db", 0))
+	if !sm.IsInitialized(0) {
+		sm.InitSysFileStructure()
+	}
 
 }

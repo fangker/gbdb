@@ -19,10 +19,6 @@ type BuffPage struct {
 	rwLock  sync.RWMutex
 	data    cType.PageData
 	pType   uint16
-	//Page   *page.Page
-	////IndexPage
-	////Inode
-	//Fsp    *page.FSPage
 	File *os.File
 }
 

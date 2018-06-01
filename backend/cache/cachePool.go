@@ -65,7 +65,7 @@ func (cb *CachePool) init() {
 	}
 	CB = cb
 }
-
+// 将缓存等待页面移除加入LRU链表返回bufferPage
 func (cb *CachePool) GetFreePage(file *os.File) *pcache.BuffPage {
 	listEle := cb.freeList.Front()
 	pg := cb.freeList.Front().Value.(*pcache.BuffPage)

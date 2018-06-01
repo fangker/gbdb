@@ -1,19 +1,18 @@
-package spaceManage
+package spaceManager
 
 import (
-	"os"
-
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
+	"github.com/fangker/gbdb/backend/utils/log"
+	"fmt"
 )
 
 type tableFileManage struct {
 	cacheBuffer *cache.CachePool
 	filePath    string
-	tableID     uint32
-	file        *os.File
+	cache.Wrapper
 }
 
 //// 初始化一个文件 设定初始页面构造文件结构
@@ -26,18 +25,15 @@ type tableFileManage struct {
 //
 //}
 //
+
 func (sm *tableFileManage) writeSync(pageNum uint32, data cType.PageData) {
 	offset := pageNum * cType.PAGE_SIZE
-	sm.file.WriteAt(data[:], int64(offset))
-	sm.file.Sync()
-}
-
-func (sm *tableFileManage) getFreePage() *pcache.BuffPage {
-	return sm.cacheBuffer.GetFreePage(sm.file)
+	sm.File.WriteAt(data[:], int64(offset))
+	sm.File.Sync()
 }
 
 func (sm *tableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
-	return sm.cacheBuffer.GetFlushPage(wrapper(sm), pageNo)
+	return sm.cacheBuffer.GetFlushPage(sm.wrapper(), pageNo)
 }
 
 func (sm *tableFileManage) initSysFile() {
@@ -55,25 +51,26 @@ func (sm *tableFileManage) initSysFile() {
 	inode := page.NewINodePage(inode_bp)
 	dict_bp := sm.getFlushPage(8)
 	dirct := page.NewDictPage(dict_bp)
+	log.Error(sm.getFragmentPage())
+	// sys_tables
 	dirct.SetHdrTables(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
-	dirct.SetHdrColumns(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
+	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	// sys_indexes
 	dirct.SetHdrIndex(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
+	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	// sys_fields
 	dirct.SetHdrFields(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), wrapper(sm))
+	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	// sys_columns
+	dirct.SetHdrColumns(sm.getFragmentPage())
+	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树
 	sysIndex_bp := sm.getFlushPage(2)
 	sysIndex_bp.Lock()
-	sm.cacheBuffer.ForceFlush(wrapper(sm))
+	sm.cacheBuffer.ForceFlush(sm.wrapper())
 	//page.NewPage(fsp_bp)
-	// sys_tables
-	// sys_columns
-	// sys_indexes
-	// sys_fields
 	//sm.cacheBuffer.
 
 }
@@ -102,6 +99,28 @@ func (sm *tableFileManage) FSPExtendFile() {
 
 }
 
+func (sm *tableFileManage) IsInitialized() bool {
+	if (sm.TableID == 0) {
+		dict_bp := sm.cacheBuffer.GetPage(sm.wrapper(), 8)
+		var checkInitPage []uint32;
+		dict := page.NewDictPage(dict_bp)
+		column := dict.HdrColumns()
+		table := dict.HdrTables()
+		index := dict.HdrIndex()
+		field := dict.HdrFields()
+		checkInitPage = append(checkInitPage, column, table, index, field)
+		for i,v := range checkInitPage {
+			if v == 0 {
+				fmt.Println(i,v)
+				return false
+			}
+		}
+	}else{
+		// user table
+	}
+	return true
+}
+
 func (sm *tableFileManage) crateFSPExtend() {
 
 }
@@ -112,9 +131,10 @@ func (sm *tableFileManage) space() *page.FSPage {
 
 func (sm *tableFileManage) getFragmentPage() uint32 {
 	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
-	return page.GetFragFreePage(wrapper(sm), pageID, offset)
+	return page.GetFragFreePage(sm.wrapper(), pageID, offset)
 }
 
-func wrapper(sm *tableFileManage) cache.Wrapper {
-	return cache.Wrapper{File: sm.file, TableID: sm.tableID}
+func (sm *tableFileManage) wrapper() cache.Wrapper {
+	return cache.Wrapper{sm.TableID, sm.File}
 }
+
