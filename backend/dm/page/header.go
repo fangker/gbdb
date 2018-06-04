@@ -18,7 +18,7 @@ const (
 	FIL_PAGE_NEXT           = 11 //      后一页的page no
 	FIL_PAGE_LSN            = 15 //   最后被修改的LSN日志号
 	FIL_PAGE_FILE_FLUSH_LSN = 23 //   该表空间最后一次被更新的LSN号
-	FIL_PAGE_TYPE           = 31 //        page的类型
+	FIL_PAGE_TYPE_OFFSET    = 31 //        page的类型
 )
 
 const (
@@ -62,7 +62,6 @@ const (
 	FS_FREE_INODE_LIST_SIZE = 16 //  space当前完全占满的segment inode页列表
 )
 
-
 type FilHeader struct {
 	data     *cType.PageData
 	pType    uint16
@@ -76,18 +75,18 @@ type FilHeader struct {
 
 func (fh *FilHeader) ParseFilHeader(bp *pcache.BuffPage) *FilHeader {
 	data := bp.GetData()
-	fh.pType = utils.GetUint16(data[FIL_PAGE_TYPE:FIL_PAGE_TYPE+FIL_PAGE_TYPE_SIZE])
-	fh.lastLSN = utils.GetUint64(data[FIL_PAGE_LSN:FIL_PAGE_LSN+FIL_PAGE_LSN_SIZE])
-	fh.Space = utils.GetUint32(data[FIL_PAGE_SPACE:FIL_PAGE_SPACE+FIL_PAGE_SPACE_SIZE])
-	fh.Offset = utils.GetUint32(data[FIL_PAGE_OFFSET:FIL_PAGE_OFFSET+FIL_PAGE_OFFSET_SIZE])
-	fh.prev = utils.GetUint32(data[FIL_PAGE_PREV:FIL_PAGE_PREV+FIL_PAGE_PREV_SIZE])
-	fh.next = utils.GetUint32(data[FIL_PAGE_NEXT:FIL_PAGE_NEXT+FIL_PAGE_NEXT_SIZE])
-	fh.flushLSN = utils.GetUint32(data[FIL_PAGE_FILE_FLUSH_LSN:FIL_PAGE_FILE_FLUSH_LSN+FIL_PAGE_FILE_FLUSH_LSN_SIZE])
+	fh.pType = utils.GetUint16(data[FIL_PAGE_TYPE_OFFSET : FIL_PAGE_TYPE_OFFSET+FIL_PAGE_TYPE_SIZE])
+	fh.lastLSN = utils.GetUint64(data[FIL_PAGE_LSN : FIL_PAGE_LSN+FIL_PAGE_LSN_SIZE])
+	fh.Space = utils.GetUint32(data[FIL_PAGE_SPACE : FIL_PAGE_SPACE+FIL_PAGE_SPACE_SIZE])
+	fh.Offset = utils.GetUint32(data[FIL_PAGE_OFFSET : FIL_PAGE_OFFSET+FIL_PAGE_OFFSET_SIZE])
+	fh.prev = utils.GetUint32(data[FIL_PAGE_PREV : FIL_PAGE_PREV+FIL_PAGE_PREV_SIZE])
+	fh.next = utils.GetUint32(data[FIL_PAGE_NEXT : FIL_PAGE_NEXT+FIL_PAGE_NEXT_SIZE])
+	fh.flushLSN = utils.GetUint32(data[FIL_PAGE_FILE_FLUSH_LSN : FIL_PAGE_FILE_FLUSH_LSN+FIL_PAGE_FILE_FLUSH_LSN_SIZE])
 	return fh
 }
 
 func (fh *FilHeader) SetPtype(pType uint16) {
-	copy(fh.data[FIL_PAGE_TYPE:FIL_PAGE_TYPE+FIL_PAGE_TYPE_SIZE], utils.PutUint16(pType))
+	copy(fh.data[FIL_PAGE_TYPE_OFFSET:FIL_PAGE_TYPE_OFFSET+FIL_PAGE_TYPE_SIZE], utils.PutUint16(pType))
 }
 
 func (fh *FilHeader) SetSpace(space uint32) {
@@ -124,49 +123,62 @@ func newFSPHeader(offset int, data *cType.PageData) *FSPHeader {
 	return fspHeader
 }
 
-
-func (fsp *FSPHeader)Space() uint32 {
-	return utils.GetUint32(fsp.reOffset(FS_PAGE_SPACE,FS_PAGE_SPACE_SIZE))
+func (fsp *FSPHeader) Space() uint32 {
+	return utils.GetUint32(fsp.reOffset(FS_PAGE_SPACE, FS_PAGE_SPACE_SIZE))
 }
 
-func (fsp *FSPHeader)setSpace (s uint32){
-	copy(fsp.reOffset(FS_PAGE_SPACE,FS_PAGE_SPACE_SIZE),utils.PutUint32(s))
+func (fsp *FSPHeader) setSpace(s uint32) {
+	copy(fsp.reOffset(FS_PAGE_SPACE, FS_PAGE_SPACE_SIZE), utils.PutUint32(s))
 }
 
-func (fsp *FSPHeader)SetMaxPage (s uint32){
-	fsp.maxPage=s
-	copy(fsp.reOffset(FS_PAGE_MAX_PAGE,FS_PAGE_MAX_PAGE_SIZE),utils.PutUint32(s))
+func (fsp *FSPHeader) SetMaxPage(s uint32) {
+	fsp.maxPage = s
+	copy(fsp.reOffset(FS_PAGE_MAX_PAGE, FS_PAGE_MAX_PAGE_SIZE), utils.PutUint32(s))
 }
 
-func (fsp *FSPHeader)SetLimitPage (s uint32){
-	fsp.limitPage=s
-	copy(fsp.reOffset(FS_PAGE_LIMIT,FS_PAGE_LIMIT_SIZE),utils.PutUint32(s))
+func (fsp *FSPHeader) SetLimitPage(s uint32) {
+	fsp.limitPage = s
+	copy(fsp.reOffset(FS_PAGE_LIMIT, FS_PAGE_LIMIT_SIZE), utils.PutUint32(s))
 }
 
 func (fsp *FSPHeader) reOffset(start int, end int) []byte {
-	return fsp.data[fsp._offset+start:fsp._offset+end]
+	return fsp.data[fsp._offset+start : fsp._offset+end]
 }
 
 // page header 50bytes
-var (
-	PAGE_DIR_SLOTS         [2]byte  //PageDirectory 个数
-	PAGE_HEAP_TOP          [2]byte  // 堆中第一个记录偏移量(未分配空间)
-	PAGE_N_HEAP            [2]byte  //堆中记录数
-	PAGE_FREE              [2]byte  //指向可复用记录
-	PAGE_GARBAGE           [2]byte  // 记录中已经删除字节数
-	PAGE_N_RECS            [2]byte  // 该页面中记录个数
-	PAGE_MAX_TRX_ID        [8]byte  // 修改当前页最大事务ID(仅在二级索引页中定义)
-	PAGE_LEVEL             [2]byte  //当前页在索引树中的位置
-	PAGE_INDEX_ID          [8]byte  //当前页所在索引ID
-	PAGE_BTR_SEGEMENT_LEAF [10]byte //数据页叶节点
-	PAGE_BTR_SEG_TOP       [10]byte // 数据页非页节点
+const (
+	PAGE_DIR_SLOTS_SIZE         = 2  //PageDirectory 个数
+	PAGE_HEAP_TOP_SIZE          = 2  // 堆中第一个记录偏移量(未分配空间)
+	PAGE_N_HEAP_SIZE            = 2  //堆中记录数
+	PAGE_FREE_SIZE              = 2  //指向可复用记录
+	PAGE_GARBAGE_SIZE           = 2  // 记录中已经删除字节数
+	PAGE_N_RECS_SIZE            = 2  // 该页面中记录个数
+	PAGE_MAX_TRX_ID_SIZE        = 8  // 修改当前页最大事务ID(仅在二级索引页中定义)
+	PAGE_LEVEL_SIZE             = 2  //当前页在索引树中的位置
+	PAGE_INDEX_ID_SIZE          = 8  //当前页所在索引ID
+	PAGE_BTR_SEGEMENT_LEAF_SIZE = 10 //数据页叶节点
+	PAGE_BTR_SEG_TOP_SIZE       = 10 // 数据页非页节点
 )
 
-type IndexHeader struct{
-	data     *cType.PageData
-	_offset  int
+const (
+	PAGE_DIR_SLOYS_OFFSET         = 0
+	PAGE_HEAP_TOP_OFFSET          = 3
+	PAGE_N_HEAP_OFFSET            = 5
+	PAGE_FREE_OFFSET              = 7
+	PAGE_GARBAGE_OFFSET           = 9
+	PAGE_N_RECS_OFFSET            = 11
+	PAGE_MAX_TRX_ID_OFFSET        = 19
+	PAGE_LEVEL_OFFSET             = 21
+	PAGE_INDEX_ID_OFFSET          = 29
+	PAGE_BTR_SEGEMENT_LEAF_OFFSET = 39
+	PAGE_BTR_SEG_TOP_OFFSET       = 49
+)
+
+type IndexHeader struct {
+	data    *cType.PageData
+	_offset int
 }
 
 func (id *IndexHeader) reOffset(start int, end int) []byte {
-	return id.data[id._offset+start:id._offset+end]
+	return id.data[id._offset+start : id._offset+end]
 }
