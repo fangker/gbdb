@@ -1,42 +1,40 @@
-package spaceManager
+package tm
 
 import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
-	"github.com/fangker/gbdb/backend/utils/log"
-	"fmt"
 )
 
-type tableFileManage struct {
-	cacheBuffer *cache.CachePool
+type TableFileManage struct {
+	CacheBuffer *cache.CachePool
 	filePath    string
 	cache.Wrapper
 }
 
 //// 初始化一个文件 设定初始页面构造文件结构
-//func (sm *tableFileManage) InitFileStructure() {
+//func (sm *TableFileManage) InitFileStructure() {
 //
 //}
 //
 //// 初始化一系统表文件 设定初始页面构造文件结构
-//func (sm *tableFileManage) InitSysFileStructure() {
+//func (sm *TableFileManage) InitSysFileStructure() {
 //
 //}
 //
 
-func (sm *tableFileManage) writeSync(pageNum uint32, data cType.PageData) {
+func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
 	offset := pageNum * cType.PAGE_SIZE
 	sm.File.WriteAt(data[:], int64(offset))
 	sm.File.Sync()
 }
 
-func (sm *tableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
-	return sm.cacheBuffer.GetFlushPage(sm.wrapper(), pageNo)
+func (sm *TableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
+	return sm.CacheBuffer.GetFlushPage(sm.wrapper(), pageNo)
 }
 
-func (sm *tableFileManage) initSysFile() {
+func (sm *TableFileManage) InitSysFile() {
 	fsp_bp := sm.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
@@ -51,7 +49,6 @@ func (sm *tableFileManage) initSysFile() {
 	inode := page.NewINodePage(inode_bp)
 	dict_bp := sm.getFlushPage(8)
 	dirct := page.NewDictPage(dict_bp)
-	log.Error(sm.getFragmentPage())
 	// sys_tables
 	dirct.SetHdrTables(sm.getFragmentPage())
 	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
@@ -69,18 +66,15 @@ func (sm *tableFileManage) initSysFile() {
 	// 第三个页面创建索引树
 	sysIndex_bp := sm.getFlushPage(2)
 	sysIndex_bp.Lock()
-	sm.cacheBuffer.ForceFlush(sm.wrapper())
-	//page.NewPage(fsp_bp)
-	//sm.cacheBuffer.
-
+	sm.CacheBuffer.ForceFlush(sm.wrapper())
 }
 
-func (sm *tableFileManage) createSegment() {
+func (sm *TableFileManage) createSegment() {
 	//fsp:=CB.GetPage()
 }
 
 //
-//func (sm *tableFileManage) GetPage(offset uint64)cType.PageData{
+//func (sm *TableFileManage) GetPage(offset uint64)cType.PageData{
 //	sm.file.Seek(int64(offset*page.PAGE_SIZE),0)
 //	buf:=cType.PageData{}[:]
 //	sm.file.Read(buf)
@@ -89,7 +83,7 @@ func (sm *tableFileManage) createSegment() {
 //
 
 // 将表空间扩展至
-func (sm *tableFileManage) FSPExtendFile() {
+func (sm *TableFileManage) FSPExtendFile() {
 	fsp_bp := sm.getFlushPage(0)
 	fsp := page.NewFSPage(fsp_bp)
 	fsp.FSH.SetMaxPage(64)
@@ -99,9 +93,9 @@ func (sm *tableFileManage) FSPExtendFile() {
 
 }
 
-func (sm *tableFileManage) IsInitialized() bool {
+func (sm *TableFileManage) IsInitialized() bool {
 	if (sm.TableID == 0) {
-		dict_bp := sm.cacheBuffer.GetPage(sm.wrapper(), 8)
+		dict_bp := sm.CacheBuffer.GetPage(sm.wrapper(), 8)
 		var checkInitPage []uint32;
 		dict := page.NewDictPage(dict_bp)
 		column := dict.HdrColumns()
@@ -109,9 +103,8 @@ func (sm *tableFileManage) IsInitialized() bool {
 		index := dict.HdrIndex()
 		field := dict.HdrFields()
 		checkInitPage = append(checkInitPage, column, table, index, field)
-		for i,v := range checkInitPage {
+		for _,v := range checkInitPage {
 			if v == 0 {
-				fmt.Println(i,v)
 				return false
 			}
 		}
@@ -121,20 +114,20 @@ func (sm *tableFileManage) IsInitialized() bool {
 	return true
 }
 
-func (sm *tableFileManage) crateFSPExtend() {
+func (sm *TableFileManage) crateFSPExtend() {
 
 }
 
-func (sm *tableFileManage) space() *page.FSPage {
+func (sm *TableFileManage) space() *page.FSPage {
 	return page.NewFSPage(sm.getFlushPage(0))
 }
 
-func (sm *tableFileManage) getFragmentPage() uint32 {
+func (sm *TableFileManage) getFragmentPage() uint32 {
 	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
 	return page.GetFragFreePage(sm.wrapper(), pageID, offset)
 }
 
-func (sm *tableFileManage) wrapper() cache.Wrapper {
+func (sm *TableFileManage) wrapper() cache.Wrapper {
 	return cache.Wrapper{sm.TableID, sm.File}
 }
 

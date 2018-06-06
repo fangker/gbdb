@@ -1,4 +1,4 @@
-package tm
+package mtr
 
 import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"

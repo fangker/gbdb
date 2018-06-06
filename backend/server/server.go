@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/fangker/gbdb/backend/cache"
-	"github.com/fangker/gbdb/backend/dm/spaceManager"
+	"github.com/fangker/gbdb/backend/spaceManager"
 	"github.com/fangker/gbdb/backend/utils"
 )
 
