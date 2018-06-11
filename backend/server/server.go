@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/spaceManager"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/tm"
 )
 
 func main() {
@@ -18,10 +19,13 @@ func loadDBSys() {
 	// 创建缓冲池子
 	cb := cache.NewCacheBuffer(22)
 	// 加载字典表的过程
-	sm := spaceManager.NewSpaceManage(cb)
-	sm.Add(spaceManager.NewTableFileManage(utils.ENV_DIR+"/a.db", 0))
+	sm := spaceManager.NewSpaceManage(0,cb)
+	sys_tfm:=tm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
+	sm.Add(tm.NewTableManager(sys_tfm,"sys_table"))
 	if !sm.IsInitialized(0) {
 		sm.InitSysFileStructure()
 	}
+	sm.LoadSysCache();
+
 
 }

@@ -3,14 +3,19 @@ package tm
 import "github.com/fangker/gbdb/backend/cache"
 
 type TableManager struct {
-	tfm     *TableFileManage
 	TableID uint32
+	TableName string
+	tfm     *TableFileManage
 }
 
-func NewTableManager(c *cache.CachePool, fp string, cw cache.Wrapper) *TableManager {
-	return &TableManager{tfm: &TableFileManage{c, fp, cw}, TableID: cw.TableID}
+func NewTableManager(tfm *TableFileManage,tableName string) *TableManager {
+	return &TableManager{tfm: tfm, TableName:tableName,TableID: tfm.TableID}
 }
 
 func (this *TableManager) Tfm() *TableFileManage {
 	return this.tfm
+}
+
+func (this *TableManager) Wrapper() cache.Wrapper {
+	return this.tfm.wrapper()
 }

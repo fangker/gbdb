@@ -5,12 +5,24 @@ import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
+	"os"
 )
 
 type TableFileManage struct {
 	CacheBuffer *cache.CachePool
 	filePath    string
 	cache.Wrapper
+}
+
+func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0777)
+	if err != nil {
+		panic(err)
+	}
+	tfm := &TableFileManage{filePath:filePath}
+	tfm.File = file
+	tfm.TableID = tableID
+	return tfm
 }
 
 //// 初始化一个文件 设定初始页面构造文件结构
