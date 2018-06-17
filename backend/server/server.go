@@ -13,9 +13,9 @@ func main() {
 
 func loadDBSys() {
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	//	//if err != nil {
+	//	//	log.Fatal(err)
+	//	//}
 	// 创建缓冲池子
 	cb := cache.NewCacheBuffer(22)
 	// 加载字典表的过程
@@ -26,6 +26,4 @@ func loadDBSys() {
 		sm.InitSysFileStructure()
 	}
 	sm.LoadSysCache();
-
-
 }

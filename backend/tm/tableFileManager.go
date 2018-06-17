@@ -10,8 +10,9 @@ import (
 
 type TableFileManage struct {
 	CacheBuffer *cache.CachePool
-	filePath    string
+	FilePath    string
 	cache.Wrapper
+
 }
 
 func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
@@ -19,9 +20,7 @@ func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
 	if err != nil {
 		panic(err)
 	}
-	tfm := &TableFileManage{filePath:filePath}
-	tfm.File = file
-	tfm.TableID = tableID
+	tfm := &TableFileManage{Wrapper:cache.Wrapper{tableID,file},FilePath:filePath}
 	return tfm
 }
 
