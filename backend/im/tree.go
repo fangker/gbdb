@@ -1,20 +1,20 @@
 package im
 
 import (
-	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"sync"
 	"github.com/fangker/gbdb/backend/cache"
 )
 
 type BPlusTree struct {
 	tableID  uint32
-	bootPage *pcache.BuffPage
+	bootPage uint32
 	lock     sync.Mutex
 	cacheBuffer *cache.CachePool
 }
 
-func Create(tableID uint32,bootPage pcache.BuffPage){
-
+func CreateBPlusTree(tableID uint32,rootPage uint32)*BPlusTree{
+	// 检测是否存在
+	return &BPlusTree{}
 }
 
 

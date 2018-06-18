@@ -3,6 +3,7 @@ package spaceManager
 import (
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/cache"
+	"github.com/fangker/gbdb/backend/dm/page"
 )
 
 var SM *SpaceManage
@@ -40,12 +41,13 @@ func (sm *SpaceManage) LoadSysCache() *cache.SystemCache {
 	sys := sm.tf[0]
 	tfm := sys.Tfm()
 	dirct_bp := sm.cb.GetPage(sys.Wrapper(), 8)
-	newTfm := func(uint32) *tm.TableFileManage {
+	dirct:=page.NewDictPage(dirct_bp);
+	newTfm := func() *tm.TableFileManage {
 		return tm.NewTableFileManage(tfm.FilePath, 0)
 	}
-	tables := tm.NewTableManager(newTfm(), "sys_tables")
-	indexes := tm.NewTableManager(newTfm(), "sys_indexes")
-	fields := tm.NewTableManager(newTfm(), "sys_fields")
-	columns := tm.NewTableManager(newTfm(), "sys_columns")
+	tables := tm.NewTableManager(newTfm(), "sys_tables",dirct.HdrTables())
+	indexes := tm.NewTableManager(newTfm(), "sys_indexes",dirct.HdrIndex())
+	fields := tm.NewTableManager(newTfm(), "sys_fields",dirct.HdrFields())
+	columns := tm.NewTableManager(newTfm(), "sys_columns",dirct.HdrColumns())
 	return cache.LoadSysCache(tables, fields, columns, indexes)
 }
