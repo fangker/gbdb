@@ -13,8 +13,8 @@ type SystemCache struct {
 	Sys_index *tm.TableManager
 }
 
-func LoadSysCache(tables,fileds,columns,index *tm.TableManager)  *SystemCache{
+func LoadSysCache(tables, fileds, columns, index *tm.TableManager) *SystemCache {
 	return &SystemCache{
-		Sys_columns:columns,Sys_fields:fileds,Sys_index:index,Sys_tables:tables
-}
+		Sys_columns: columns, Sys_fields: fileds, Sys_index: index, Sys_tables: tables,
+	}
 }

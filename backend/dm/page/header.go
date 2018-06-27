@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	FIL_HEADER_OFFSET = 33
+	FIL_HEADER_END = 34
 )
 
 // file header 34bytes

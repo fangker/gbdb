@@ -8,6 +8,10 @@ import (
 	"os"
 )
 
+type FileManager interface {
+	wrapper() cache.Wrapper
+}
+
 type TableFileManage struct {
 	CacheBuffer *cache.CachePool
 	FilePath    string
@@ -58,6 +62,10 @@ func (sm *TableFileManage) InitSysFile() {
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
+	fsp_trx_bp:= sm.getFlushPage(3)
+	fsp_trx:= page.NewFSPageTrx(fsp_trx_bp)
+	fsp_trx.SetSysTrxIDStore(0)
+
 	dict_bp := sm.getFlushPage(8)
 	dirct := page.NewDictPage(dict_bp)
 	// sys_tables

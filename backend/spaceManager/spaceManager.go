@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/page"
+	"github.com/fangker/gbdb/backend/log/undo"
 )
 
 var SM *SpaceManage
@@ -22,6 +23,10 @@ func (sm *SpaceManage) Add(tm *tm.TableManager) *tm.TableManager {
 	tm.Tfm().CacheBuffer = sm.cb
 	sm.tf[tm.TableID] = tm
 	return tm
+}
+
+func (sm *SpaceManage) AddUndoLog(um *undo.UndoLogManager) * undo.UndoLogManager {
+	return um
 }
 
 func (sm *SpaceManage) InitSysFileStructure() {
