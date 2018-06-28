@@ -11,39 +11,41 @@ var SM *SpaceManage
 
 type SpaceManage struct {
 	cb    *cache.CachePool
-	tf    map[uint32]*tm.TableManager
+	tf    *tm.TableManager
+	uf    *undo.UndoLogManager
 	Space uint32
 }
 
 func NewSpaceManage(space uint32, cb *cache.CachePool) *SpaceManage {
-	return &SpaceManage{cb: cb, tf: make(map[uint32]*tm.TableManager), Space: space}
+	return &SpaceManage{cb: cb, Space: space}
 }
 
 func (sm *SpaceManage) Add(tm *tm.TableManager) *tm.TableManager {
 	tm.Tfm().CacheBuffer = sm.cb
-	sm.tf[tm.TableID] = tm
+	sm.tf = tm
 	return tm
 }
 
-func (sm *SpaceManage) AddUndoLog(um *undo.UndoLogManager) * undo.UndoLogManager {
-	return um
+func (sm *SpaceManage) AddUndoLog(uf *undo.UndoLogManager) * undo.UndoLogManager {
+	sm.uf=uf
+	return uf
 }
 
 func (sm *SpaceManage) InitSysFileStructure() {
-	sm.tf[0].Tfm().InitSysFile()
+	sm.tf.Tfm().InitSysFile()
 }
 
 func (sm *SpaceManage) IsInitialized(i uint32) bool {
-	return sm.tf[i].Tfm().IsInitialized()
+	return sm.tf.Tfm().IsInitialized()
 }
 
-func (sm *SpaceManage) GetTf(i uint32) *tm.TableManager {
-	return sm.tf[i]
+func (sm *SpaceManage) GetTf() *tm.TableManager {
+	return sm.tf
 }
 
 func (sm *SpaceManage) LoadSysCache() *cache.SystemCache {
-	sm.tf[0].TableID = 0
-	sys := sm.tf[0]
+	sm.tf.TableID = 0
+	sys := sm.tf
 	tfm := sys.Tfm()
 	dirct_bp := sm.cb.GetPage(sys.Wrapper(), 8)
 	dirct:=page.NewDictPage(dirct_bp);
@@ -55,4 +57,8 @@ func (sm *SpaceManage) LoadSysCache() *cache.SystemCache {
 	fields := tm.NewTableManager(newTfm(), "sys_fields",dirct.HdrFields())
 	columns := tm.NewTableManager(newTfm(), "sys_columns",dirct.HdrColumns())
 	return cache.LoadSysCache(tables, fields, columns, indexes)
+}
+
+func (sm *SpaceManage)InitSysUndoFileStructure() {
+  return sm.uf().Ufm().IsInitialized()
 }

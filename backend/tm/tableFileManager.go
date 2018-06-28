@@ -8,9 +8,6 @@ import (
 	"os"
 )
 
-type FileManager interface {
-	wrapper() cache.Wrapper
-}
 
 type TableFileManage struct {
 	CacheBuffer *cache.CachePool
