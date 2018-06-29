@@ -25,12 +25,15 @@ func loadDBSys() {
 	undo_sm:=spaceManager.NewSpaceManage(1,cb)
 	undo_log := undo.NewUndoLogFileManage(utils.ENV_DIR+"/a.undo", 1)
 	undo_sm.AddUndoLog(undo.NewUndoLogManager(undo_log,"sys_table"))
-	undo_sm.InitSysUndoFileStructure();
+	undo_sm.InitSysUndoFileStructure()
+
+	// RedoLog
+
     // Sys
 	sys_tfm:=tm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
 	sm.Add(tm.NewTableManager(sys_tfm,"sys_table",0))
-	if !sm.IsInitialized(0) {
+	if !sm.IsInitialized() {
 		sm.InitSysFileStructure()
 	}
-	sm.LoadSysCache();
+	sm.LoadSysCache()
 }

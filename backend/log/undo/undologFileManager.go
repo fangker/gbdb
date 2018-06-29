@@ -26,13 +26,15 @@ func (this *UndoFileManager) getFlushPage(pageNo uint32) *pcache.BuffPage {
 	return this.CacheBuffer.GetFlushPage(this.wrapper(), pageNo)
 }
 
-func (this *UndoFileManager)IsInitialized() bool {
+func (this *UndoFileManager)InitSysUndoFile() bool {
 	fsp_bp := this.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
 	fsp.InitSysExtend()
-
+	this.CacheBuffer.ForceFlush(this.wrapper())
+	return true
 }
-func (sm *UndoFileManager) wrapper() cache.Wrapper {
-	return cache.Wrapper{sm.TableID, sm.File}
+
+func (this *UndoFileManager) wrapper() cache.Wrapper {
+	return cache.Wrapper{this.TableID, this.File}
 }

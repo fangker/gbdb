@@ -3,7 +3,6 @@ package redo
 import (
 	"io/ioutil"
 	"os"
-	"github.com/fangker/gbdb/backend/utils/log"
 	"strconv"
 	"path"
 )
@@ -32,7 +31,6 @@ func NewLogSys(fileDir string) {
 			panic(err)
 		}
 	}
-	log.Caption(dir)
 	exist := false
 	if len(dir) == REDO_LOG_GROUP {
 		for _, fi := range dir {

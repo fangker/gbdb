@@ -1,8 +1,7 @@
 package utils
 
 import (
-	"strings"
 	"os"
 )
 
-var ENV_DIR = strings.Split(os.Environ()[13], "=")[1]
+var ENV_DIR = os.Getenv("PWD")

@@ -35,7 +35,7 @@ func (sm *SpaceManage) InitSysFileStructure() {
 	sm.tf.Tfm().InitSysFile()
 }
 
-func (sm *SpaceManage) IsInitialized(i uint32) bool {
+func (sm *SpaceManage) IsInitialized() bool {
 	return sm.tf.Tfm().IsInitialized()
 }
 
@@ -59,6 +59,6 @@ func (sm *SpaceManage) LoadSysCache() *cache.SystemCache {
 	return cache.LoadSysCache(tables, fields, columns, indexes)
 }
 
-func (sm *SpaceManage)InitSysUndoFileStructure() {
-  return sm.uf().Ufm().IsInitialized()
+func (sm *SpaceManage) InitSysUndoFileStructure() bool{
+	return sm.uf.Ufm().InitSysUndoFile()
 }

@@ -43,6 +43,7 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
+	// 设置第一个segment被占用
 	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1], utils.PutUint32(1))
 	fsp.setUsedExtendPage(0)
 	fsp.setUsedExtendPage(1)
@@ -53,8 +54,14 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.setUsedExtendPage(6)
 	fsp.setUsedExtendPage(7)
 	fsp.setUsedExtendPage(8)
-
 }
+
+func (fsp *FSPage) InitSysUndo() {
+	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetLen(1)
+}
+
 
 func (fsp *FSPage) setUsedExtendPage(p int) {
 	i := (p+1)/64 + 1
