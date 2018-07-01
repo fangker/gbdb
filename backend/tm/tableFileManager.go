@@ -130,6 +130,11 @@ func (sm *TableFileManage) IsInitialized() bool {
 	return true
 }
 
+func (sm *TableFileManage) CreateIndex(){
+
+}
+
+
 func (sm *TableFileManage) crateFSPExtend() {
 
 }

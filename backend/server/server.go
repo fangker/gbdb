@@ -9,10 +9,11 @@ import (
 )
 
 func main() {
-	loadDBSys()
+	sc:=loadDBSys()
+	test(sc)
 }
 
-func loadDBSys() {
+func loadDBSys() *cache.SystemCache {
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	//	//if err != nil {
 	//	//	log.Fatal(err)
@@ -26,14 +27,14 @@ func loadDBSys() {
 	undo_log := undo.NewUndoLogFileManage(utils.ENV_DIR+"/a.undo", 1)
 	undo_sm.AddUndoLog(undo.NewUndoLogManager(undo_log,"sys_table"))
 	undo_sm.InitSysUndoFileStructure()
-
-	// RedoLog
-
     // Sys
 	sys_tfm:=tm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
 	sm.Add(tm.NewTableManager(sys_tfm,"sys_table",0))
 	if !sm.IsInitialized() {
 		sm.InitSysFileStructure()
 	}
-	sm.LoadSysCache()
+	return sm.LoadSysCache()
+}
+func test(sc *cache.SystemCache)  {
+  sc.Sys_index.Insert()
 }
