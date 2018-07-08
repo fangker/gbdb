@@ -39,6 +39,6 @@ func LoadSysCache(tables, fileds, columns, index  SysTabler) *SystemCache {
 	return SC;
 }
 
-func (this SystemCache)SysTrxIDStore (TrxID uint32) *SystemCache {
+func (this SystemCache)SysTrxIDStore (TrxID uint32)  {
 	this.Sys_tables.Tfm().sysDir()
 }
