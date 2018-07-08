@@ -56,7 +56,7 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.setUsedExtendPage(8)
 }
 
-func (fsp *FSPage) InitSysUndo() {
+func (fsp *FSPage) InitSysUndoExtend() {
 	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)

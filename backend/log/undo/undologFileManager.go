@@ -18,7 +18,7 @@ func NewUndoLogFileManage(filePath string, tableID uint32) *UndoFileManager {
 	if err != nil {
 		panic(err)
 	}
-	tfm := &UndoFileManager{Wrapper:cache.Wrapper{tableID,file},FilePath:filePath}
+	tfm := &UndoFileManager{CacheBuffer:cache.CB,Wrapper:cache.Wrapper{tableID,file},FilePath:filePath}
 	return tfm
 }
 

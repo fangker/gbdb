@@ -148,6 +148,13 @@ func (sm *TableFileManage) getFragmentPage() uint32 {
 	return page.GetFragFreePage(sm.wrapper(), pageID, offset)
 }
 
+func (sm *TableFileManage) sysDir() *page.DictPage {
+	dict_bp := sm.CacheBuffer.GetPage(sm.wrapper(), 8)
+	return page.NewDictPage(dict_bp)
+}
+
+
+
 func (sm *TableFileManage) wrapper() cache.Wrapper {
 	return cache.Wrapper{sm.TableID, sm.File}
 }

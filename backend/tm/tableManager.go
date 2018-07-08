@@ -3,6 +3,7 @@ package tm
 import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/im"
+	"github.com/fangker/gbdb/backend/mtr"
 	"fmt"
 )
 
@@ -29,7 +30,8 @@ func (this *TableManager) Wrapper() cache.Wrapper {
 }
 
 func (this *TableManager) Insert(){
-	fmt.Print(this.tree);
+	mtr.NewTransaction()
+	fmt.Println(this.tree);
 }
 
 func (this *TableManager) Update()  {

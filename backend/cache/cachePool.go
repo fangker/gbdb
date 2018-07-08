@@ -8,6 +8,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"container/list"
 	"strconv"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 type CachePool struct {
@@ -75,6 +76,7 @@ func (cb *CachePool) GetFreePage(file *os.File) *pcache.BuffPage {
 }
 
 func (cb *CachePool) GetFlushPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
+	log.Caption(cb)
 	pg := cb.GetPage(wrap, pageNo)
 	pg.SetDirty()
 	cb.flushList.Set(strconv.Itoa(int(wrap.TableID))+strconv.Itoa(int(pageNo)), pg)
