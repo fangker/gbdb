@@ -6,6 +6,8 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/log/undo"
+	"github.com/fangker/gbdb/backend/cache/system"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 func main() {
@@ -13,7 +15,7 @@ func main() {
 	test(sc)
 }
 
-func loadDBSys() *cache.SystemCache {
+func loadDBSys() *systemCache.SystemCache {
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	//	//if err != nil {
 	//	//	log.Fatal(err)
@@ -35,6 +37,6 @@ func loadDBSys() *cache.SystemCache {
 	}
 	return sm.LoadSysCache()
 }
-func test(sc *cache.SystemCache)  {
-  sc.Sys_index.Insert()
+func test(sc *systemCache.SystemCache)  {
+  log.Caption(sc.SysTrxIDStore())
 }

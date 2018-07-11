@@ -28,6 +28,12 @@ const (
 	DICT_FIELDS_OFFSET    = DICT_INDEXES_OFFSET + 4
 )
 
+
+type DictPager interface {
+	HdrRowID() uint64
+	HdrTableID() uint64
+}
+
 type DictPage struct {
 	FH *FilHeader
 	BF *pcache.BuffPage

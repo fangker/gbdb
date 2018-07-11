@@ -13,7 +13,10 @@ type TableFileManage struct {
 	CacheBuffer *cache.CachePool
 	FilePath    string
 	cache.Wrapper
+}
 
+type TableFileManager interface {
+	SysDir() *page.DictPage
 }
 
 func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
@@ -148,7 +151,7 @@ func (sm *TableFileManage) getFragmentPage() uint32 {
 	return page.GetFragFreePage(sm.wrapper(), pageID, offset)
 }
 
-func (sm *TableFileManage) sysDir() *page.DictPage {
+func (sm *TableFileManage) SysDir() *page.DictPage {
 	dict_bp := sm.CacheBuffer.GetPage(sm.wrapper(), 8)
 	return page.NewDictPage(dict_bp)
 }

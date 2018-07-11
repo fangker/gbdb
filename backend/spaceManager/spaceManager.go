@@ -5,6 +5,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"github.com/fangker/gbdb/backend/log/undo"
+	"github.com/fangker/gbdb/backend/cache/system"
 )
 
 var SM *SpaceManage
@@ -43,7 +44,7 @@ func (sm *SpaceManage) GetTf() *tm.TableManager {
 	return sm.tf
 }
 
-func (sm *SpaceManage) LoadSysCache() *cache.SystemCache {
+func (sm *SpaceManage) LoadSysCache() *systemCache.SystemCache {
 	sm.tf.TableID = 0
 	sys := sm.tf
 	tfm := sys.Tfm()
@@ -56,7 +57,7 @@ func (sm *SpaceManage) LoadSysCache() *cache.SystemCache {
 	indexes := tm.NewTableManager(newTfm(), "sys_indexes",dirct.HdrIndex())
 	fields := tm.NewTableManager(newTfm(), "sys_fields",dirct.HdrFields())
 	columns := tm.NewTableManager(newTfm(), "sys_columns",dirct.HdrColumns())
-	return cache.LoadSysCache(tables, fields, columns, indexes)
+	return systemCache.LoadSysCache(tables, fields, columns, indexes)
 }
 
 func (sm *SpaceManage) InitSysUndoFileStructure() bool{
