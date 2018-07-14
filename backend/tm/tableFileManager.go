@@ -24,7 +24,7 @@ func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
 	if err != nil {
 		panic(err)
 	}
-	tfm := &TableFileManage{Wrapper:cache.Wrapper{tableID,file},FilePath:filePath}
+	tfm := &TableFileManage{Wrapper:cache.Wrapper{tableID,file},FilePath:filePath,CacheBuffer:cache.CB}
 	return tfm
 }
 

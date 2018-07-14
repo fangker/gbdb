@@ -9,7 +9,6 @@ import (
 	"container/list"
 	"strconv"
 )
-
 type CachePool struct {
 	pagePool    map[uint32]map[uint32]*pcache.BuffPage
 	maxCacheNum uint32
