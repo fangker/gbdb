@@ -156,8 +156,6 @@ func (sm *TableFileManage) SysDir() *page.DictPage {
 	return page.NewDictPage(dict_bp)
 }
 
-
-
 func (sm *TableFileManage) wrapper() cache.Wrapper {
 	return cache.Wrapper{sm.TableID, sm.File}
 }
