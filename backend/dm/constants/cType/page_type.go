@@ -12,6 +12,8 @@ const (
 )
 const (
 	PAGE_SIZE = 16384
+	REDO_BLOCK_SIZE = 512
 )
 
-type PageData [PAGE_SIZE]byte
+type PageData [PAGE_SIZE] byte
+type RedoDate [REDO_BLOCK_SIZE] byte

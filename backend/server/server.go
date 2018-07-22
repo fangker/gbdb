@@ -38,6 +38,7 @@ func loadDBSys() *systemCache.SystemCache {
 	return sm.LoadSysCache()
 }
 func test(sc *systemCache.SystemCache) {
-	sc.SysTrxIDStore().HdrTableID()=1
+	//
+	
 	fmt.Println(sc.SysTrxIDStore().HdrTableID())
 }
