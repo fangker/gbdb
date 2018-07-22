@@ -19,6 +19,13 @@ type logGroup struct {
 
 type fileHeader struct {
 	fileStartLSN Lsn
+	logFileNum  uint32
+}
+
+type fileBlock struct {
+	blockNum uint32
+	blockData  uint32
+	firstRecordOffset uint
 }
 
 func (this *logGroup) GetStartLSN() {

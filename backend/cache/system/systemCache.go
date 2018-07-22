@@ -40,3 +40,7 @@ func (this SystemCache) SetSysTrxIDStore(TrxID uint32) {
 func (this SystemCache) SysTrxIDStore() page.DictPager {
 	return this.Sys_tables.Tfm().SysDir()
 }
+
+func (this SystemCache) CreateTable(){
+
+}
