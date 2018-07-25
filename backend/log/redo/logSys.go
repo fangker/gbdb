@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"path"
+	"github.com/fangker/gbdb/backend/dm/constants/cType"
 	"fmt"
 )
 
@@ -22,7 +23,7 @@ type logSys struct {
 	GroupCapacity uint64
 }
 
-func NewLogSys(fileDir string) {
+func NewLogSys(fileDir string) *logSys {
 	this := &logSys{logDir: fileDir}
 	this.logGroup = &logGroup{nFiles: REDO_LOG_GROUP}
 	dir, err := ioutil.ReadDir(this.logDir)
@@ -53,8 +54,11 @@ func NewLogSys(fileDir string) {
 			file.WriteAt(make([]byte, REDO_LOG_SIZE), 0)
 			file.Sync()
 			this.logGroup.file = append(this.logGroup.file, file)
-			this.logGroup.getBlock(1);
-			fmt.Println()
 		}
+		this.logGroup.SetStartLogFileNum(REDO_LOG_GROUP)
+		this.logGroup.SetStartLSN(cType.REDO_BLOCK_SIZE*4)
+		this.logGroup.SetCheckPoint1(cType.REDO_BLOCK_SIZE*4)
+		fmt.Println(this.logGroup.getBlock(1))
 	}
+	return this;
 }
