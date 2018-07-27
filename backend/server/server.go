@@ -7,7 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/cache/system"
-	"fmt"
+	"github.com/fangker/gbdb/backend/mtr"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	test(sc)
 }
 
-func loadDBSys() *systemCache.SystemCache {
+func loadDBSys() *sc.SystemCache {
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	//	//if err != nil {
 	//	//	log.Fatal(err)
@@ -37,8 +37,6 @@ func loadDBSys() *systemCache.SystemCache {
 	}
 	return sm.LoadSysCache()
 }
-func test(sc *systemCache.SystemCache) {
-	//
-	
-	fmt.Println(sc.SysTrxIDStore().HdrTableID())
+func test(scp *sc.SystemCache) {
+	mtr.LoadTransactionManage(sc.SC)
 }

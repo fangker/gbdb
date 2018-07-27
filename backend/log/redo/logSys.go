@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"path"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
-	"fmt"
 )
 
 const (
@@ -55,10 +54,17 @@ func NewLogSys(fileDir string) *logSys {
 			file.Sync()
 			this.logGroup.file = append(this.logGroup.file, file)
 		}
-		this.logGroup.SetStartLogFileNum(REDO_LOG_GROUP)
-		this.logGroup.SetStartLSN(cType.REDO_BLOCK_SIZE*4)
-		this.logGroup.SetCheckPoint1(cType.REDO_BLOCK_SIZE*4)
-		fmt.Println(this.logGroup.getBlock(1))
+		this.init();
 	}
 	return this;
+}
+
+func (this *logSys) init() {
+	this.logGroup.SetStartLogFileNum(REDO_LOG_GROUP)
+	this.logGroup.SetStartLSN(cType.REDO_BLOCK_SIZE * 4)
+	this.logGroup.SetCheckPoint1(cType.REDO_BLOCK_SIZE * 4)
+	this.logGroup.SetCheckPoint2(cType.REDO_BLOCK_SIZE * 4)
+}
+func (this *logSys)  {
+
 }

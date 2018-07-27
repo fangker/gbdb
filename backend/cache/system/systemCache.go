@@ -1,4 +1,4 @@
-package systemCache
+package sc
 
 import ("github.com/fangker/gbdb/backend/cache"
 "github.com/fangker/gbdb/backend/tm"

@@ -3,16 +3,20 @@ package mtr
 import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
 	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/cache/system"
+	"sync/atomic"
 )
 
 type (
 	Lsn cType.Lsn
 )
 
-var SYS_MTR_ID uint64 = 0
+var sysTableID uint64 = 0
+var systemCache *sc.SystemCache
 
-func LoadTransaction(){
-
+func LoadTransactionManage(scp *sc.SystemCache) {
+	systemCache = scp
+	sysTableID = scp.SysTrxIDStore().HdrTableID()
 }
 
 type Transaction struct {
@@ -25,6 +29,6 @@ type Transaction struct {
 }
 
 func NewTransaction() *Transaction {
+	atomic.AddUint64(&sysTableID, 1)
 	return &Transaction{}
 }
-
