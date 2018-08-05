@@ -62,9 +62,6 @@ func NewLogSys(fileDir string) *logSys {
 func (this *logSys) init() {
 	this.logGroup.SetStartLogFileNum(REDO_LOG_GROUP)
 	this.logGroup.SetStartLSN(cType.REDO_BLOCK_SIZE * 4)
-	this.logGroup.SetCheckPoint1(cType.REDO_BLOCK_SIZE * 4)
+	this.logGroup.SetCheckPoint1(cType.REDO_BLOCK_SIZE * 2)
 	this.logGroup.SetCheckPoint2(cType.REDO_BLOCK_SIZE * 4)
-}
-func (this *logSys)  {
-
 }

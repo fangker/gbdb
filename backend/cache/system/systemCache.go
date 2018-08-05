@@ -1,15 +1,15 @@
 package sc
 
 import ("github.com/fangker/gbdb/backend/cache"
-"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/dm/page"
+	"github.com/fangker/gbdb/backend/tbm"
 )
 
 type SysTabler interface {
 	Tree()
 	Wrapper() cache.Wrapper
 	Insert()
-	Tfm() *tm.TableFileManage
+	Tfm() *tbm.TableFileManage
 }
 
 var SC *SystemCache

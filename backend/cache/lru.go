@@ -74,6 +74,7 @@ func (lru *LRUCache) Remove(k interface{}) (bool) {
 	}
 	return false
 }
+
 func (lru *LRUCache) List() (*list.List) {
 	return lru.dlist
 }
