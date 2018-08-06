@@ -7,7 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/cache/system"
-	"github.com/fangker/gbdb/backend/mtr"
+	"github.com/fangker/gbdb/backend/tbm"
 )
 
 func main() {
@@ -30,13 +30,18 @@ func loadDBSys() *sc.SystemCache {
 	undo_sm.AddUndoLog(undo.NewUndoLogManager(undo_log, "sys_table"))
 	undo_sm.InitSysUndoFileStructure()
 	// Sys
-	sys_tfm := tm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
-	sm.Add(tm.NewTableManager(sys_tfm, "sys_table", 0))
+	sys_tfm := tbm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
+	sm.Add(tbm.NewTableManager(sys_tfm, "sys_table", 0))
 	if !sm.IsInitialized() {
 		sm.InitSysFileStructure()
 	}
 	return sm.LoadSysCache()
 }
 func test(scp *sc.SystemCache) {
-	mtr.LoadTransactionManage(sc.SC)
+	tm:=tm.NewTransactionManage(sc.SC)
+
+
+
+
+
 }
