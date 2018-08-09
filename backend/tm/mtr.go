@@ -18,11 +18,11 @@ type Transaction struct {
 	log      []byte
 	nLogRecs uint32
 	logMode  uint8
-	startLsn Lsn
-	endLsn   Lsn
+	startLsn LSN
+	endLsn   LSN
 }
 
-func NewTransaction() *Transaction {
+func (this *TransactionManage)NewTransaction() *Transaction {
 	trID := atomic.AddUint64(&sysTableID, 1)
 	return &Transaction{trID: trID}
 }

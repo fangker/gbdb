@@ -20,4 +20,5 @@ const (
 	DDL_KEY_TYPE_INDEX
 )
 
-type Lsn uint64
+type LSN uint64
+type XID uint64

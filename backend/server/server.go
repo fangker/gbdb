@@ -38,8 +38,9 @@ func loadDBSys() *sc.SystemCache {
 	return sm.LoadSysCache()
 }
 func test(scp *sc.SystemCache) {
-	tm:=tm.NewTransactionManage(sc.SC)
+	gtm:=tm.NewTransactionManage(sc.SC)
 
+	gtm.NewTransaction()
 
 
 
