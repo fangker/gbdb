@@ -23,26 +23,22 @@ func loadDBSys() *sc.SystemCache {
 	// 创建缓冲池子
 	cb := cache.NewCacheBuffer(22)
 	// 加载字典表的过程
-	sm := spaceManager.NewSpaceManage(0, cb)
+	sm := spaceManage.NewSpaceManage(cb)
 	// Undo
-	undo_sm := spaceManager.NewSpaceManage(1, cb)
+	undo_space := spaceManage.NewSpace(1, cb)
 	undo_log := undo.NewUndoLogFileManage(utils.ENV_DIR+"/a.undo", 1)
-	undo_sm.AddUndoLog(undo.NewUndoLogManager(undo_log, "sys_table"))
-	undo_sm.InitSysUndoFileStructure()
+	undo_space=sm.AddUndoSpace(undo.NewUndoLogManager(undo_log, "sys_table"))
+	undo_space.InitSysUndoFileStructure()
 	// Sys
 	sys_tfm := tbm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
-	sm.Add(tbm.NewTableManager(sys_tfm, "sys_table", 0))
-	if !sm.IsInitialized() {
-		sm.InitSysFileStructure()
+	sys_space:=sm.AddSpace(0,tbm.NewTableManage(sys_tfm, "sys_table", 0))
+	if !sys_space.IsInitialized() {
+		sys_space.InitSysFileStructure()
 	}
-	return sm.LoadSysCache()
+	return sys_space.LoadSysCache()
 }
 func test(scp *sc.SystemCache) {
 	gtm:=tm.NewTransactionManage(sc.SC)
-
-	gtm.NewTransaction()
-
-
-
+	gtm.NewTransaction();
 
 }

@@ -3,7 +3,6 @@ package tbm
 import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/im"
-	"github.com/fangker/gbdb/backend/mtr"
 	"fmt"
 )
 
@@ -14,7 +13,7 @@ type TableManage struct {
 	tree      *im.BPlusTree
 }
 
-func NewTableManager(tfm *TableFileManage, tableName string, rootPage uint32) *TableManage {
+func NewTableManage(tfm *TableFileManage, tableName string, rootPage uint32) *TableManage {
 	this := &TableManage{tfm: tfm, TableName: tableName, TableID: tfm.TableID}
 	this.tree = im.CreateBPlusTree(this.TableID, rootPage)
 	tfm.CreateIndex();

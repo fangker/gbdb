@@ -2,7 +2,6 @@ package tm
 
 import (
 	"github.com/fangker/gbdb/backend/dm/buffPage"
-	"sync/atomic"
 )
 
 
@@ -13,7 +12,7 @@ func (this *Transaction) GetDatum() int {
 }
 
 type Transaction struct {
-	trID     uint64
+	trID     XID
 	usePage  [] *pcache.BuffPage
 	log      []byte
 	nLogRecs uint32
@@ -22,7 +21,7 @@ type Transaction struct {
 	endLsn   LSN
 }
 
-func (this *TransactionManage)NewTransaction() *Transaction {
-	trID := atomic.AddUint64(&sysTableID, 1)
+func (tm *TransactionManage)NewTransaction() *Transaction {
+	trID := tm.generateXID()
 	return &Transaction{trID: trID}
 }

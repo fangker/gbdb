@@ -1,4 +1,4 @@
-package spaceManager
+package spaceManage
 
 import (
 	"testing"
