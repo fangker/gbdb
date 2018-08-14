@@ -8,20 +8,21 @@ import (
 
 type SpaceManage struct {
 	cb *cache.CachePool
+	Spaces map[uint32] *Space
 }
 
 func NewSpaceManage(cb *cache.CachePool) *SpaceManage {
-	return  &SpaceManage{cb}
+	return  &SpaceManage{cb:cb,Spaces:make(map[uint32] *Space)}
 }
 
 func (sm *SpaceManage) AddSpace(space uint32,tm *tbm.TableManage) *Space {
 	s:= &Space{cb:sm.cb}
 	tm.Tfm().CacheBuffer = sm.cb
-	s.tf = tm
+	s.tbm = tm
 	return s
 }
 
-func (sm *SpaceManage) AddUndoSpace(uf *undo.UndoLogManager) *Space {
-	s:= &Space{cb:sm.cb,uf:uf}
+func (sm *SpaceManage) AddUndoSpace(ubm *undo.UndoLogManager) *Space {
+	s:= &Space{cb:sm.cb,ubm:ubm}
 	return s;
 }

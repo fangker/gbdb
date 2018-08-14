@@ -12,8 +12,8 @@ var SM *Space
 
 type Space struct {
 	cb    *cache.CachePool
-	tf    *tbm.TableManage
-	uf    *undo.UndoLogManager
+	tbm    *tbm.TableManage
+	ubm    *undo.UndoLogManager
 	Space uint32
 }
 
@@ -24,20 +24,20 @@ func NewSpace(space uint32, cb *cache.CachePool) *Space {
 
 
 func (sm *Space) InitSysFileStructure() {
-	sm.tf.Tfm().InitSysFile()
+	sm.tbm.Tfm().InitSysFile()
 }
 
 func (sm *Space) IsInitialized() bool {
-	return sm.tf.Tfm().IsInitialized()
+	return sm.tbm.Tfm().IsInitialized()
 }
 
 func (sm *Space) GetTf() *tbm.TableManage {
-	return sm.tf
+	return sm.tbm
 }
 
 func (sm *Space) LoadSysCache() *sc.SystemCache {
 	sm.tf.TableID = 0
-	sys := sm.tf
+	sys := sm.tbm
 	tfm := sys.Tfm()
 	dirct_bp := sm.cb.GetPage(sys.Wrapper(), 8)
 	dirct:=page.NewDictPage(dirct_bp);
@@ -52,5 +52,5 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 }
 
 func (sm *Space) InitSysUndoFileStructure() bool{
-	return sm.uf.Ufm().InitSysUndoFile()
+	return sm.ubm.Ufm().InitSysUndoFile()
 }
