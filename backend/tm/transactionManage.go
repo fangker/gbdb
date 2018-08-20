@@ -37,3 +37,13 @@ func (tm *TransactionManage) generateXID() XID {
     // TODO: 256累加
 	return tm.TrID
 }
+
+func (tm *TransactionManage)TrxStart() *Transaction {
+	trID := tm.generateXID()
+	return &Transaction{trID: trID}
+}
+
+func (tm *TransactionManage)TrxCommit()  {
+
+}
+

@@ -21,7 +21,7 @@ type Transaction struct {
 	endLsn   LSN
 }
 
-func (tm *TransactionManage)NewTransaction() *Transaction {
-	trID := tm.generateXID()
-	return &Transaction{trID: trID}
+// redo & undp data
+func (this *Transaction) SetData(pageNo uint32,offset uint32,bytes []byte) {
+
 }

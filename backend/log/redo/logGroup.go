@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	Lsn cType.Lsn
+	Lsn cType.LSN
 )
 
 type logGroup struct {
