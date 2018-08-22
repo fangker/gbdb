@@ -4,10 +4,10 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/spaceManager"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/cache/system"
 	"github.com/fangker/gbdb/backend/tbm"
+	"github.com/fangker/gbdb/backend/tm"
 )
 
 func main() {
@@ -39,9 +39,10 @@ func loadDBSys() (*sc.SystemCache,*spaceManage.SpaceManage) {
 }
 
 func test(sct *sc.SystemCache,smt *spaceManage.SpaceManage) {
-	gtm := tm.NewTransactionManage(sc.SC)
-	gtm.NewTransaction()
-
-
+	// 载入事物管理器
+	tm.NewTransactionManage(sc.SC)
+	// 创建一个新的表
+	trx:=tm.TM.TrxStart();
+	sct.Sys_tables.Insert(trx.TrxID)
 
 }

@@ -34,9 +34,9 @@ func (sm *Space) IsInitialized() bool {
 func (sm *Space) GetTf() *tbm.TableManage {
 	return sm.tbm
 }
-
+// 载入sys缓存
 func (sm *Space) LoadSysCache() *sc.SystemCache {
-	sm.tf.TableID = 0
+	sm.tbm.TableID = 0
 	sys := sm.tbm
 	tfm := sys.Tfm()
 	dirct_bp := sm.cb.GetPage(sys.Wrapper(), 8)

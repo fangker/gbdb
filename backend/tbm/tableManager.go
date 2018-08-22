@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/im"
 	"fmt"
+	. "github.com/fangker/gbdb/backend/dm/constants/cType"
 )
 
 type TableManage struct {
@@ -28,7 +29,7 @@ func (this *TableManage) Wrapper() cache.Wrapper {
 	return this.tfm.wrapper()
 }
 
-func (this *TableManage) Insert(){
+func (this *TableManage) Insert(xid XID){
 	fmt.Println(this.tree);
 }
 

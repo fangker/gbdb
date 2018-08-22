@@ -3,12 +3,13 @@ package sc
 import ("github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"github.com/fangker/gbdb/backend/tbm"
+	. "github.com/fangker/gbdb/backend/dm/constants/cType"
 )
 
 type SysTabler interface {
 	Tree()
 	Wrapper() cache.Wrapper
-	Insert()
+	Insert(data XID)
 	Tfm() *tbm.TableFileManage
 }
 
