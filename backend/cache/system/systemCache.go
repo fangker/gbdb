@@ -4,13 +4,16 @@ import ("github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"github.com/fangker/gbdb/backend/tbm"
 	. "github.com/fangker/gbdb/backend/dm/constants/cType"
+	"NYADB2/backend/parser/statement"
 )
 
 type SysTabler interface {
 	Tree()
 	Wrapper() cache.Wrapper
-	Insert(data XID)
+	Insert(data XID,st *statement.Insert)
 	Tfm() *tbm.TableFileManage
+	// 用于载入元组
+	LoadTuple(create *statement.Create)
 }
 
 var SC *SystemCache
@@ -45,3 +48,4 @@ func (this SystemCache) SysTrxIDStore() page.DictPager {
 func (this SystemCache) CreateTable(){
 
 }
+

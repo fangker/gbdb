@@ -5,6 +5,7 @@ import (
 	"github.com/fangker/gbdb/backend/im"
 	"fmt"
 	. "github.com/fangker/gbdb/backend/dm/constants/cType"
+	"NYADB2/backend/parser/statement"
 )
 
 type TableManage struct {
@@ -12,6 +13,7 @@ type TableManage struct {
 	TableName string
 	tfm       *TableFileManage
 	tree      *im.BPlusTree
+	field     []*field
 }
 
 func NewTableManage(tfm *TableFileManage, tableName string, rootPage uint32) *TableManage {
@@ -29,7 +31,7 @@ func (this *TableManage) Wrapper() cache.Wrapper {
 	return this.tfm.wrapper()
 }
 
-func (this *TableManage) Insert(xid XID){
+func (this *TableManage) Insert(xid XID,st *statement.Insert){
 	fmt.Println(this.tree);
 }
 
@@ -41,5 +43,9 @@ func (this *TableManage) Delete()  {
 
 }
 func (this *TableManage) Tree()  {
+
+}
+// 载入元组
+func LoadTuple(){
 
 }
