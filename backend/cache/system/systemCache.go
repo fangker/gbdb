@@ -48,4 +48,7 @@ func (this SystemCache) SysTrxIDStore() page.DictPager {
 func (this SystemCache) CreateTable(){
 
 }
+func (this SystemCache) LoadSysTuple()  {
+
+}
 

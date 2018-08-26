@@ -27,9 +27,9 @@ func (this *TableManage) Tfm() *TableFileManage {
 	return this.tfm
 }
 
-func (this *TableManage) Wrapper() cache.Wrapper {
-	return this.tfm.wrapper()
-}
+//func (this *TableManage) Wrapper() cache.Wrapper {
+//	return this.tfm.wrapper()
+//}
 
 func (this *TableManage) Insert(xid XID,st *statement.Insert){
 	fmt.Println(this.tree);

@@ -39,7 +39,7 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 	sm.tbm.TableID = 0
 	sys := sm.tbm
 	tfm := sys.Tfm()
-	dirct_bp := sm.cb.GetPage(sys.Wrapper(), 8)
+	dirct_bp := sm.cb.GetPage(sm.tbm.Tfm().Wrapper, 8)
 	dirct:=page.NewDictPage(dirct_bp);
 	newTfm := func() *tbm.TableFileManage {
 		return tbm.NewTableFileManage(tfm.FilePath, 0)
