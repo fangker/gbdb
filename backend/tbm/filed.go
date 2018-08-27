@@ -1,11 +1,18 @@
 package tbm
 
-type field struct{
+import (
+	. "github.com/fangker/gbdb/backend/dm/constants/cType"
+)
+
+type field struct {
 	name  string
 	value interface{}
-	fType int
+	fType FIELD_TYPE
+	Length    uint32
+	Precision  int
+
 }
 
-func CreateField(name string,value interface{},fType int) *field {
-	return &field{name,value,fType}
-}
+//func CreateField(name string, value interface{}, fType FIELD_TYPE) *field {
+//	return &field{name, value, fType}
+//}

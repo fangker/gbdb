@@ -2,8 +2,9 @@ package cType
 
 // Filed cType
 const (
-	FIELD_TYPE_STRING = iota
+	FIELD_TYPE_UNKNOWN = iota
 	FIELD_TYPE_VARCHAR
+	FIELD_TYPE_UINT
 	FIELD_TYPE_INT
 	FIELD_TYPE_BIT
 )
@@ -13,7 +14,7 @@ const (
 	CHAR_TYPE_UTF8 = iota
 )
 
-// Table Key Type
+// Index Key Type
 const (
 	DDL_KEY_TYPE_PRIMARY = iota
 	DDL_KEY_TYPE_UNIQUE
@@ -22,3 +23,5 @@ const (
 
 type LSN uint64
 type XID uint64
+type INDEX_TYPE int
+type FIELD_TYPE int
