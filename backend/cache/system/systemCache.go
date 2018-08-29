@@ -1,16 +1,14 @@
 package sc
 
 import (
-	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/dm/page"
-	"github.com/fangker/gbdb/backend/tbm"
-	. "github.com/fangker/gbdb/backend/dm/constants/cType"
+	. "github.com/fangker/gbdb/backend/constants/cType"
 	"NYADB2/backend/parser/statement"
+	"github.com/fangker/gbdb/backend/tbm"
 )
 
 type SysTabler interface {
 	Tree()
-	Wrapper() cache.Wrapper
 	Insert(data XID, st *statement.Insert)
 	Tfm() *tbm.TableFileManage
 	// 用于载入元组

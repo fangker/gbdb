@@ -3,7 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/constants/cType"
 )
 
 

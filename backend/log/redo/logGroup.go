@@ -3,7 +3,7 @@ package redo
 import (
 	"os"
 
-	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/constants/cType"
 	"math"
 	"github.com/fangker/gbdb/backend/utils"
 )

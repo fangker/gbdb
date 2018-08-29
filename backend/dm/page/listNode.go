@@ -1,7 +1,7 @@
 package page
 
 import (
-	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
 )
 

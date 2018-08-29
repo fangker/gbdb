@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 	"path"
-	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/constants/cType"
 	"fmt"
 )
 

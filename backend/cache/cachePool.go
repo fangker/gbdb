@@ -4,8 +4,8 @@ import (
 	"os"
 	"sync"
 
-	"github.com/fangker/gbdb/backend/dm/buffPage"
-	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/cache/buffPage"
+	"github.com/fangker/gbdb/backend/constants/cType"
 	"container/list"
 	"strconv"
 )

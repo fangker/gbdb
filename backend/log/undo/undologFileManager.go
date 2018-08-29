@@ -4,7 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"os"
 	"github.com/fangker/gbdb/backend/dm/page"
-	"github.com/fangker/gbdb/backend/dm/buffPage"
+	"github.com/fangker/gbdb/backend/cache/buffPage"
 )
 
 type UndoFileManager struct {

@@ -3,7 +3,7 @@ package tbm
 import (
 	"github.com/fangker/gbdb/backend/im"
 	"fmt"
-	. "github.com/fangker/gbdb/backend/dm/constants/cType"
+	. "github.com/fangker/gbdb/backend/constants/cType"
 	"NYADB2/backend/parser/statement"
 )
 
@@ -46,7 +46,7 @@ func (this *TableManage) Tree() {
 }
 
 // 载入元组
-func (this *TableManage) LoadTuple(t *TableManage, create *statement.Create) {
+func (this *TableManage) LoadTuple(create *statement.Create) {
 	this.TableName = create.TableName
 	for _, v := range create.Fields {
 		f := &field{name: v.Name, fType: v.FType, Length: v.Length, Precision: v.Precision}

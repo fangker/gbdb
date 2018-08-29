@@ -2,15 +2,10 @@ package pcache
 
 import (
 	"sync"
-	"github.com/fangker/gbdb/backend/dm/constants/cType"
+	"github.com/fangker/gbdb/backend/constants/cType"
 	"os"
 )
 
-//
-//cType BuffPager interface {
-//	NewBuffPage()
-//	SetType()
-//}
 
 type BuffPage struct {
 	tableId uint32
