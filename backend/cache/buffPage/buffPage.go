@@ -8,17 +8,18 @@ import (
 
 
 type BuffPage struct {
-	tableId uint32
+	tableID uint32
 	pageNo  uint32
 	dirty   bool
 	rwLock  sync.RWMutex
 	data    cType.PageData
 	pType   uint16
 	File *os.File
+	spaceID uint32
 }
 
 func NewBuffPage(tId uint32, pNo uint32) *BuffPage {
-	return &BuffPage{tableId: tId, pageNo: pNo, data: cType.PageData{}}
+	return &BuffPage{tableID: tId, pageNo: pNo, data: cType.PageData{}}
 }
 
 func (bp *BuffPage) SetDirty() {
@@ -50,15 +51,20 @@ func (bp *BuffPage) getPtype() uint16 {
 }
 
 func (bp *BuffPage) TableId() uint32 {
-	return bp.tableId
+	return bp.tableID
 }
 
 func (bp *BuffPage) PageNo() uint32 {
 	return bp.pageNo
 }
 
-func (bp *BuffPage) SetTableId(tId uint32) {
-	bp.tableId = tId
+func (bp *BuffPage) SetTableID(tbID uint32)  {
+	bp.tableID = tbID
+}
+
+
+func (bp *BuffPage) SetSpaceID(tsID uint32) {
+	bp.spaceID = tsID
 }
 
 func (bp *BuffPage) SetPageNo(pNo uint32) {

@@ -3,14 +3,13 @@ package cache
 import (
 	"os"
 	"sync"
-
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"container/list"
 	"strconv"
 )
 type CachePool struct {
-	pagePool    map[uint32]map[uint32]*pcache.BuffPage
+	pagePool    map[uint32]map[uint32]map[uint32]*pcache.BuffPage
 	maxCacheNum uint32
 	freeList    *list.List
 	flushList   *LRUCache
@@ -26,7 +25,7 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 		freeList:    list.New(),
 		flushList:   NewLRUCache(maxCacheNum),
 		lruList:     NewLRUCache(maxCacheNum),
-		pagePool:    make(map[uint32]map[uint32]*pcache.BuffPage),
+		pagePool:    make(map[uint32]map[uint32]map[uint32]*pcache.BuffPage),
 	}
 	cb.init()
 	CB = cb
@@ -35,9 +34,16 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 
 func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	// 如果缓存中存在使用缓存
-	tsID := wrap.TableID
+	tbID := wrap.TableID
+	var tpID uint32 =1
 	file := wrap.File
-	if pg, exist := cb.pagePool[tsID][pageNo]; exist {
+	if _, exist := cb.pagePool[tpID]; !exist {
+		cb.pagePool[tpID] = make(map[uint32]map[uint32]*pcache.BuffPage)
+	}
+	if _, exist := cb.pagePool[tpID][tbID]; !exist {
+		cb.pagePool[tpID][tbID] = make(map[uint32]*pcache.BuffPage)
+	}
+	if pg, exist := cb.pagePool[tpID][tbID][pageNo]; exist {
 		return pg
 	}
 	pg := cb.GetFreePage(file)
@@ -45,15 +51,12 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	var data cType.PageData
 	pg.File.Read(data[:])
 	pg.SetData(data)
-	pg.SetTableId(tsID)
+	pg.SetTableID(tbID)
+	pg.SetSpaceID(tpID)
 	pg.SetPageNo(pageNo)
-	if ts, exist := cb.pagePool[tsID]; exist {
-		ts[pageNo] = pg
-		return pg
-	}
 	pn := make(map[uint32]*pcache.BuffPage)
+	cb.pagePool[tpID][tbID] = pn
 	pn[pageNo] = pg
-	cb.pagePool[tsID] = pn
 	return pg
 }
 

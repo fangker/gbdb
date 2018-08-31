@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/page"
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/cache/system"
+	"github.com/fangker/gbdb/backend/tbm/tfm"
 )
 
 var SM *Space
@@ -37,12 +38,12 @@ func (sm *Space) GetTf() *tbm.TableManage {
 func (sm *Space) LoadSysCache() *sc.SystemCache {
 	sm.tbm.TableID = 0
 	sys := sm.tbm
-	tfm := sys.Tfm()
+	stfm := sys.Tfm()
 	dirct_bp := sm.cb.GetPage(sm.tbm.Tfm().Wrapper, 8)
 	dirct := page.NewDictPage(dirct_bp);
 	var tem_id = 0;
-	newTfm := func() *tbm.TableFileManage {
-		tbm := tbm.NewTableFileManage(tfm.FilePath, uint32(tem_id))
+	newTfm := func() *tfm.TableFileManage {
+		tbm := tfm.NewTableFileManage(stfm.FilePath, uint32(tem_id))
 		tem_id++
 		return tbm;
 	}

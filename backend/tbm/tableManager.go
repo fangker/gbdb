@@ -5,24 +5,27 @@ import (
 	"fmt"
 	. "github.com/fangker/gbdb/backend/constants/cType"
 	"NYADB2/backend/parser/statement"
+	"github.com/fangker/gbdb/backend/tbm/tfm"
 )
 
 type TableManage struct {
 	TableID   uint32
 	TableName string
-	tfm       *TableFileManage
-	tree      *im.BPlusTree
+	tfm       *tfm.TableFileManage
+	tree       *im.BPlusTree
+	//index
+	//vm
 	field     []*field
 }
 
-func NewTableManage(tfm *TableFileManage, tableName string, rootPage uint32) *TableManage {
+func NewTableManage(tfm *tfm.TableFileManage, tableName string, rootPage uint32) *TableManage {
 	this := &TableManage{tfm: tfm, TableName: tableName, TableID: tfm.TableID}
 	this.tree = im.CreateBPlusTree(this.TableID, rootPage)
 	tfm.CreateIndex();
 	return this
 }
 
-func (this *TableManage) Tfm() *TableFileManage {
+func (this *TableManage) Tfm() *tfm.TableFileManage {
 	return this.tfm
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/fangker/gbdb/backend/tm"
 	"NYADB2/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/utils/log"
+	"github.com/fangker/gbdb/backend/tbm/tfm"
 )
 
 func main() {
@@ -32,7 +33,7 @@ func loadDBSys() (*sc.SystemCache,*spaceManage.SpaceManage) {
 	undo_space = sm.AddUndoSpace(undo.NewUndoLogManager(undo_log, "sys_table"))
 	undo_space.InitSysUndoFileStructure()
 	// Sys
-	sys_tfm := tbm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
+	sys_tfm := tfm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)
 	sys_space := sm.AddSpace(0, tbm.NewTableManage(sys_tfm, "sys_table", 0))
 	if !sys_space.IsInitialized() {
 		sys_space.InitSysFileStructure()
@@ -47,6 +48,4 @@ func test(sct *sc.SystemCache,smt *spaceManage.SpaceManage) {
 	trx:=tm.TM.TrxStart();
 	sct.Sys_tables.Insert(trx.TrxID,&statement.Insert{})
 	log.Caption(sct.Sys_tables.(*tbm.TableManage))
-
-
 }
