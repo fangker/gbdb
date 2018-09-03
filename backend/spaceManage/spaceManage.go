@@ -9,6 +9,7 @@ import (
 type SpaceManage struct {
 	cb *cache.CachePool
 	Spaces map[uint32] *Space
+	UndoSpace *UndoSpace
 }
 
 func NewSpaceManage(cb *cache.CachePool) *SpaceManage {
@@ -24,5 +25,6 @@ func (sm *SpaceManage) AddSpace(space uint32,tm *tbm.TableManage) *Space {
 
 func (sm *SpaceManage) AddUndoSpace(ubm *undo.UndoLogManager) *UndoSpace {
 	s:= &UndoSpace{cb:sm.cb,ubm:ubm}
+	sm.UndoSpace = s;
 	return s;
 }

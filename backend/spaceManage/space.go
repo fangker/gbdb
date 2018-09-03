@@ -9,7 +9,7 @@ import (
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 )
 
-var SM *Space
+var S *Space
 
 type Space struct {
 	cb    *cache.CachePool
