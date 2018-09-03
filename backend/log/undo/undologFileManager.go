@@ -7,6 +7,8 @@ import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 )
 
+const UNDO_SPACE = 0;
+
 type UndoFileManager struct {
 	CacheBuffer *cache.CachePool
 	FilePath    string
@@ -18,7 +20,7 @@ func NewUndoLogFileManage(filePath string, tableID uint32) *UndoFileManager {
 	if err != nil {
 		panic(err)
 	}
-	tfm := &UndoFileManager{CacheBuffer:cache.CB,Wrapper:cache.Wrapper{tableID,file},FilePath:filePath}
+	tfm := &UndoFileManager{CacheBuffer: cache.CB, Wrapper: cache.Wrapper{UNDO_SPACE, tableID, file}, FilePath: filePath}
 	return tfm
 }
 
@@ -26,7 +28,7 @@ func (this *UndoFileManager) getFlushPage(pageNo uint32) *pcache.BuffPage {
 	return this.CacheBuffer.GetFlushPage(this.wrapper(), pageNo)
 }
 
-func (this *UndoFileManager)InitSysUndoFile() bool {
+func (this *UndoFileManager) InitSysUndoFile() bool {
 	fsp_bp := this.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
@@ -36,5 +38,5 @@ func (this *UndoFileManager)InitSysUndoFile() bool {
 }
 
 func (this *UndoFileManager) wrapper() cache.Wrapper {
-	return cache.Wrapper{this.TableID, this.File}
+	return cache.Wrapper{UNDO_SPACE, this.TableID, this.File}
 }

@@ -23,8 +23,8 @@ func (sm *SpaceManage) AddSpace(space uint32,tm *tbm.TableManage) *Space {
 	return s
 }
 
-func (sm *SpaceManage) AddUndoSpace(ubm *undo.UndoLogManager) *UndoSpace {
-	s:= &UndoSpace{cb:sm.cb,ubm:ubm}
+func (sm *SpaceManage) AddUndoSpace(space uint32,ubm *undo.UndoLogManager) *UndoSpace {
+	s:= &UndoSpace{cb:sm.cb,ubm:ubm,Space:space}
 	sm.UndoSpace = s;
 	return s;
 }

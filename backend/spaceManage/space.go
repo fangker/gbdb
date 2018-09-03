@@ -56,6 +56,3 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 	return sct;
 }
 
-func (sm *Space) InitSysUndoFileStructure() bool {
-	return sm.ubm.Ufm().InitSysUndoFile()
-}

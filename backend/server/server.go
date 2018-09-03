@@ -28,9 +28,8 @@ func loadDBSys() (*sc.SystemCache,*spaceManage.SpaceManage) {
 	// 加载字典表的过程
 	sm := spaceManage.NewSpaceManage(cb)
 	// Undo
-	undo_space := spaceManage.NewSpace(1, cb)
 	undo_log := undo.NewUndoLogFileManage(utils.ENV_DIR+"/a.undo", 1)
-	sm.AddUndoSpace(undo.NewUndoLogManager(undo_log, "sys_table"))
+	undo_space:=sm.AddUndoSpace(1,undo.NewUndoLogManager(undo_log, "sys_table"))
 	undo_space.InitSysUndoFileStructure()
 	// Sys
 	sys_tfm := tfm.NewTableFileManage(utils.ENV_DIR+"/a.db", 0)

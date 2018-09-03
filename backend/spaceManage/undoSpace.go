@@ -13,3 +13,7 @@ type UndoSpace struct {
 	Space uint32
 }
 
+
+func (sm *UndoSpace) InitSysUndoFileStructure() bool {
+	return sm.ubm.Ufm().InitSysUndoFile()
+}
