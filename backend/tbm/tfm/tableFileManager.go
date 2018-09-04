@@ -8,24 +8,28 @@ import (
 	"os"
 )
 
-
 type TableFileManage struct {
-	CacheBuffer *cache.CachePool
-	FilePath    string
-	cache.Wrapper
+	CacheBuffer  *cache.CachePool
+	FilePath     string
+	cacheWrapper cache.Wrapper
 }
 
 type TableFileManager interface {
 	SysDir() *page.DictPage
 }
 
-func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
+func NewTableFileManage(spaceID, tableID uint32, filePath string) *TableFileManage {
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		panic(err)
 	}
-	tfm := &TableFileManage{Wrapper:cache.Wrapper{tableID,file},FilePath:filePath,CacheBuffer:cache.CB}
+	tfm := &TableFileManage{cacheWrapper: cache.GetWrapper(spaceID, tableID, file), FilePath: filePath, CacheBuffer: cache.CB}
 	return tfm
+}
+func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
+	offset := pageNum * cType.PAGE_SIZE
+	sm.cacheWrapper.File.WriteAt(data[:], int64(offset))
+	sm.cacheWrapper.File.Sync()
 }
 
 //// 初始化一个文件 设定初始页面构造文件结构
@@ -39,14 +43,12 @@ func NewTableFileManage(filePath string, tableID uint32) *TableFileManage {
 //}
 //
 
-func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
-	offset := pageNum * cType.PAGE_SIZE
-	sm.File.WriteAt(data[:], int64(offset))
-	sm.File.Sync()
+func (sm *TableFileManage) CacheWrapper() cache.Wrapper {
+	return sm.cacheWrapper
 }
 
 func (sm *TableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
-	return sm.CacheBuffer.GetFlushPage(sm.wrapper(), pageNo)
+	return sm.CacheBuffer.GetFlushPage(sm.cacheWrapper, pageNo)
 }
 
 func (sm *TableFileManage) InitSysFile() {
@@ -62,30 +64,30 @@ func (sm *TableFileManage) InitSysFile() {
 	inode_bp.Lock()
 	inode_bp.Dirty()
 	inode := page.NewINodePage(inode_bp)
-	fsp_trx_bp:= sm.getFlushPage(3)
-	fsp_trx:= page.NewFSPageTrx(fsp_trx_bp)
+	fsp_trx_bp := sm.getFlushPage(3)
+	fsp_trx := page.NewFSPageTrx(fsp_trx_bp)
 	fsp_trx.SetSysTrxIDStore(0)
 
 	dict_bp := sm.getFlushPage(8)
 	dirct := page.NewDictPage(dict_bp)
 	// sys_tables
 	dirct.SetHdrTables(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
 	// sys_indexes
 	dirct.SetHdrIndex(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
 	// sys_fields
 	dirct.SetHdrFields(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
 	// sys_columns
 	dirct.SetHdrColumns(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.wrapper())
+	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树
 	sysIndex_bp := sm.getFlushPage(2)
 	sysIndex_bp.Lock()
-	sm.CacheBuffer.ForceFlush(sm.wrapper())
+	sm.CacheBuffer.ForceFlush(sm.cacheWrapper)
 }
 
 func (sm *TableFileManage) createSegment() {
@@ -113,8 +115,8 @@ func (sm *TableFileManage) FSPExtendFile() {
 }
 
 func (sm *TableFileManage) IsInitialized() bool {
-	if (sm.TableID == 0) {
-		dict_bp := sm.CacheBuffer.GetPage(sm.wrapper(), 8)
+	if (sm.cacheWrapper.TableID == 0) {
+		dict_bp := sm.CacheBuffer.GetPage(sm.cacheWrapper, 8)
 		var checkInitPage []uint32;
 		dict := page.NewDictPage(dict_bp)
 		column := dict.HdrColumns()
@@ -122,21 +124,20 @@ func (sm *TableFileManage) IsInitialized() bool {
 		index := dict.HdrIndex()
 		field := dict.HdrFields()
 		checkInitPage = append(checkInitPage, column, table, index, field)
-		for _,v := range checkInitPage {
+		for _, v := range checkInitPage {
 			if v == 0 {
 				return false
 			}
 		}
-	}else{
+	} else {
 		// user table
 	}
 	return true
 }
 
-func (sm *TableFileManage) CreateIndex(){
+func (sm *TableFileManage) CreateIndex() {
 
 }
-
 
 func (sm *TableFileManage) crateFSPExtend() {
 
@@ -148,15 +149,10 @@ func (sm *TableFileManage) space() *page.FSPage {
 
 func (sm *TableFileManage) getFragmentPage() uint32 {
 	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
-	return page.GetFragFreePage(sm.wrapper(), pageID, offset)
+	return page.GetFragFreePage(sm.cacheWrapper, pageID, offset)
 }
 
 func (sm *TableFileManage) SysDir() *page.DictPage {
-	dict_bp := sm.CacheBuffer.GetPage(sm.wrapper(), 8)
+	dict_bp := sm.CacheBuffer.GetPage(sm.cacheWrapper, 8)
 	return page.NewDictPage(dict_bp)
 }
-
-func (sm *TableFileManage) wrapper() cache.Wrapper {
-	return cache.Wrapper{sm.TableID, sm.File}
-}
-

@@ -39,18 +39,28 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 	sm.tbm.TableID = 0
 	sys := sm.tbm
 	stfm := sys.Tfm()
-	dirct_bp := sm.cb.GetPage(sm.tbm.Tfm().Wrapper, 8)
+	dirct_bp := sm.cb.GetPage(sm.tbm.Tfm().CacheWrapper(), 8)
 	dirct := page.NewDictPage(dirct_bp);
 	var tem_id = 0;
 	newTfm := func() *tfm.TableFileManage {
-		tbm := tfm.NewTableFileManage(stfm.FilePath, uint32(tem_id))
+		tbm := tfm.NewTableFileManage(0,uint32(tem_id),stfm.FilePath)
 		tem_id++
 		return tbm;
 	}
-	tables := tbm.NewTableManage(newTfm(), "sys_tables", dirct.HdrTables())
-	indexes := tbm.NewTableManage(newTfm(), "sys_indexes", dirct.HdrIndex())
-	fields := tbm.NewTableManage(newTfm(), "sys_fields", dirct.HdrFields())
-	columns := tbm.NewTableManage(newTfm(), "sys_columns", dirct.HdrColumns())
+	tables := tbm.LoadTableManage("sys_tables", dirct.HdrTables())
+	indexes := tbm.LoadTableManage("sys_indexes", dirct.HdrIndex())
+	fields := tbm.LoadTableManage("sys_fields", dirct.HdrFields())
+	columns := tbm.LoadTableManage("sys_columns", dirct.HdrColumns())
+
+	tables.LoadTfm(newTfm())
+	SM.AddSpace(0,tables)
+	tables.LoadTfm(newTfm())
+	SM.AddSpace(0,indexes)
+	tables.LoadTfm(newTfm())
+	SM.AddSpace(0,fields)
+	tables.LoadTfm(newTfm())
+	SM.AddSpace(0,columns)
+
 	sct := sc.LoadSysCache(tables, fields, columns, indexes)
 	sct.LoadSysTuple()
 	return sct;
