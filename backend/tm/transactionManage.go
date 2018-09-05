@@ -39,7 +39,9 @@ func (tm *TransactionManage) generateXID() XID {
 
 func (tm *TransactionManage) TrxStart() *Transaction {
 	trID := tm.generateXID()
-	return &Transaction{TrxID: trID}
+	t:=&Transaction{TrxID: trID}
+	tm.AddToRWTrxList(t)
+	return t
 }
 
 func (tm *TransactionManage) TrxCommit() {
