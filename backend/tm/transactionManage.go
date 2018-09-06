@@ -1,26 +1,27 @@
 package tm
 
 import (
-	"github.com/fangker/gbdb/backend/cache/system"
 	"github.com/fangker/gbdb/backend/im"
 	"sync/atomic"
 	"unsafe"
 	. "github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/dm/page"
 )
 
-
+type tmSysInfoManager interface {
+	SysTrxIDStore() page.DictPager
+}
 
 var TM *TransactionManage
 // 全局维护事物的相关信息
 type TransactionManage struct {
 	TrID        XID
 	rwTrxList   *im.SortList
-	systemCache *sc.SystemCache
+	systemCache tmSysInfoManager
 }
 
-func NewTransactionManage(scp *sc.SystemCache) *TransactionManage {
+func NewTransactionManage(scp tmSysInfoManager) *TransactionManage {
 	var this = &TransactionManage{}
-	this.systemCache = scp
 	this.TrID = XID(scp.SysTrxIDStore().HdrTableID());
 	this.rwTrxList = im.NewSortList()
 	TM = this;
@@ -39,7 +40,7 @@ func (tm *TransactionManage) generateXID() XID {
 
 func (tm *TransactionManage) TrxStart() *Transaction {
 	trID := tm.generateXID()
-	t:=&Transaction{TrxID: trID}
+	t := &Transaction{TrxID: trID}
 	tm.AddToRWTrxList(t)
 	return t
 }

@@ -43,7 +43,7 @@ func test(sct *sc.SystemCache,smt *spaceManage.SpaceManage) {
 	// 创建一个新的表
 	trx:=tm.TM.TrxStart();
 	sct.Sys_tables.Insert(trx,&statement.Insert{
-
+      
 	})
 
 }

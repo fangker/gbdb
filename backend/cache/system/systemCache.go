@@ -56,7 +56,7 @@ func (this SystemCache) LoadSysTuple() {
 			{Name: "id", FType: FIELD_TYPE_UINT, Length: 8, Precision: 0},
 			{Name: "n_cols", FType: FIELD_TYPE_UINT, Length: 1, Precision: 0},
 			{Name: "type", FType: FIELD_TYPE_UINT, Length: 1, Precision: 0},
-			{Name: "SPACE", FType: FIELD_TYPE_VARCHAR, Length: 4, Precision: 0},
+			{Name: "space", FType: FIELD_TYPE_VARCHAR, Length: 4, Precision: 0},
 		}});
 	this.Sys_fields.LoadTuple(&statement.Create{TableName: "SYS_FIELDS",
 		Fields: []statement.Field{
