@@ -6,9 +6,9 @@ import (
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/tm"
+	"github.com/fangker/gbdb/backend/cache/system"
+	"github.com/fangker/gbdb/backend/tbm/fd"
 )
-
-type filedItem []*field
 
 type TableManage struct {
 	TableID   uint32
@@ -18,7 +18,7 @@ type TableManage struct {
 	tree      *im.BPlusTree
 	//index
 	//vm
-	fields []*field
+	fields []*fd.Field
 }
 
 func NewTableManage(tableName string) *TableManage {
@@ -30,8 +30,7 @@ func NewTableManage(tableName string) *TableManage {
 
 func LoadTableManage(tableName string, root uint32) *TableManage {
 	this := &TableManage{TableName: tableName}
-	//this.tree = im.CreateBPlusTree(this.TableID, rootPage)
-	//tfm.CreateIndex();
+	//this.tree
 	return this
 }
 
@@ -49,6 +48,9 @@ func (this *TableManage) LoadTfm(tfm *tfm.TableFileManage) {
 
 func (this *TableManage) Insert(trx *tm.Transaction, st *statement.Insert) {
 
+	sc.SC.SysTrxIDStore().HdrRowID()
+	this.parseEntity(st)
+
 }
 
 func (this *TableManage) Update() {
@@ -62,15 +64,14 @@ func (this *TableManage) Tree() {
 
 }
 
-
-func (this *TableManage) parseEntity(ist *statement.Insert) []*field {
-	var fields []*field;
+func (this *TableManage) parseEntity(ist *statement.Insert) []*fd.Field {
+	var fields []*fd.Field;
 	for _, f := range this.fields {
-		index := utils.IndexOfStringArray(ist.Fields, f.name)
+		index := utils.IndexOfStringArray(ist.Fields, f.Name)
 		if index > -1 {
-			fields = append(fields, &field{name: f.name, value: ist.Values[index], fType: f.fType, Length: f.Length, Precision: f.Precision})
+			fields = append(fields, &fd.Field{Name: f.Name, Value: ist.Values[index], FType: f.FType, Length: f.Length, Precision: f.Precision})
 		} else {
-			fields = append(fields, &field{name: f.name, value: nil, fType: f.fType, Length: f.Length, Precision: f.Precision})
+			fields = append(fields, &fd.Field{Name: f.Name, Value: nil, FType: f.FType, Length: f.Length, Precision: f.Precision})
 		}
 	}
 	return fields;
@@ -80,7 +81,7 @@ func (this *TableManage) parseEntity(ist *statement.Insert) []*field {
 func (this *TableManage) LoadTuple(create *statement.Create) {
 	this.TableName = create.TableName
 	for _, v := range create.Fields {
-		f := &field{name: v.Name, fType: v.FType, Length: v.Length, Precision: v.Precision}
+		f := &fd.Field{Name: v.Name, FType: v.FType, Length: v.Length, Precision: v.Precision}
 		this.fields = append(this.fields, f)
 	}
 }
