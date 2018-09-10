@@ -86,6 +86,9 @@ func AnyViewToString(i interface{}) string {
 		s := "[ "
 		for i := 0; i < rs.Len(); i++ {
 			s = s + fmt.Sprintf("%+v ", rs.Index(i))
+			if (i!=rs.Len()-1){
+				s = s+"\n"
+			}
 		}
 		s = s + " ]"
 		return s
