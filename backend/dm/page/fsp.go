@@ -82,7 +82,7 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 
 // page 为extend page
 func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) uint32 {
-	fpge := cache.CB.GetPage(wrap, page)
+	fpge := cache.CP.GetPage(wrap, page)
 	fsp_bp := NewFSPage(fpge)
 	xdes := parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
 	var freePage int
@@ -107,6 +107,6 @@ func SetUsedPage(wrap cache.Wrapper, p uint32) {
 	if (mod == 0) {
 		mod = int(p)
 	}
-	xdes := NewFSPage(cache.CB.GetPage(wrap, xdesPageNo))
+	xdes := NewFSPage(cache.CP.GetPage(wrap, xdesPageNo))
 	xdes.setUsedExtendPage(mod)
 }

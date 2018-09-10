@@ -17,7 +17,7 @@ type CachePool struct {
 	mux         *sync.Mutex
 }
 
-var CB *CachePool
+var CP *CachePool
 
 func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 	cb := &CachePool{
@@ -28,7 +28,7 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 		pagePool:    make(map[uint32]map[uint32]map[uint32]*pcache.BuffPage),
 	}
 	cb.init()
-	CB = cb
+	CP = cb
 	return cb
 }
 
@@ -65,7 +65,7 @@ func (cb *CachePool) init() {
 	for i := 0; i < num; i++ {
 		cb.freeList.PushBack(pcache.NewBuffPage(0, 0))
 	}
-	CB = cb
+	CP = cb
 }
 // 将缓存等待页面移除加入LRU链表返回bufferPage
 func (cb *CachePool) GetFreePage(file *os.File) *pcache.BuffPage {

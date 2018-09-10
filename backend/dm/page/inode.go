@@ -39,17 +39,33 @@ func NewINodePage(bf *pcache.BuffPage) *INodePage {
 	return page
 }
 
-// 创建FreeInode并初始化首页
+// 设置inode Segment ID
 func (inp *INodePage) SetFreeInode(pageNo uint32,wrapper cache.Wrapper) {
 	SetUsedPage(wrapper,pageNo)
 	for i := 0; i < 85; i++ {
 		offset := INODEPAGE_INN_OFFSET + 12 + 192*i
 		if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
+			// index segment
+			copy(inp.BF.GetData()[offset:offset+8], utils.PutUint32(pageNo))
+			// leaf segment
 			copy(inp.BF.GetData()[offset:offset+8], utils.PutUint32(pageNo))
 			return
 		}
 		continue
 	}
+	// 超出范围
+}
+// 获得空闲 indeEntry
+
+func (inp *INodePage) getFreeInode(pageNo uint32,wrapper cache.Wrapper) int {
+	for i := 0; i < 85; i++ {
+		offset := INODEPAGE_INN_OFFSET + 12 + 192*i
+		if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
+			return i
+		}
+		continue
+	}
+	return 1
 	// 超出范围
 }
 

@@ -23,7 +23,7 @@ func NewTableFileManage(spaceID, tableID uint32, filePath string) *TableFileMana
 	if err != nil {
 		panic(err)
 	}
-	tfm := &TableFileManage{cacheWrapper: cache.GetWrapper(spaceID, tableID, file), FilePath: filePath, CacheBuffer: cache.CB}
+	tfm := &TableFileManage{cacheWrapper: cache.GetWrapper(spaceID, tableID, file), FilePath: filePath, CacheBuffer: cache.CP}
 	return tfm
 }
 func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {

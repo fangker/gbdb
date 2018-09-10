@@ -31,7 +31,7 @@ func loadDBSys() (*sc.SystemCache,*spaceManage.SpaceManage) {
 	undo_space.InitSysUndoFileStructure()
 	// Sys
 	sys_space := sm.AddSpace(0, tbm.NewTableManage("sys_table"))
-	if !sys_space.IsInitialized() {
+	if sys_space.IsInitialized() {
 		sys_space.InitSysFileStructure()
 	}
 	return sys_space.LoadSysCache(),sm
