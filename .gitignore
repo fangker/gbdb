@@ -14,5 +14,4 @@
 .glide/
 
 .idea/
-
-test_test.go
+/test_test.go
