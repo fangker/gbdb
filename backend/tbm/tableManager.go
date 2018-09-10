@@ -2,12 +2,13 @@ package tbm
 
 import (
 	"github.com/fangker/gbdb/backend/im"
-	"NYADB2/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/cache/system"
 	"github.com/fangker/gbdb/backend/tbm/fd"
+	"github.com/fangker/gbdb/backend/parser/statement"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 type TableManage struct {
@@ -47,10 +48,9 @@ func (this *TableManage) LoadTfm(tfm *tfm.TableFileManage) {
 }
 
 func (this *TableManage) Insert(trx *tm.Transaction, st *statement.Insert) {
-
 	sc.SC.SysTrxIDStore().HdrRowID()
-	this.parseEntity(st)
-
+	t:=this.parseEntity(st)
+	log.Trace("assd",log.AnyViewToString(t))
 }
 
 func (this *TableManage) Update() {
@@ -60,18 +60,19 @@ func (this *TableManage) Update() {
 func (this *TableManage) Delete() {
 
 }
+
 func (this *TableManage) Tree() {
 
 }
 
-func (this *TableManage) parseEntity(ist *statement.Insert) []*fd.Field {
-	var fields []*fd.Field;
+func (this *TableManage) parseEntity(ist *statement.Insert) []fd.Field {
+	var fields []fd.Field;
 	for _, f := range this.fields {
 		index := utils.IndexOfStringArray(ist.Fields, f.Name)
 		if index > -1 {
-			fields = append(fields, &fd.Field{Name: f.Name, Value: ist.Values[index], FType: f.FType, Length: f.Length, Precision: f.Precision})
+			fields = append(fields, fd.Field{Name: f.Name, Value: ist.Values[index], FType: f.FType, Length: f.Length, Precision: f.Precision})
 		} else {
-			fields = append(fields, &fd.Field{Name: f.Name, Value: nil, FType: f.FType, Length: f.Length, Precision: f.Precision})
+			fields = append(fields, fd.Field{Name: f.Name, Value: nil, FType: f.FType, Length: f.Length, Precision: f.Precision})
 		}
 	}
 	return fields;

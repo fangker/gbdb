@@ -8,7 +8,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache/system"
 	"github.com/fangker/gbdb/backend/tbm"
 	"github.com/fangker/gbdb/backend/tm"
-	"NYADB2/backend/parser/statement"
+	"github.com/fangker/gbdb/backend/parser/statement"
 )
 
 func main() {
@@ -43,7 +43,9 @@ func test(sct *sc.SystemCache,smt *spaceManage.SpaceManage) {
 	// 创建一个新的表
 	trx:=tm.TM.TrxStart();
 	sct.Sys_tables.Insert(trx,&statement.Insert{
-      
+		TableName :"Sys_tables",
+		Fields: []string{"name", "id","n_cols", "type", "space"},
+		Values:[]string{"students","4","3","1","3"},
 	})
 
 }

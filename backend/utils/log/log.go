@@ -2,10 +2,11 @@ package log
 
 import (
 	"log"
-	"time"
 	"runtime"
 	"strconv"
 	"fmt"
+	"reflect"
+	"time"
 )
 
 const (
@@ -35,27 +36,27 @@ const (
 )
 
 func Trace(details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
+	log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
 }
 
 func Info(details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
+	log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
 }
 
 func Error(details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
+	log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
 }
 
 func Success(details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
+	log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
 }
 
 func Warn(details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
+	log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
 }
 
 func Caption(details ...interface{}) {
-	log.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
+	log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
 }
 
 func formatLog(prefix string, details ...interface{}) string {
@@ -64,7 +65,7 @@ func formatLog(prefix string, details ...interface{}) string {
 	for _, value := range details {
 		detailsInfo = detailsInfo + " " + fmt.Sprint("", value)
 	}
-	line := fmt.Sprintf("%s|| %s", time.Now().Format("2006-01-02 03:04:05")+" "+prefix+": ", detailsInfo)
+	line := fmt.Sprintf("%s%s", prefix+" : ", detailsInfo)
 	if (log_caller) {
 		line = line + caller()
 	}
@@ -77,6 +78,26 @@ func caller() string {
 
 func background(color uint8) uint8 {
 	return color + 10
+}
+
+func AnyViewToString(i interface{}) string {
+	rs := reflect.ValueOf(i)
+	if (rs.Kind() == reflect.Slice) {
+		s := "[ "
+		for i := 0; i < rs.Len(); i++ {
+			s = s + fmt.Sprintf("%+v ", rs.Index(i))
+		}
+		s = s + " ]"
+		return s
+	}
+	if (rs.Kind() == reflect.Struct) {
+		return fmt.Sprintf("%+v", rs)
+	}
+	return fmt.Sprintf("%+v", rs)
+}
+
+func getTimeStempString() string {
+	return fmt.Sprintf("\x1b[%d;%d;%dm%s", 1, 1, 1, time.Now().Format("2006-01-02 03:04:05")+" | ")
 }
 
 // 前景 背景 颜色

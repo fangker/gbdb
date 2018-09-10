@@ -3,10 +3,9 @@ package sc
 import (
 	"github.com/fangker/gbdb/backend/dm/page"
 	. "github.com/fangker/gbdb/backend/constants/cType"
-	"NYADB2/backend/parser/statement"
+	"github.com/fangker/gbdb/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 	"github.com/fangker/gbdb/backend/tm"
-	""
 )
 
 type SysTabler interface {
@@ -38,7 +37,6 @@ func LoadSysCache(tables, fileds, columns, index SysTabler) *SystemCache {
 }
 
 func (this SystemCache) SetSysTrxIDStore(TrxID uint32) {
-
 }
 
 func (this SystemCache) SysTrxIDStore() page.DictPager {
@@ -50,7 +48,7 @@ func (this SystemCache) CreateTable() {
 }
 
 func (this SystemCache) LoadSysTuple() {
-	// 载入系统元组
+	// 载入系统字典表元组
 	this.Sys_tables.LoadTuple(&statement.Create{TableName: "SYS_TABLES",
 		Fields: []statement.Field{
 			{Name: "name", FType: FIELD_TYPE_VARCHAR, Length: 64, Precision: 0},
