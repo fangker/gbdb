@@ -15,7 +15,7 @@ type Student struct {
 	n N
 }
 
-func Test(T *testing.T)  {s:=&Student{name:"张某",age:22}
+func Test(T *testing.T)  {
 
 }
 

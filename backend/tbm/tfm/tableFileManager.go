@@ -61,9 +61,7 @@ func (sm *TableFileManage) InitSysFile() {
 	// 为了建立索引树先初始化一个Inode entity
 	inode_bp := sm.getFlushPage(1)
 	// 创建段描述页
-	inode_bp.Lock()
-	inode_bp.Dirty()
-	inode := page.NewINodePage(inode_bp)
+	inode := page.NewINodePage(inode_bp, sm.cacheWrapper)
 	fsp_trx_bp := sm.getFlushPage(3)
 	fsp_trx := page.NewFSPageTrx(fsp_trx_bp)
 	fsp_trx.SetSysTrxIDStore(0)
@@ -72,16 +70,16 @@ func (sm *TableFileManage) InitSysFile() {
 	dirct := page.NewDictPage(dict_bp)
 	// sys_tables
 	dirct.SetHdrTables(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
+	inode.CreatInode(sm.getFragmentPage())
 	// sys_indexes
 	dirct.SetHdrIndex(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
+	inode.CreatInode(sm.getFragmentPage())
 	// sys_fields
 	dirct.SetHdrFields(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
+	inode.CreatInode(sm.getFragmentPage())
 	// sys_columns
 	dirct.SetHdrColumns(sm.getFragmentPage())
-	inode.SetFreeInode(sm.getFragmentPage(), sm.cacheWrapper)
+	inode.CreatInode(sm.getFragmentPage())
 	inode.FH.SetOffset(1)
 	inode_bp.Dirty()
 	// 第三个页面创建索引树

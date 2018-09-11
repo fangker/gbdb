@@ -11,6 +11,7 @@ type Wrapper struct {
 func GetWrapper(SpaceID,TableID uint32,File *os.File) Wrapper {
 	return Wrapper{SpaceID,TableID,File}
 }
+
 //func (wp *Wrapper) tableID() uint32 {
 //	return wp.TableID;
 //}

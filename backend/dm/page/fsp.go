@@ -6,7 +6,6 @@ import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
-
 )
 
 const (
@@ -14,6 +13,8 @@ const (
 	FSPAGE_FSPH_OFFSET = 34
 	FSPAGE_XDES_OFFSET = 139
 )
+
+var cachePool = cache.CP
 
 type FSPage struct {
 	FH           *FilHeader
@@ -62,7 +63,6 @@ func (fsp *FSPage) InitSysUndoExtend() {
 	fsp.FSH.FragFreeList.SetLen(1)
 }
 
-
 func (fsp *FSPage) setUsedExtendPage(p int) {
 	i := (p+1)/64 + 1
 	site := int(p / 4)
@@ -87,7 +87,7 @@ func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) uint32 {
 	xdes := parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
 	var freePage int
 	for k, v := range xdes.BitMap() {
-		if(v==255){
+		if (v == 255) {
 			continue
 		}
 		for i := uint(3); i >= 0; i = i - 1 {
@@ -101,12 +101,21 @@ result:
 	return uint32(freePage) + page*256*64
 }
 
-func SetUsedPage(wrap cache.Wrapper, p uint32) {
+func SetUsedPage(wp cache.Wrapper,p uint32) {
 	xdesPageNo := uint32(p/64*256) * 64 * 256
 	mod := int(xdesPageNo % (64 * 256))
 	if (mod == 0) {
 		mod = int(p)
 	}
-	xdes := NewFSPage(cache.CP.GetPage(wrap, xdesPageNo))
+	xdes := NewFSPage(cache.CP.GetPage(wp, xdesPageNo))
 	xdes.setUsedExtendPage(mod)
+}
+
+
+func addToFreeInodeList()  {
+
+}
+
+func addToFullInodeList()  {
+
 }
