@@ -79,5 +79,9 @@ func (inp *INodePage) getFreeInode(pageNo uint32) int {
 
 func (inp *INodePage) init(){
 	fsp:=NewFSPage(cachePool.GetPage(inp.wp,0))
-	fsp.FSH.freeInodeList.SetFirst()
+	if(fsp.FSH.freeInodeList.GetLen()==0){
+		fsp.FSH.freeInodeList.SetFirst()
+		fsp.FSH.freeInodeList.SetLast()
+	}
+
 }

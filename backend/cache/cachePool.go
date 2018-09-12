@@ -8,6 +8,7 @@ import (
 	"container/list"
 	"strconv"
 )
+
 type CachePool struct {
 	pagePool    map[uint32]map[uint32]map[uint32]*pcache.BuffPage
 	maxCacheNum uint32
@@ -35,7 +36,7 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	// 如果缓存中存在使用缓存
 	tbID := wrap.TableID
-	var tpID uint32 =1
+	tpID := wrap.SpaceID
 	file := wrap.File
 	if _, exist := cb.pagePool[tpID]; !exist {
 		cb.pagePool[tpID] = make(map[uint32]map[uint32]*pcache.BuffPage)
@@ -46,14 +47,12 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	if pg, exist := cb.pagePool[tpID][tbID][pageNo]; exist {
 		return pg
 	}
-	pg := cb.GetFreePage(file)
-	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
+	pg := cb.GetFreePage(wrap)
 	var data cType.PageData
+	// read data
+	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
 	pg.File.Read(data[:])
 	pg.SetData(data)
-	pg.SetTableID(tbID)
-	pg.SetSpaceID(tpID)
-	pg.SetPageNo(pageNo)
 	pn := make(map[uint32]*pcache.BuffPage)
 	cb.pagePool[tpID][tbID] = pn
 	pn[pageNo] = pg
@@ -63,16 +62,17 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 func (cb *CachePool) init() {
 	num := int(cb.maxCacheNum)
 	for i := 0; i < num; i++ {
-		cb.freeList.PushBack(pcache.NewBuffPage(0, 0))
+		cb.freeList.PushBack(pcache.NewBuffPage(Wrapper{}))
 	}
 	CP = cb
 }
+
 // 将缓存等待页面移除加入LRU链表返回bufferPage
-func (cb *CachePool) GetFreePage(file *os.File) *pcache.BuffPage {
+func (cb *CachePool) GetFreePage(wp Wrapper) *pcache.BuffPage {
 	listEle := cb.freeList.Front()
 	pg := cb.freeList.Front().Value.(*pcache.BuffPage)
 	cb.freeList.Remove(listEle)
-	pg.File = file
+	pg.SetWrapper(wp)
 	return pg
 }
 
@@ -85,10 +85,10 @@ func (cb *CachePool) GetFlushPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage 
 
 func (cb *CachePool) ForceFlush(wrap Wrapper) {
 	for l := cb.flushList.List().Front(); l != nil; l = l.Next() {
-		val:=l.Value.(*CacheNode);
-		pg:=val.Value.(*pcache.BuffPage);
-		if(pg.Dirty()==true){
-			wrap.File.WriteAt(pg.GetData()[:],int64(pg.PageNo()*cType.PAGE_SIZE))
+		val := l.Value.(*CacheNode);
+		pg := val.Value.(*pcache.BuffPage);
+		if (pg.Dirty() == true) {
+			wrap.File.WriteAt(pg.GetData()[:], int64(pg.PageNo()*cType.PAGE_SIZE))
 			wrap.File.Sync()
 		}
 	}

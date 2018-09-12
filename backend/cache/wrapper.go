@@ -2,6 +2,9 @@ package cache
 
 import "os"
 
+/*
+static wrapper for global file location
+*/
 type Wrapper struct {
 	SpaceID uint32
 	TableID uint32

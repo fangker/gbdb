@@ -4,22 +4,20 @@ import (
 	"sync"
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"os"
+	"github.com/fangker/gbdb/backend/cache"
 )
 
-
 type BuffPage struct {
-	tableID uint32
-	pageNo  uint32
-	dirty   bool
-	rwLock  sync.RWMutex
-	data    cType.PageData
-	pType   uint16
-	File *os.File
-	spaceID uint32
+	dirty  bool
+	rwLock sync.RWMutex
+	data   cType.PageData
+	pType  uint16
+	wp     cache.Wrapper
+	File   *os.File
 }
 
-func NewBuffPage(tId uint32, pNo uint32) *BuffPage {
-	return &BuffPage{tableID: tId, pageNo: pNo, data: cType.PageData{}}
+func NewBuffPage(wrapper cache.Wrapper) *BuffPage {
+	return &BuffPage{wp: wrapper, data: cType.PageData{}}
 }
 
 func (bp *BuffPage) SetDirty() {
@@ -50,23 +48,28 @@ func (bp *BuffPage) getPtype() uint16 {
 	return bp.pType
 }
 
-func (bp *BuffPage) TableId() uint32 {
-	return bp.tableID
+func (bp *BuffPage) SetWrapper(wp cache.Wrapper) {
+	bp.wp = wp;
 }
 
-func (bp *BuffPage) PageNo() uint32 {
-	return bp.pageNo
-}
+//func (bp *BuffPage) TableId() uint32 {
+//	return bp.tableID
+//}
+//
+//func (bp *BuffPage) PageNo() uint32 {
+//	return bp.pageNo
+//}
+//
+//func (bp *BuffPage) SetTableID(tbID uint32) {
+//	bp.tableID = tbID
+//}
+//
+//func (bp *BuffPage) SetSpaceID(tsID uint32) {
+//	bp.spaceID = tsID
+//}
+//
+//func (bp *BuffPage) SetPageNo(pNo uint32) {
+//	bp.pageNo = pNo
+//}
+//
 
-func (bp *BuffPage) SetTableID(tbID uint32)  {
-	bp.tableID = tbID
-}
-
-
-func (bp *BuffPage) SetSpaceID(tsID uint32) {
-	bp.spaceID = tsID
-}
-
-func (bp *BuffPage) SetPageNo(pNo uint32) {
-	bp.pageNo = pNo
-}
