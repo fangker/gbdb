@@ -8,6 +8,7 @@ import (
 )
 
 type BuffPage struct {
+	pageNo uint32
 	dirty  bool
 	rwLock sync.RWMutex
 	data   cType.PageData
@@ -56,9 +57,9 @@ func (bp *BuffPage) SetWrapper(wp cache.Wrapper) {
 //	return bp.tableID
 //}
 //
-//func (bp *BuffPage) PageNo() uint32 {
-//	return bp.pageNo
-//}
+func (bp *BuffPage) PageNo() uint32 {
+	return bp.pageNo
+}
 //
 //func (bp *BuffPage) SetTableID(tbID uint32) {
 //	bp.tableID = tbID
@@ -68,8 +69,8 @@ func (bp *BuffPage) SetWrapper(wp cache.Wrapper) {
 //	bp.spaceID = tsID
 //}
 //
-//func (bp *BuffPage) SetPageNo(pNo uint32) {
-//	bp.pageNo = pNo
-//}
-//
+func (bp *BuffPage) SetPageNo(pNo uint32) {
+	bp.pageNo = pNo
+}
+
 

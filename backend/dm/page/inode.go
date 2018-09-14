@@ -28,22 +28,22 @@ type INodePage struct {
 	FH  *FilHeader
 	INN *FirstNode
 	BF  *pcache.BuffPage
-	wp cache.Wrapper
+	wp  cache.Wrapper
 }
 
-func NewINodePage(bf *pcache.BuffPage,wrapper cache.Wrapper) *INodePage {
+func NewINodePage(bf *pcache.BuffPage, wrapper cache.Wrapper) *INodePage {
 	page := &INodePage{
 		FH:  &FilHeader{data: bf.GetData()},
 		INN: &FirstNode{data: bf.GetData(), _offset: INODEPAGE_INN_OFFSET},
 		BF:  bf,
-		wp: wrapper,
+		wp:  wrapper,
 	}
 	return page
 }
 
 // 设置inode Segment ID
 func (inp *INodePage) CreatInode(pageNo uint32) {
-	SetUsedPage(inp.wp,pageNo)
+	SetUsedPage(inp.wp, pageNo)
 	//for i := 0; i < 85; i++ {
 	//	offset := INODEPAGE_INN_OFFSET + 12 + 192*i
 	//	if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
@@ -59,10 +59,8 @@ func (inp *INodePage) CreatInode(pageNo uint32) {
 }
 
 // 获得空闲 inodeEntry
-func (inp *INodePage) setFreeInode(i int)  {
-	fsp:=NewFSPage(cachePool.GetPage(inp.wp,0))
-
-
+func (inp *INodePage) setFreeInode(i int) {
+	fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
 
 }
 
@@ -77,11 +75,36 @@ func (inp *INodePage) getFreeInode(pageNo uint32) int {
 	return 1
 }
 
-func (inp *INodePage) init(){
-	fsp:=NewFSPage(cachePool.GetPage(inp.wp,0))
-	if(fsp.FSH.freeInodeList.GetLen()==0){
-		fsp.FSH.freeInodeList.SetFirst()
-		fsp.FSH.freeInodeList.SetLast()
+// 获得本页空闲 inode Entry
+func (inp *INodePage) getFreeInodeEntryInThisInodePage() (feoa []uint16) {
+	for i := 0; i < 85; i++ {
+		offset := INODEPAGE_INN_OFFSET + 12 + 192*i
+		if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
+			feoa = append(feoa, uint16(offset));
+		}
+		continue
+	}
+
+	return feoa
+}
+
+func (inp *INodePage) getLastUsedPageFromInodeList(il *FistBaseNode)  {
+	var tmpPage uint32
+	page,_:=il.GetLast()
+	cachePool.GetPage(inp.wp, page);
+	il.GetLast()
+
+}
+
+func (inp *INodePage) init() {
+	// 初始化此页所有entry加入freeInodeList
+	fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
+	if (fsp.FSH.freeInodeList.GetLen() == 0) {
+		feoa := inp.getFreeInodeEntryInThisInodePage();
+		for _, v := range feoa {
+			fsp.FSH.freeInodeList.SetFirst(inp.BF.PageNo(), v)
+			fsp.FSH.freeInodeList.SetLast(inp.BF.PageNo(), v)
+		}
 	}
 
 }

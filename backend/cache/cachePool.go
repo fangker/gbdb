@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"os"
 	"sync"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
@@ -37,7 +36,6 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 	// 如果缓存中存在使用缓存
 	tbID := wrap.TableID
 	tpID := wrap.SpaceID
-	file := wrap.File
 	if _, exist := cb.pagePool[tpID]; !exist {
 		cb.pagePool[tpID] = make(map[uint32]map[uint32]*pcache.BuffPage)
 	}
@@ -48,8 +46,9 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 		return pg
 	}
 	pg := cb.GetFreePage(wrap)
-	var data cType.PageData
+	pg.SetPageNo(pageNo)
 	// read data
+	var data cType.PageData
 	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
 	pg.File.Read(data[:])
 	pg.SetData(data)

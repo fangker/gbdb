@@ -3,6 +3,7 @@ package page
 import (
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/cache"
 )
 
 const (
@@ -27,6 +28,18 @@ const (
 type FistBaseNode struct {
 	_offset int
 	data    *cType.PageData
+	wp cache.Wrapper
+}
+
+func (fbn *FistBaseNode) GetNextLast() ( page,offset uint32) {
+	p,offset:=fbn.GetLast()
+	if offset==0 {
+		return p,offset
+	}
+}
+
+func (fbn *FistBaseNode) GetPrevFirst() uint32 {
+
 }
 
 func (fbn *FistBaseNode) GetLen() uint32 {
