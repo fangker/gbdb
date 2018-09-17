@@ -53,6 +53,7 @@ func (sm *TableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
 }
 
 func (sm *TableFileManage) InitSysFile() {
+
 	fsp_bp := sm.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)

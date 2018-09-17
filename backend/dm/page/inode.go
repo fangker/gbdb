@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/wrapper"
+	"github.com/fangker/gbdb/backend/cache"
 )
 
 const (
@@ -90,7 +91,7 @@ func (inp *INodePage) getFreeInodeEntryInThisInodePage() (feoa []uint16) {
 
 func (inp *INodePage) Init() {
 	// 初始化此页所有entry加入freeInodeList
-	fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
+	fsp := NewFSPage(cache.CP.GetPage(inp.wp, 0))
 	fsp_free_inode_list := fsp.FSH.freeInodeList
 	if (fsp_free_inode_list.GetLen() == 0) {
 		fsp_free_inode_list.SetFirst(inp.BF.PageNo(), inp.INL._offset)

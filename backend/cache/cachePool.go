@@ -53,9 +53,9 @@ func (cb *CachePool) GetPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
 	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
 	pg.File.Read(data[:])
 	pg.SetData(data)
-	pn := make(map[uint32]*pcache.BuffPage)
-	cb.pagePool[tpID][tbID] = pn
-	pn[pageNo] = pg
+	//pn := make(map[uint32]*pcache.BuffPage)
+	//cb.pagePool[tpID][tbID] = pn
+	cb.pagePool[tpID][tbID][pageNo] = pg
 	return pg
 }
 
