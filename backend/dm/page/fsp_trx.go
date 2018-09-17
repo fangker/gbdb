@@ -3,15 +3,15 @@ package page
 import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
-	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 type FSPageTrx struct {
 	FH           *FilHeader
 	BP           *pcache.BuffPage
 	data         *cType.PageData
-	cacheWrapper cache.Wrapper
+	cacheWrapper wp.Wrapper
 }
 
 func NewFSPageTrx(bp *pcache.BuffPage) *FSPageTrx {

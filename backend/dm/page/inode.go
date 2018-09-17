@@ -5,7 +5,7 @@ package page
 import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/cache"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 const (
@@ -26,15 +26,15 @@ var (
 
 type INodePage struct {
 	FH  *FilHeader
-	INN *FirstNode
+	INL *FirstNode
 	BF  *pcache.BuffPage
-	wp  cache.Wrapper
+	wp  wp.Wrapper
 }
 
-func NewINodePage(bf *pcache.BuffPage, wrapper cache.Wrapper) *INodePage {
+func NewINodePage(bf *pcache.BuffPage, wrapper wp.Wrapper) *INodePage {
 	page := &INodePage{
 		FH:  &FilHeader{data: bf.GetData()},
-		INN: &FirstNode{data: bf.GetData(), _offset: INODEPAGE_INN_OFFSET},
+		INL: &FirstNode{data: bf.GetData(), _offset: INODEPAGE_INN_OFFSET},
 		BF:  bf,
 		wp:  wrapper,
 	}
@@ -60,7 +60,7 @@ func (inp *INodePage) CreatInode(pageNo uint32) {
 
 // 获得空闲 inodeEntry
 func (inp *INodePage) setFreeInode(i int) {
-	fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
+	//fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
 
 }
 
@@ -88,23 +88,26 @@ func (inp *INodePage) getFreeInodeEntryInThisInodePage() (feoa []uint16) {
 	return feoa
 }
 
-func (inp *INodePage) getLastUsedPageFromInodeList(il *FistBaseNode)  {
-	var tmpPage uint32
-	page,_:=il.GetLast()
-	cachePool.GetPage(inp.wp, page);
-	il.GetLast()
-
-}
-
-func (inp *INodePage) init() {
+func (inp *INodePage) Init() {
 	// 初始化此页所有entry加入freeInodeList
 	fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
-	if (fsp.FSH.freeInodeList.GetLen() == 0) {
-		feoa := inp.getFreeInodeEntryInThisInodePage();
-		for _, v := range feoa {
-			fsp.FSH.freeInodeList.SetFirst(inp.BF.PageNo(), v)
-			fsp.FSH.freeInodeList.SetLast(inp.BF.PageNo(), v)
+	fsp_free_inode_list := fsp.FSH.freeInodeList
+	if (fsp_free_inode_list.GetLen() == 0) {
+		fsp_free_inode_list.SetFirst(inp.BF.PageNo(), inp.INL._offset)
+		fsp_free_inode_list.SetLast(inp.BF.PageNo(), inp.INL._offset)
+		fsp_free_inode_list.SetLen(1)
+	} else {
+		var iter *FirstNode
+		var page uint32
+		var i uint32
+		// 切到最后一位
+		for i = 0; i < fsp_free_inode_list.GetLen(); i++ {
+			iter, page, _ = fsp_free_inode_list.GetNext()
 		}
+		iter.SetLast(inp.BF.PageNo(), inp.INL._offset)
+		inp.INL.SetFirst(page, inp.INL._offset)
+		inp.INL.SetLast(fsp.BP.PageNo(), fsp_free_inode_list._offset)
+		fsp_free_inode_list.SetLast(inp.BF.PageNo(), fsp_free_inode_list._offset)
+		fsp_free_inode_list.SetLen(fsp_free_inode_list.GetLen()+1)
 	}
-
 }

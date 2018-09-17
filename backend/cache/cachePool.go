@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"container/list"
 	"strconv"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 type CachePool struct {
@@ -32,7 +33,7 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 	return cb
 }
 
-func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
+func (cb *CachePool) GetPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
 	// 如果缓存中存在使用缓存
 	tbID := wrap.TableID
 	tpID := wrap.SpaceID
@@ -61,13 +62,13 @@ func (cb *CachePool) GetPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
 func (cb *CachePool) init() {
 	num := int(cb.maxCacheNum)
 	for i := 0; i < num; i++ {
-		cb.freeList.PushBack(pcache.NewBuffPage(Wrapper{}))
+		cb.freeList.PushBack(pcache.NewBuffPage(wp.Wrapper{}))
 	}
 	CP = cb
 }
 
 // 将缓存等待页面移除加入LRU链表返回bufferPage
-func (cb *CachePool) GetFreePage(wp Wrapper) *pcache.BuffPage {
+func (cb *CachePool) GetFreePage(wp wp.Wrapper) *pcache.BuffPage {
 	listEle := cb.freeList.Front()
 	pg := cb.freeList.Front().Value.(*pcache.BuffPage)
 	cb.freeList.Remove(listEle)
@@ -75,14 +76,14 @@ func (cb *CachePool) GetFreePage(wp Wrapper) *pcache.BuffPage {
 	return pg
 }
 
-func (cb *CachePool) GetFlushPage(wrap Wrapper, pageNo uint32) *pcache.BuffPage {
+func (cb *CachePool) GetFlushPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
 	pg := cb.GetPage(wrap, pageNo)
 	pg.SetDirty()
 	cb.flushList.Set(strconv.Itoa(int(wrap.TableID))+strconv.Itoa(int(pageNo)), pg)
 	return pg;
 }
 
-func (cb *CachePool) ForceFlush(wrap Wrapper) {
+func (cb *CachePool) ForceFlush(wrap wp.Wrapper) {
 	for l := cb.flushList.List().Front(); l != nil; l = l.Next() {
 		val := l.Value.(*CacheNode);
 		pg := val.Value.(*pcache.BuffPage);

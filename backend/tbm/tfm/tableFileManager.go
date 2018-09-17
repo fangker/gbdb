@@ -6,12 +6,13 @@ import (
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"os"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 type TableFileManage struct {
 	CacheBuffer  *cache.CachePool
 	FilePath     string
-	cacheWrapper cache.Wrapper
+	cacheWrapper wp.Wrapper
 }
 
 type TableFileManager interface {
@@ -23,7 +24,7 @@ func NewTableFileManage(spaceID, tableID uint32, filePath string) *TableFileMana
 	if err != nil {
 		panic(err)
 	}
-	tfm := &TableFileManage{cacheWrapper: cache.GetWrapper(spaceID, tableID, file), FilePath: filePath, CacheBuffer: cache.CP}
+	tfm := &TableFileManage{cacheWrapper: wp.GetWrapper(spaceID, tableID, file), FilePath: filePath, CacheBuffer: cache.CP}
 	return tfm
 }
 func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
@@ -43,7 +44,7 @@ func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
 //}
 //
 
-func (sm *TableFileManage) CacheWrapper() cache.Wrapper {
+func (sm *TableFileManage) CacheWrapper() wp.Wrapper {
 	return sm.cacheWrapper
 }
 
@@ -62,6 +63,7 @@ func (sm *TableFileManage) InitSysFile() {
 	inode_bp := sm.getFlushPage(1)
 	// 创建段描述页
 	inode := page.NewINodePage(inode_bp, sm.cacheWrapper)
+	inode.Init()
 	fsp_trx_bp := sm.getFlushPage(3)
 	fsp_trx := page.NewFSPageTrx(fsp_trx_bp)
 	fsp_trx.SetSysTrxIDStore(0)

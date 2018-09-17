@@ -5,6 +5,7 @@ import (
 	"os"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 const UNDO_SPACE = 0;
@@ -12,7 +13,7 @@ const UNDO_SPACE = 0;
 type UndoFileManager struct {
 	CacheBuffer *cache.CachePool
 	FilePath    string
-	cache.Wrapper
+	wp.Wrapper
 }
 
 func NewUndoLogFileManage(filePath string, tableID uint32) *UndoFileManager {
@@ -20,7 +21,7 @@ func NewUndoLogFileManage(filePath string, tableID uint32) *UndoFileManager {
 	if err != nil {
 		panic(err)
 	}
-	tfm := &UndoFileManager{CacheBuffer: cache.CP, Wrapper: cache.Wrapper{UNDO_SPACE, tableID, file}, FilePath: filePath}
+	tfm := &UndoFileManager{CacheBuffer: cache.CP, Wrapper: wp.Wrapper{UNDO_SPACE, tableID, file}, FilePath: filePath}
 	return tfm
 }
 
@@ -37,6 +38,6 @@ func (this *UndoFileManager) InitSysUndoFile() bool {
 	return true
 }
 
-func (this *UndoFileManager) wrapper() cache.Wrapper {
-	return cache.Wrapper{UNDO_SPACE, this.TableID, this.File}
+func (this *UndoFileManager) wrapper() wp.Wrapper {
+	return wp.Wrapper{UNDO_SPACE, this.TableID, this.File}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 const (
@@ -21,7 +22,7 @@ type FSPage struct {
 	FSH          *FSPHeader
 	BP           *pcache.BuffPage
 	data         *cType.PageData
-	cacheWrapper cache.Wrapper
+	cacheWrapper wp.Wrapper
 }
 
 func NewFSPage(bp *pcache.BuffPage) *FSPage {
@@ -36,7 +37,7 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 	fsPage.FH.SetOffset(0)
 	return fsPage
 }
-func (fsp *FSPage) SetCacheWrapper(c cache.Wrapper) {
+func (fsp *FSPage) SetCacheWrapper(c wp.Wrapper) {
 	fsp.cacheWrapper = c
 }
 
@@ -81,7 +82,7 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 }
 
 // page 为extend page
-func GetFragFreePage(wrap cache.Wrapper, page uint32, offset uint16) uint32 {
+func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
 	fpge := cache.CP.GetPage(wrap, page)
 	fsp_bp := NewFSPage(fpge)
 	xdes := parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
@@ -101,7 +102,7 @@ result:
 	return uint32(freePage) + page*256*64
 }
 
-func SetUsedPage(wp cache.Wrapper,p uint32) {
+func SetUsedPage(wp wp.Wrapper,p uint32) {
 	xdesPageNo := uint32(p/64*256) * 64 * 256
 	mod := int(xdesPageNo % (64 * 256))
 	if (mod == 0) {

@@ -99,7 +99,7 @@ func (fh *FilHeader) SetOffset(offset uint32) {
 
 type FSPHeader struct {
 	data          *cType.PageData
-	_offset       int
+	_offset       uint16
 	space         uint32
 	maxPage       uint32
 	limitPage     uint32
@@ -112,7 +112,7 @@ type FSPHeader struct {
 	freeInodeList *FistBaseNode
 }
 
-func newFSPHeader(offset int, data *cType.PageData) *FSPHeader {
+func newFSPHeader(offset uint16, data *cType.PageData) *FSPHeader {
 	fspHeader := new(FSPHeader)
 	fspHeader.data = data
 	fspHeader._offset = offset
@@ -141,7 +141,7 @@ func (fsp *FSPHeader) SetLimitPage(s uint32) {
 	copy(fsp.reOffset(FS_PAGE_LIMIT_OFFSET, FS_PAGE_LIMIT_SIZE), utils.PutUint32(s))
 }
 
-func (fsp *FSPHeader) reOffset(start int, end int) []byte {
+func (fsp *FSPHeader) reOffset(start uint16, end uint16) []byte {
 	return fsp.data[fsp._offset+start : fsp._offset+end]
 }
 

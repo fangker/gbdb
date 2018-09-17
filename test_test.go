@@ -2,7 +2,7 @@ package gbdb
 
 import (
 	"testing"
-	"reflect"
+	"time"
 	"fmt"
 )
 
@@ -16,21 +16,23 @@ type Student struct {
 }
 
 func Test(T *testing.T)  {
-
+	begin := time.Now().UnixNano()
+	defer func() {
+		end := time.Now().UnixNano()
+			fmt.Println((end - begin) , "ns")
+	}()
+	fmt.Println((100000000*(100000000+1))/2)
 }
 
-func anyViewToString(i interface{}) string {
-	rs:=reflect.ValueOf(i)
-	if(rs.Kind()==reflect.Slice){
-		s:="[ "
-		for i:=0;i<rs.Len();i++  {
-			s=s+fmt.Sprintf("%+v ",rs.Index(i).Elem())
-		}
-		s=s+" ]"
-		return  s
+func TestAcc(T *testing.T)  {
+	begin := time.Now().UnixNano()
+	defer func() {
+		end := time.Now().UnixNano()
+		fmt.Println((end - begin), "ns")
+	}()
+	var  a int
+	for i:=0;i<100000000;i++{
+		a+=a+i
 	}
-	if(rs.Kind()==reflect.Struct){
-		return fmt.Sprintf("%+v",rs)
-	}
-	return  fmt.Sprintf("%+v",rs)
+	fmt.Println(a)
 }

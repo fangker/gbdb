@@ -4,7 +4,7 @@ import (
 	"sync"
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"os"
-	"github.com/fangker/gbdb/backend/cache"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 type BuffPage struct {
@@ -13,11 +13,11 @@ type BuffPage struct {
 	rwLock sync.RWMutex
 	data   cType.PageData
 	pType  uint16
-	wp     cache.Wrapper
+	wp     wp.Wrapper
 	File   *os.File
 }
 
-func NewBuffPage(wrapper cache.Wrapper) *BuffPage {
+func NewBuffPage(wrapper wp.Wrapper) *BuffPage {
 	return &BuffPage{wp: wrapper, data: cType.PageData{}}
 }
 
@@ -49,7 +49,7 @@ func (bp *BuffPage) getPtype() uint16 {
 	return bp.pType
 }
 
-func (bp *BuffPage) SetWrapper(wp cache.Wrapper) {
+func (bp *BuffPage) SetWrapper(wp wp.Wrapper) {
 	bp.wp = wp;
 }
 

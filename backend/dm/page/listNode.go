@@ -3,7 +3,7 @@ package page
 import (
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/cache"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 const (
@@ -26,20 +26,22 @@ const (
 )
 
 type FistBaseNode struct {
-	_offset int
+	_offset uint16
 	data    *cType.PageData
-	wp cache.Wrapper
+	wp      wp.Wrapper
+	page    uint32
 }
 
-func (fbn *FistBaseNode) GetNextLast() ( page,offset uint32) {
-	p,offset:=fbn.GetLast()
-	if offset==0 {
-		return p,offset
-	}
+func (fbn *FistBaseNode) GetNext() (*FirstNode, uint32, uint16) {
+	p, offset := fbn.GetFirst()
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn.wp, p).GetData(), wp: fbn.wp}
+	return node, p, offset
 }
 
-func (fbn *FistBaseNode) GetPrevFirst() uint32 {
-
+func (fbn *FistBaseNode) GetPrev() (*FirstNode, uint32, uint16) {
+	p, offset := fbn.GetLast()
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn.wp, p).GetData(), wp: fbn.wp}
+	return node, p, offset
 }
 
 func (fbn *FistBaseNode) GetLen() uint32 {
@@ -69,26 +71,39 @@ func (fbn *FistBaseNode) SetLast(pageNo uint32, offset uint16) {
 }
 
 func (fbn *FistBaseNode) SetLen(len uint32) {
-	//copy(fbn.reOffset(FLST_LEN_OFFSET, FLST_LEN_SIZE), utils.PutUint32(len))
+	fbn.setData(FLST_LEN_OFFSET, 4, utils.PutUint32(len))
 }
 
-func reOffset(_offset int, start int, end int) (int, int) {
+func reOffset(_offset uint16, start uint16, end uint16) (uint16, uint16) {
 	return _offset + start, _offset + start + end
 }
 
-func (fbn *FistBaseNode) setData(start int, size int, b []byte) {
+func (fbn *FistBaseNode) setData(start uint16, size uint16, b []byte) {
 	sta, end := reOffset(fbn._offset, start, size)
 	copy(fbn.data[sta:end], b)
 }
 
-func (fbn *FistBaseNode) getData(start int, size int) []byte {
+func (fbn *FistBaseNode) getData(start uint16, size uint16) []byte {
 	sta, end := reOffset(fbn._offset, start, size)
 	return fbn.data[sta:end]
 }
 
 type FirstNode struct {
-	_offset int
+	_offset uint16
 	data    *cType.PageData
+	wp      wp.Wrapper
+}
+
+func (fn *FirstNode) GetNext() *FirstNode {
+	p, offset := fn.GetFirst()
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn.wp, p).GetData()}
+	return node
+}
+
+func (fn *FirstNode) GetPrev() *FirstNode {
+	p, offset := fn.GetLast()
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn.wp, p).GetData()}
+	return node
 }
 
 func (fn *FirstNode) GetFirst() (uint32, uint16) {
@@ -113,7 +128,7 @@ func (fn *FirstNode) SetLast(pageNo uint32, offset uint16) {
 	copy(fn.data[FLST_LAST_OFFSET+4:FLST_LAST_OFFSET+6], utils.PutUint16(offset))
 }
 
-func (fn *FirstNode) reOffset(start int, end int) []byte {
+func (fn *FirstNode) reOffset(start uint16, end uint16) []byte {
 	return fn.data[fn._offset+start : fn._offset+end]
 }
 
