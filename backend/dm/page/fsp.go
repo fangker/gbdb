@@ -18,11 +18,11 @@ const (
 var cachePool = cache.CP
 
 type FSPage struct {
-	FH           *FilHeader
-	FSH          *FSPHeader
-	BP           *pcache.BuffPage
-	data         *cType.PageData
-	cacheWrapper wp.Wrapper
+	FH   *FilHeader
+	FSH  *FSPHeader
+	BP   *pcache.BuffPage
+	data *cType.PageData
+	wp   wp.Wrapper
 }
 
 func NewFSPage(bp *pcache.BuffPage) *FSPage {
@@ -38,7 +38,7 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 	return fsPage
 }
 func (fsp *FSPage) SetCacheWrapper(c wp.Wrapper) {
-	fsp.cacheWrapper = c
+	fsp.wp = c
 }
 
 func (fsp *FSPage) InitSysExtend() {
@@ -102,7 +102,7 @@ result:
 	return uint32(freePage) + page*256*64
 }
 
-func SetUsedPage(wp wp.Wrapper,p uint32) {
+func SetUsedPage(wp wp.Wrapper, p uint32) {
 	xdesPageNo := uint32(p/64*256) * 64 * 256
 	mod := int(xdesPageNo % (64 * 256))
 	if (mod == 0) {
@@ -112,11 +112,10 @@ func SetUsedPage(wp wp.Wrapper,p uint32) {
 	xdes.setUsedExtendPage(mod)
 }
 
-
-func addToFreeInodeList()  {
+func addToFreeInodeList() {
 
 }
 
-func addToFullInodeList()  {
+func addToFullInodeList() {
 
 }

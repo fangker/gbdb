@@ -28,19 +28,19 @@ const (
 type FistBaseNode struct {
 	_offset uint16
 	data    *cType.PageData
-	wp      wp.Wrapper
+	_wp      wp.Wrapper
 	page    uint32
 }
 
 func (fbn *FistBaseNode) GetNext() (*FirstNode, uint32, uint16) {
 	p, offset := fbn.GetFirst()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn.wp, p).GetData(), wp: fbn.wp}
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), wp: fbn.wp}
 	return node, p, offset
 }
 
 func (fbn *FistBaseNode) GetPrev() (*FirstNode, uint32, uint16) {
 	p, offset := fbn.GetLast()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn.wp, p).GetData(), wp: fbn.wp}
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), wp: fbn.wp}
 	return node, p, offset
 }
 
@@ -91,18 +91,18 @@ func (fbn *FistBaseNode) getData(start uint16, size uint16) []byte {
 type FirstNode struct {
 	_offset uint16
 	data    *cType.PageData
-	wp      wp.Wrapper
+	_wp      wp.Wrapper
 }
 
 func (fn *FirstNode) GetNext() *FirstNode {
 	p, offset := fn.GetFirst()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn.wp, p).GetData()}
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn._wp, p).GetData()}
 	return node
 }
 
 func (fn *FirstNode) GetPrev() *FirstNode {
 	p, offset := fn.GetLast()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn.wp, p).GetData()}
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn._wp, p).GetData()}
 	return node
 }
 
