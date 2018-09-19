@@ -7,11 +7,17 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/wrapper"
 	"github.com/fangker/gbdb/backend/cache"
+	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
 	INODEPAGE_FH_OFFSET  = 0
 	INODEPAGE_INN_OFFSET = 34
+)
+
+const (
+	INODEPAGE_INN_SIZE = 12
 )
 
 var (
@@ -43,37 +49,30 @@ func NewINodePage(bf *pcache.BuffPage, wrapper wp.Wrapper) *INodePage {
 }
 
 // 设置inode Segment ID
-func (inp *INodePage) CreatInode(pageNo uint32) {
-	SetUsedPage(inp.wp, pageNo)
-	//for i := 0; i < 85; i++ {
-	//	offset := INODEPAGE_INN_OFFSET + 12 + 192*i
-	//	if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
-	//		// index segment
-	//		copy(inp.BF.GetData()[offset:offset+8], utils.PutUint32(pageNo))
-	//		// leaf segment
-	//		copy(inp.BF.GetData()[offset:offset+8], utils.PutUint32(pageNo))
-	//		return
-	//	}
-	//	continue
-	//}
-	inp.getFreeInode(pageNo)
+func (inp *INodePage) CreatInode() {
+	page, offset := inp.getFreeInode()
+	segmentID := getSpaceFsp(inp.wp).FSH.segmentID + 1
+	inp.InitInodeEntry(segmentID, page, offset)
 }
 
 // 获得空闲 inodeEntry
-func (inp *INodePage) setFreeInode(i int) {
+func (inp *INodePage) InitInodeEntry(segmentID uint64, page uint32, offset uint16) {
+	var ie InodeEntry
+	ie.data = inp.BF.GetData()
+	log.Caption(ie.getFreeList().GetFirst())
 	//fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
-
 }
 
-func (inp *INodePage) getFreeInode(pageNo uint32) int {
+func (inp *INodePage) getFreeInode() (page uint32, offset uint16) {
 	for i := 0; i < 85; i++ {
-		offset := INODEPAGE_INN_OFFSET + 12 + 192*i
-		if 0 != utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
-			return i
+		offset := INODEPAGE_INN_OFFSET + INODEPAGE_INN_SIZE + 192*i
+		if 0 == utils.GetUint32(inp.BF.GetData()[offset:offset+8]) {
+			return inp.BF.PageNo(), uint16(offset)
 		}
 		continue
 	}
-	return 1
+	// TODO:
+	return 99999, 9999
 }
 
 // 获得本页空闲 inode Entry
@@ -109,6 +108,26 @@ func (inp *INodePage) Init() {
 		inp.INL.SetFirst(page, inp.INL._offset)
 		inp.INL.SetLast(fsp.BP.PageNo(), fsp_free_inode_list._offset)
 		fsp_free_inode_list.SetLast(inp.BF.PageNo(), fsp_free_inode_list._offset)
-		fsp_free_inode_list.SetLen(fsp_free_inode_list.GetLen()+1)
+		fsp_free_inode_list.SetLen(fsp_free_inode_list.GetLen() + 1)
 	}
+}
+
+func (inp *INodePage) IsThisInode(page uint32, offset uint16) {
+
+}
+
+type InodeEntry struct {
+	data    *cType.PageData
+	_offset uint16
+}
+
+func (ie InodeEntry) getFreeList() *FistBaseNode {
+	return &FistBaseNode{_offset: ie._offset, data: ie.data}
+}
+func (ie InodeEntry) getNotFullList() *FistBaseNode {
+	return &FistBaseNode{_offset: ie._offset + FIRST_BASE_NODE_SIZE, data: ie.data}
+}
+
+func (ie InodeEntry) getFullList() *FistBaseNode {
+	return &FistBaseNode{_offset: ie._offset + FIRST_BASE_NODE_SIZE*2, data: ie.data}
 }

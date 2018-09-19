@@ -33,8 +33,8 @@ func NewFSPage(bp *pcache.BuffPage) *FSPage {
 		FSH:  newFSPHeader(FSPAGE_FSPH_OFFSET, bp.GetData()),
 	}
 	fsPage.FH.SetPtype(PAGE_TYPE_FSP)
-	fsPage.FH.SetSpace(0)
-	fsPage.FH.SetOffset(0)
+	//fsPage.FH.SetSpace(0)
+	//fsPage.FH.SetOffset(0)
 	return fsPage
 }
 func (fsp *FSPage) SetCacheWrapper(c wp.Wrapper) {
@@ -63,7 +63,7 @@ func (fsp *FSPage) InitSysUndoExtend() {
 	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
 }
-
+// 设置页已经使用
 func (fsp *FSPage) setUsedExtendPage(p int) {
 	i := (p+1)/64 + 1
 	site := int(p / 4)
@@ -71,7 +71,6 @@ func (fsp *FSPage) setUsedExtendPage(p int) {
 	offset := FSPAGE_XDES_OFFSET + (site+24)*i
 	pos := &fsp.data[offset]
 	*pos = *pos | (3 << ((3 - mod) * 2))
-
 }
 
 func (fsp *FSPage) SetFreeInodFirst(page uint32, offset uint16) {
@@ -118,4 +117,8 @@ func addToFreeInodeList() {
 
 func addToFullInodeList() {
 
+}
+
+func getSpaceFsp(wp wp.Wrapper) *FSPage {
+	 return NewFSPage(cache.CP.GetPage(wp, 0))
 }

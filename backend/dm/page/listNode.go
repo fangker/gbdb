@@ -7,6 +7,9 @@ import (
 )
 
 const (
+	FIRST_BASE_NODE_SIZE = 16
+)
+const (
 	FLST_LEN_OFFSET   = 0
 	FLST_FIRST_OFFSET = 4
 	FLST_LAST_OFFSET  = 10
@@ -34,13 +37,13 @@ type FistBaseNode struct {
 
 func (fbn *FistBaseNode) GetNext() (*FirstNode, uint32, uint16) {
 	p, offset := fbn.GetFirst()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), wp: fbn.wp}
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), _wp: fbn._wp}
 	return node, p, offset
 }
 
 func (fbn *FistBaseNode) GetPrev() (*FirstNode, uint32, uint16) {
 	p, offset := fbn.GetLast()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), wp: fbn.wp}
+	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), _wp: fbn._wp}
 	return node, p, offset
 }
 
