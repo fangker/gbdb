@@ -30,13 +30,13 @@ func PutUint64(n uint64) []byte {
 
 func GetUint16(byte []byte) uint16 {
 	var x uint16
-	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
+	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, x)
 	return x
 }
 
 func GetUint64(byte []byte) uint64 {
 	var x uint64
-	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, &x)
+	binary.Read(bytes.NewBuffer(byte), binary.BigEndian, x)
 	return x
 }
 func GetUint32(byte []byte) uint32 {

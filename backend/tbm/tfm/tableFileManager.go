@@ -91,7 +91,7 @@ func (sm *TableFileManage) createTree(rootPage uint32) {
 	inode.FH.SetOffset(1)
 	inode.Init()
 	inode_bp.Dirty()
-	inode.CreatInode()
+	inode.CreateInode()
 }
 
 //
@@ -110,7 +110,7 @@ func (sm *TableFileManage) FSPExtendFile() {
 	fsp.FSH.SetMaxPage(64)
 
 	// 设定初始化成功
-	fsp.FSH.SetLimitPage(64)
+
 
 }
 
@@ -149,6 +149,9 @@ func (sm *TableFileManage) space() *page.FSPage {
 
 func (sm *TableFileManage) getFragmentPage() uint32 {
 	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
+	//if page == 0 && offset == 0 {
+	//
+	//}
 	return page.GetFragFreePage(sm.cacheWrapper, pageID, offset)
 }
 
@@ -156,3 +159,5 @@ func (sm *TableFileManage) SysDir() *page.DictPage {
 	dict_bp := sm.CacheBuffer.GetPage(sm.cacheWrapper, 8)
 	return page.NewDictPage(dict_bp)
 }
+
+

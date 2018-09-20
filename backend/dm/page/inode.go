@@ -8,7 +8,6 @@ import (
 	"github.com/fangker/gbdb/backend/wrapper"
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/constants/cType"
-	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
@@ -49,7 +48,7 @@ func NewINodePage(bf *pcache.BuffPage, wrapper wp.Wrapper) *INodePage {
 }
 
 // 设置inode Segment ID
-func (inp *INodePage) CreatInode() {
+func (inp *INodePage) CreateInode() {
 	page, offset := inp.getFreeInode()
 	segmentID := getSpaceFsp(inp.wp).FSH.segmentID + 1
 	inp.InitInodeEntry(segmentID, page, offset)
@@ -59,8 +58,10 @@ func (inp *INodePage) CreatInode() {
 func (inp *INodePage) InitInodeEntry(segmentID uint64, page uint32, offset uint16) {
 	var ie InodeEntry
 	ie.data = inp.BF.GetData()
-	log.Caption(ie.getFreeList().GetFirst())
-	//fsp := NewFSPage(cachePool.GetPage(inp.wp, 0))
+	ie.getFreeList().GetFirst()
+
+
+
 }
 
 func (inp *INodePage) getFreeInode() (page uint32, offset uint16) {

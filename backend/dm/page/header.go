@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
@@ -127,8 +128,13 @@ func (fsp *FSPHeader) Space() uint32 {
 	return utils.GetUint32(fsp.reOffset(FS_PAGE_SPACE_OFFSET, FS_PAGE_SPACE_SIZE))
 }
 
-func (fsp *FSPHeader) setSpace(s uint32) {
-	copy(fsp.reOffset(FS_PAGE_SPACE_OFFSET, FS_PAGE_SPACE_SIZE), utils.PutUint32(s))
+func (fsp *FSPHeader) LimitPage() uint32 {
+	log.Trace(utils.GetUint32([]byte{0,0,0,64}))
+	return utils.GetUint32(fsp.reOffset(FS_PAGE_LIMIT_OFFSET, FS_PAGE_LIMIT_SIZE))
+}
+
+func (fsp *FSPHeader) SetSpace(s uint32) {
+	fsp.setReOffset(FS_PAGE_SPACE_OFFSET, FS_PAGE_SPACE_SIZE, utils.PutUint32(s))
 }
 
 func (fsp *FSPHeader) SetMaxPage(s uint32) {
@@ -138,11 +144,16 @@ func (fsp *FSPHeader) SetMaxPage(s uint32) {
 
 func (fsp *FSPHeader) SetLimitPage(s uint32) {
 	fsp.limitPage = s
-	copy(fsp.reOffset(FS_PAGE_LIMIT_OFFSET, FS_PAGE_LIMIT_SIZE), utils.PutUint32(s))
+	fsp.setReOffset(FS_PAGE_LIMIT_OFFSET, FS_PAGE_LIMIT_SIZE, utils.PutUint32(s))
 }
 
 func (fsp *FSPHeader) reOffset(start uint16, end uint16) []byte {
-	return fsp.data[fsp._offset+start : fsp._offset+end]
+	return fsp.data[fsp._offset+start : fsp._offset+start+end]
+}
+
+func (fsp *FSPHeader) setReOffset(start uint16, end uint16, data []byte) {
+	copy(fsp.data[fsp._offset+start:fsp._offset+start+end], data)
+	log.Info(fsp.data[fsp._offset+start:fsp._offset+start+end])
 }
 
 // page header 50bytes

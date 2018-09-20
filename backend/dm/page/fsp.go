@@ -7,6 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/wrapper"
+	"math"
 )
 
 const (
@@ -46,6 +47,8 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
 	// 设置第一个segment被占用
+	fsp.FSH.SetLimitPage(64)
+	fsp.extendXdesSpace(0)
 	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1], utils.PutUint32(1))
 	fsp.setUsedExtendPage(0)
 	fsp.setUsedExtendPage(1)
@@ -80,6 +83,12 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
 }
 
+
+func GetXDESEntry(i int) uint32 {
+	fsNo := 256*(math.Ceil(float64(i/256)-1))
+	   offset - (i%256)
+
+}
 // page 为extend page
 func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
 	fpge := cache.CP.GetPage(wrap, page)
@@ -98,7 +107,7 @@ func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
 		}
 	}
 result:
-	return uint32(freePage) + page*256*64
+	return uint32(freePage) + page*256*64;
 }
 
 func SetUsedPage(wp wp.Wrapper, p uint32) {
@@ -121,4 +130,10 @@ func addToFullInodeList() {
 
 func getSpaceFsp(wp wp.Wrapper) *FSPage {
 	 return NewFSPage(cache.CP.GetPage(wp, 0))
+}
+// 扩展簇 返回偏移量
+func (fsp *FSPage) extendXdesSpace(i int)  {
+	// 寻找未使用
+	fsp.FSH.LimitPage()
+
 }
