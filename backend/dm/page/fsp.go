@@ -66,6 +66,7 @@ func (fsp *FSPage) InitSysUndoExtend() {
 	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
 	fsp.FSH.FragFreeList.SetLen(1)
 }
+
 // 设置页已经使用
 func (fsp *FSPage) setUsedExtendPage(p int) {
 	i := (p+1)/64 + 1
@@ -83,13 +84,28 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
 }
 
-
-func GetXDESEntry(i int) uint32 {
-	fsNo := 256*(math.Ceil(float64(i/256)-1))
-	   offset - (i%256)
+// 获得XdexEntry
+func (fsp *FSPage) GetXdesEntry(i int) uint32 {
+	// 0 - 0
+	fsNo := uint32(256 * (math.Ceil(float64(i/256) - 1)))
+	fspage:=fsp
+	if(fsp.BP.PageNo()!=fsNo){
+		fspage = NewFSPage(cachePool.GetPage(fsp.wp,uint32(fsNo)))
+	}
+	offset:= FSPAGE_XDES_OFFSET+ i%256
+	return
 
 }
-// page 为extend page
+
+type XdesEntry struct {
+  data *cType.PageData
+}
+
+func parseXDES(data *cType.PageData)  {
+	return
+}
+
+// 从簇中获取空白页
 func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
 	fpge := cache.CP.GetPage(wrap, page)
 	fsp_bp := NewFSPage(fpge)
@@ -120,20 +136,17 @@ func SetUsedPage(wp wp.Wrapper, p uint32) {
 	xdes.setUsedExtendPage(mod)
 }
 
-func addToFreeInodeList() {
-
-}
-
-func addToFullInodeList() {
-
-}
 
 func getSpaceFsp(wp wp.Wrapper) *FSPage {
-	 return NewFSPage(cache.CP.GetPage(wp, 0))
+	return NewFSPage(cache.CP.GetPage(wp, 0))
 }
-// 扩展簇 返回偏移量
-func (fsp *FSPage) extendXdesSpace(i int)  {
+
+// 扩展簇 返回偏移
+func (fsp *FSPage) extendXdesSpace(i int) {
 	// 寻找未使用
-	fsp.FSH.LimitPage()
+	if (math.Ceil(float64(fsp.FSH.LimitPage()/256) - 1)) != (math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256) - 1)) {
+		// 需初始化新fsp页
+	}
+
 
 }

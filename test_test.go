@@ -4,21 +4,13 @@ import (
 	"testing"
 )
 
-type N struct {
-	s string
-}
-type TC struct {
-	name string
-	age  int
-	n N
-}
-
-func (TC) Hello() {
-}
-func (*TC) Hello2() {
-}
 
 func Test(T *testing.T)  {
-	var t TC
-	t.Hello()
+	s:=&[]byte{'a','b'}
+	b:=s[0:1]
+	copy(b,[]byte{'d'})
+}
+
+func ss( s *[]byte)  {
+	s
 }
