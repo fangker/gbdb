@@ -85,16 +85,16 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 }
 
 // 获得XdexEntry
-func (fsp *FSPage) GetXdesEntry(i int) uint32 {
+func (fsp *FSPage) GetXdesEntry(i int) Pos {
 	// 0 - 0
 	fsNo := uint32(256 * (math.Ceil(float64(i/256) - 1)))
-	fspage:=fsp
+	fsPage:=fsp
 	if(fsp.BP.PageNo()!=fsNo){
-		fspage = NewFSPage(cachePool.GetPage(fsp.wp,uint32(fsNo)))
+		fsPage = NewFSPage(cachePool.GetPage(fsp.wp,uint32(fsNo)))
 	}
-	offset:= FSPAGE_XDES_OFFSET+ i%256
-	return
-
+	fsNo=fsPage.BP.PageNo()
+	offset:= uint16(FSPAGE_XDES_OFFSET+ i%256)
+	return NPos(fsNo,offset)
 }
 
 type XdesEntry struct {
@@ -144,9 +144,10 @@ func getSpaceFsp(wp wp.Wrapper) *FSPage {
 // 扩展簇 返回偏移
 func (fsp *FSPage) extendXdesSpace(i int) {
 	// 寻找未使用
-	if (math.Ceil(float64(fsp.FSH.LimitPage()/256) - 1)) != (math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256) - 1)) {
-		// 需初始化新fsp页
+	limit:=math.Ceil(float64(fsp.FSH.LimitPage()/256) - 1)
+	extend:=math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256) - 1)
+	if (limit < extend) {
+		// 需初始化新fsp页 移动到最后
+		fsp =  NewFSPage(cachePool.GetPage(fsp.wp,uint32(math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256) - 1))))
 	}
-
-
 }
