@@ -105,7 +105,7 @@ type FSPHeader struct {
 	maxPage       uint32
 	limitPage     uint32
 	fragUsed      uint32
-	freeList      uint64
+	FreeList      *FistBaseNode
 	FragFreeList  *FistBaseNode
 	FragFullList  *FistBaseNode
 	segmentID     uint64
@@ -117,6 +117,7 @@ func newFSPHeader(offset uint16, data *cType.PageData) *FSPHeader {
 	fspHeader := new(FSPHeader)
 	fspHeader.data = data
 	fspHeader._offset = offset
+	fspHeader.FreeList = &FistBaseNode{_offset: offset + FS_FREE_LIST_SIZE, data: fspHeader.data}
 	fspHeader.FragFreeList = &FistBaseNode{_offset: offset + FS_FRAG_FREE_LIST_OFFSET, data: fspHeader.data}
 	fspHeader.FragFullList = &FistBaseNode{_offset: offset + FS_FRAG_FULL_LIST_OFFSET, data: fspHeader.data}
 	fspHeader.fullInodeList = &FistBaseNode{_offset: offset + FS_FULL_INODE_LIST_OFFSET, data: fspHeader.data}
@@ -129,7 +130,7 @@ func (fsp *FSPHeader) Space() uint32 {
 }
 
 func (fsp *FSPHeader) LimitPage() uint32 {
-	log.Trace(utils.GetUint32([]byte{0,0,0,64}))
+	log.Trace(utils.GetUint32([]byte{0, 0, 0, 64}))
 	return utils.GetUint32(fsp.reOffset(FS_PAGE_LIMIT_OFFSET, FS_PAGE_LIMIT_SIZE))
 }
 
@@ -153,7 +154,7 @@ func (fsp *FSPHeader) reOffset(start uint16, end uint16) []byte {
 
 func (fsp *FSPHeader) setReOffset(start uint16, end uint16, data []byte) {
 	copy(fsp.data[fsp._offset+start:fsp._offset+start+end], data)
-	log.Info(fsp.data[fsp._offset+start:fsp._offset+start+end])
+	log.Info(fsp.data[fsp._offset+start : fsp._offset+start+end])
 }
 
 // page header 50bytes

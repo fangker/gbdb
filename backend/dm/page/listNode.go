@@ -35,16 +35,21 @@ type FistBaseNode struct {
 	page    uint32
 }
 
-func (fbn *FistBaseNode) GetNext() (*FirstNode, uint32, uint16) {
-	p, offset := fbn.GetFirst()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), _wp: fbn._wp}
-	return node, p, offset
+func (fbn *FistBaseNode)AddToLast(node *FirstNode){
+	node.SetFirst()
+	node.SetLast()
 }
 
-func (fbn *FistBaseNode) GetPrev() (*FirstNode, uint32, uint16) {
+func (fbn *FistBaseNode) GetNext() (*FirstNode) {
+	p, offset := fbn.GetFirst()
+	node := &FirstNode{_offset: offset, page:p,data: cachePool.GetPage(fbn._wp, p).GetData(), _wp: fbn._wp}
+	return node
+}
+
+func (fbn *FistBaseNode) GetPrev() (*FirstNode, Pos) {
 	p, offset := fbn.GetLast()
 	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fbn._wp, p).GetData(), _wp: fbn._wp}
-	return node, p, offset
+	return node, NPos(p, offset)
 }
 
 func (fbn *FistBaseNode) GetLen() uint32 {
@@ -92,6 +97,7 @@ func (fbn *FistBaseNode) getData(start uint16, size uint16) []byte {
 }
 
 type FirstNode struct {
+	page uint32
 	_offset uint16
 	data    *cType.PageData
 	_wp      wp.Wrapper
@@ -99,7 +105,7 @@ type FirstNode struct {
 
 func (fn *FirstNode) GetNext() *FirstNode {
 	p, offset := fn.GetFirst()
-	node := &FirstNode{_offset: offset, data: cachePool.GetPage(fn._wp, p).GetData()}
+	node := &FirstNode{_offset: offset, page:p,data: cachePool.GetPage(fn._wp, p).GetData()}
 	return node
 }
 

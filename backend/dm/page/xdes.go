@@ -2,6 +2,8 @@ package page
 
 import (
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/wrapper"
 )
 
 // fsp file header 104byte
@@ -23,7 +25,17 @@ var (
 	XDES_ID        [8]byte
 	XDES_FLST_NODE [12]byte // Extent链表双向链表
 	XDES_STATE     [4]byte  //状态
-	XDES_BITMAP     [16]byte //表示簇的页使用状态
+	XDES_BITMAP    [16]byte //表示簇的页使用状态
+)
+
+const (
+	XDES_ID_OFFSET   = 0
+	XDES_FLST_OFFSET = XDES_ID_SIZE
+)
+
+const (
+	XDES_ID_SIZE   = 8
+	XDES_FLST_SIZE = 12
 )
 
 const (
@@ -31,26 +43,45 @@ const (
 )
 
 type xdes struct {
-	fn     *FirstNode
+	fn   *FirstNode
 	data []byte
 }
 
 func parseXdes(d []byte) *xdes {
-	xdes:= &xdes{}
+	xdes := &xdes{}
 	xdes.fn = &FirstNode{_offset: 8}
-	xdes.data=d
+	xdes.data = d
 	return xdes
 }
 
-func (this *xdes) ID() uint32{
+func (this *xdes) ID() uint32 {
 	return utils.GetUint32(this.data[:8])
 }
 
-func (this *xdes) State() uint32{
+func (this *xdes) State() uint32 {
 	return utils.GetUint32(this.data[8:20])
 }
 
-func (this *xdes) BitMap() []byte{
+func (this *xdes) BitMap() []byte {
 	return this.data[24:]
+}
+
+type XdesEntry struct {
+	data    *cType.PageData
+	_offset uint16
+	wp      wp.Wrapper
+	pos     Pos
+	xdesNode    *FirstNode
+}
+
+func parseXDES(wp wp.Wrapper, pos Pos) XdesEntry {
+	data := cachePool.GetPage(wp, pos.page).GetData()
+	return XdesEntry{
+		data:    cachePool.GetPage(wp, pos.page).GetData(),
+		_offset: pos.offset,
+		wp:      wp,
+		pos:     pos,
+		xdesNode:    &FirstNode{_wp: wp, _offset: XDES_ID_SIZE + pos.offset, data: data},
+	}
 }
 

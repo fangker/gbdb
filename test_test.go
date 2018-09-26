@@ -12,5 +12,5 @@ func Test(T *testing.T)  {
 }
 
 func ss( s *[]byte)  {
-	s
+
 }

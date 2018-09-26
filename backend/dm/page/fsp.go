@@ -48,7 +48,7 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.FSH.FragFreeList.SetLen(1)
 	// 设置第一个segment被占用
 	fsp.FSH.SetLimitPage(64)
-	fsp.extendXdesSpace(0)
+	fsp.extendXdesSpace()
 	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1], utils.PutUint32(1))
 	fsp.setUsedExtendPage(0)
 	fsp.setUsedExtendPage(1)
@@ -85,25 +85,18 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 }
 
 // 获得XdexEntry
-func (fsp *FSPage) GetXdesEntry(i int) Pos {
+func (fsp *FSPage) GetXdesEntryByPageNo(i uint32) XdesEntry {
 	// 0 - 0
 	fsNo := uint32(256 * (math.Ceil(float64(i/256) - 1)))
-	fsPage:=fsp
-	if(fsp.BP.PageNo()!=fsNo){
-		fsPage = NewFSPage(cachePool.GetPage(fsp.wp,uint32(fsNo)))
+	fsPage := fsp
+	if (fsp.BP.PageNo() != fsNo) {
+		fsPage = NewFSPage(cachePool.GetPage(fsp.wp, uint32(fsNo)))
 	}
-	fsNo=fsPage.BP.PageNo()
-	offset:= uint16(FSPAGE_XDES_OFFSET+ i%256)
-	return NPos(fsNo,offset)
+	fsNo = fsPage.BP.PageNo()
+	offset := uint16(FSPAGE_XDES_OFFSET + i%256)
+	return parseXDES(fsp.wp,NPos(fsNo, offset))
 }
 
-type XdesEntry struct {
-  data *cType.PageData
-}
-
-func parseXDES(data *cType.PageData)  {
-	return
-}
 
 // 从簇中获取空白页
 func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
@@ -136,18 +129,25 @@ func SetUsedPage(wp wp.Wrapper, p uint32) {
 	xdes.setUsedExtendPage(mod)
 }
 
-
 func getSpaceFsp(wp wp.Wrapper) *FSPage {
 	return NewFSPage(cache.CP.GetPage(wp, 0))
 }
 
 // 扩展簇 返回偏移
-func (fsp *FSPage) extendXdesSpace(i int) {
+func (fsp *FSPage) extendXdesSpace() {
 	// 寻找未使用
-	limit:=math.Ceil(float64(fsp.FSH.LimitPage()/256) - 1)
-	extend:=math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256) - 1)
+	limit := math.Ceil(float64(fsp.FSH.LimitPage()/256) - 1)
+	extend := math.Ceil(float64((fsp.FSH.LimitPage()+64)/256) - 1)
+	extendToPage := fsp.FSH.LimitPage() + 64
+	fsp.FSH.SetLimitPage(extendToPage)
 	if (limit < extend) {
 		// 需初始化新fsp页 移动到最后
-		fsp =  NewFSPage(cachePool.GetPage(fsp.wp,uint32(math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256) - 1))))
+		fsp = NewFSPage(cachePool.GetPage(fsp.wp, uint32(math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256)-1))))
 	}
+	// 初始化后放入extend free 链表
+	xe:=fsp.GetXdesEntryByPageNo(extendToPage)
+	fsp0:= getSpaceFsp(fsp.wp)
+	fsp0.FSH.FreeList.SetFirst(xe.xdesNode.GetFirst())
+	fsp0.FSH.FreeList.SetLast()
+
 }
