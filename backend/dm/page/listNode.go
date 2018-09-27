@@ -36,8 +36,16 @@ type FistBaseNode struct {
 }
 
 func (fbn *FistBaseNode)AddToLast(node *FirstNode){
-	node.SetFirst()
-	node.SetLast()
+	if fbn.GetLen()==0 {
+		node.SetFirst(fbn.GetLast())
+		node.SetLast(fbn.GetFirst())
+		fbn.SetLast(node.GetFirst())
+		fbn.SetFirst(node.GetLast())
+	}
+	if fbn.GetLen()==0 {
+
+	}
+
 }
 
 func (fbn *FistBaseNode) GetNext() (*FirstNode) {

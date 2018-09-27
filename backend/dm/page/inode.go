@@ -105,11 +105,11 @@ func (inp *INodePage) Init() {
 		for i = 0; i < fsp_free_inode_list.GetLen()-1; i++ {
 			iter=iter.GetNext()
 		}
-		iter.SetLast(inp.BF.PageNo(), inp.INL._offset)
-		inp.INL.SetFirst(iter.page, inp.INL._offset)
-		inp.INL.SetLast(fsp.BP.PageNo(), fsp_free_inode_list._offset)
-		fsp_free_inode_list.SetLast(inp.BF.PageNo(), fsp_free_inode_list._offset)
-		fsp_free_inode_list.SetLen(fsp_free_inode_list.GetLen() + 1)
+		//iter.SetLast(inp.BF.PageNo(), inp.INL._offset)
+		//inp.INL.SetFirst(iter.page, inp.INL._offset)
+		//inp.INL.SetLast(fsp.BP.PageNo(), fsp_free_inode_list._offset)
+		//fsp_free_inode_list.SetLast(inp.BF.PageNo(), fsp_free_inode_list._offset)
+		//fsp_free_inode_list.SetLen(fsp_free_inode_list.GetLen() + 1)
 	}
 }
 
