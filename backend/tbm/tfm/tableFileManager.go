@@ -148,11 +148,8 @@ func (sm *TableFileManage) space() *page.FSPage {
 }
 
 func (sm *TableFileManage) getFragmentPage() uint32 {
-	pageID, offset := sm.space().FSH.FragFreeList.GetFirst()
-	//if page == 0 && offset == 0 {
-	//
-	//}
-	return page.GetFragFreePage(sm.cacheWrapper, pageID, offset)
+	pos := sm.space().FSH.FragFreeList.GetFirst()
+	return page.GetFragFreePage(sm.cacheWrapper, pos.Page(), pos.Offset())
 }
 
 func (sm *TableFileManage) SysDir() *page.DictPage {

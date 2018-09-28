@@ -93,24 +93,7 @@ func (inp *INodePage) Init() {
 	// 初始化此页所有entry加入freeInodeList
 	fsp := NewFSPage(cache.CP.GetPage(inp.wp, 0))
 	fsp_free_inode_list := fsp.FSH.freeInodeList
-	if (fsp_free_inode_list.GetLen() == 0) {
-		fsp_free_inode_list.SetFirst(inp.BF.PageNo(), inp.INL._offset)
-		fsp_free_inode_list.SetLast(inp.BF.PageNo(), inp.INL._offset)
-		fsp_free_inode_list.SetLen(1)
-	} else {
-		var page uint32
-		var i uint32
-		// 切到最后一位
-		iter := fsp_free_inode_list.GetNext()
-		for i = 0; i < fsp_free_inode_list.GetLen()-1; i++ {
-			iter=iter.GetNext()
-		}
-		//iter.SetLast(inp.BF.PageNo(), inp.INL._offset)
-		//inp.INL.SetFirst(iter.page, inp.INL._offset)
-		//inp.INL.SetLast(fsp.BP.PageNo(), fsp_free_inode_list._offset)
-		//fsp_free_inode_list.SetLast(inp.BF.PageNo(), fsp_free_inode_list._offset)
-		//fsp_free_inode_list.SetLen(fsp_free_inode_list.GetLen() + 1)
-	}
+	fsp_free_inode_list.AddToLast(inp.INL)
 }
 
 func (inp *INodePage) IsThisInode(page uint32, offset uint16) {

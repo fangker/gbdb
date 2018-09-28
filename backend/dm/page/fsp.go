@@ -43,8 +43,8 @@ func (fsp *FSPage) SetCacheWrapper(c wp.Wrapper) {
 }
 
 func (fsp *FSPage) InitSysExtend() {
-	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
-	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetFirst(NPos(0, FSPAGE_XDES_OFFSET))
+	fsp.FSH.FragFreeList.SetLast(NPos(0, FSPAGE_XDES_OFFSET))
 	fsp.FSH.FragFreeList.SetLen(1)
 	// 设置第一个segment被占用
 	fsp.FSH.SetLimitPage(64)
@@ -62,8 +62,8 @@ func (fsp *FSPage) InitSysExtend() {
 }
 
 func (fsp *FSPage) InitSysUndoExtend() {
-	fsp.FSH.FragFreeList.SetFirst(0, FSPAGE_XDES_OFFSET)
-	fsp.FSH.FragFreeList.SetLast(0, FSPAGE_XDES_OFFSET)
+	fsp.FSH.FragFreeList.SetFirst(NPos(0, FSPAGE_XDES_OFFSET))
+	fsp.FSH.FragFreeList.SetLast(NPos(0, FSPAGE_XDES_OFFSET))
 	fsp.FSH.FragFreeList.SetLen(1)
 }
 
@@ -78,7 +78,7 @@ func (fsp *FSPage) setUsedExtendPage(p int) {
 }
 
 func (fsp *FSPage) SetFreeInodFirst(page uint32, offset uint16) {
-	fsp.FSH.freeInodeList.SetFirst(page, offset)
+	fsp.FSH.freeInodeList.SetFirst(NPos(page, offset))
 }
 func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 	fsp.FSH.freeInodeList.SetLen(len)
@@ -142,12 +142,10 @@ func (fsp *FSPage) extendXdesSpace() {
 	fsp.FSH.SetLimitPage(extendToPage)
 	if (limit < extend) {
 		// 需初始化新fsp页 移动到最后
-		fsp = NewFSPage(cachePool.GetPage(fsp.wp, uint32(math.Ceil(float64((fsp.FSH.LimitPage()+uint32(i))/256)-1))))
+		fsp = NewFSPage(cachePool.GetPage(fsp.wp, uint32(math.Ceil(float64((fsp.FSH.LimitPage()+64)/256)-1))))
 	}
 	// 初始化后放入extend free 链表
 	xe:=fsp.GetXdesEntryByPageNo(extendToPage)
 	fsp0:= getSpaceFsp(fsp.wp)
-	fsp0.FSH.FreeList.SetFirst(xe.xdesNode.GetFirst())
-	fsp0.FSH.FreeList.SetLast()
-
+	fsp0.FSH.FreeList.AddToLast(xe.xdesNode)
 }
