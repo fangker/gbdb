@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/wrapper"
+
 )
 
 const (
@@ -158,5 +159,5 @@ func (fn *FirstNode) SetLast(p Pos) {
 }
 
 func (fn *FirstNode) reOffset(start uint16, end uint16) []byte {
-	return fn.data[fn._offset+start : fn._offset+end]
+	return fn.data[fn._offset+start : fn._offset+end+start]
 }

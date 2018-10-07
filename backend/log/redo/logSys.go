@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"path"
 	"github.com/fangker/gbdb/backend/constants/cType"
-	"fmt"
 )
 
 const (

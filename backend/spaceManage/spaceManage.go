@@ -5,6 +5,7 @@ import (
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/tbm"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/dm/page"
 )
 
 type SpaceManage struct {
@@ -15,6 +16,8 @@ type SpaceManage struct {
 var SM *SpaceManage
 func NewSpaceManage(cb *cache.CachePool) *SpaceManage {
 	 SM=&SpaceManage{cb: cb, Spaces: make(map[uint32]*Space)}
+	 // 初始化space下所有cachePool
+	 page.AttachCache()
 	return SM
 }
 

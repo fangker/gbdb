@@ -4,7 +4,6 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
-	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
@@ -130,7 +129,7 @@ func (fsp *FSPHeader) Space() uint32 {
 }
 
 func (fsp *FSPHeader) LimitPage() uint32 {
-	log.Trace(utils.GetUint32([]byte{0, 0, 0, 64}))
+	//log.Trace(utils.GetUint32([]byte{0, 0, 0, 64}))
 	return utils.GetUint32(fsp.reOffset(FS_PAGE_LIMIT_OFFSET, FS_PAGE_LIMIT_SIZE))
 }
 
@@ -154,7 +153,7 @@ func (fsp *FSPHeader) reOffset(start uint16, end uint16) []byte {
 
 func (fsp *FSPHeader) setReOffset(start uint16, end uint16, data []byte) {
 	copy(fsp.data[fsp._offset+start:fsp._offset+start+end], data)
-	log.Info(fsp.data[fsp._offset+start : fsp._offset+start+end])
+	//log.Info(fsp.data[fsp._offset+start : fsp._offset+start+end])
 }
 
 // page header 50bytes

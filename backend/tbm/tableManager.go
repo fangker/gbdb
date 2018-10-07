@@ -6,7 +6,6 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/cache/system"
-	"github.com/fangker/gbdb/backend/tbm/fd"
 	"github.com/fangker/gbdb/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/utils/log"
 )
@@ -19,7 +18,7 @@ type TableManage struct {
 	tree      *im.BPlusTree
 	//index
 	//vm
-	fields []*fd.Field
+	fields []*Field
 }
 
 func NewTableManage(tableName string) *TableManage {
@@ -65,14 +64,14 @@ func (this *TableManage) Tree() {
 
 }
 
-func (this *TableManage) parseEntity(ist *statement.Insert) []fd.Field {
-	var fields []fd.Field;
+func (this *TableManage) parseEntity(ist *statement.Insert) []Field {
+	var fields []Field;
 	for _, f := range this.fields {
 		index := utils.IndexOfStringArray(ist.Fields, f.Name)
 		if index > -1 {
-			fields = append(fields, fd.Field{Name: f.Name, Value: ist.Values[index], FType: f.FType, Length: f.Length, Precision: f.Precision})
+			fields = append(fields, Field{Name: f.Name, Value: ist.Values[index], FType: f.FType, Length: f.Length, Precision: f.Precision})
 		} else {
-			fields = append(fields, fd.Field{Name: f.Name, Value: nil, FType: f.FType, Length: f.Length, Precision: f.Precision})
+			fields = append(fields, Field{Name: f.Name, Value: nil, FType: f.FType, Length: f.Length, Precision: f.Precision})
 		}
 	}
 	return fields;
@@ -82,7 +81,7 @@ func (this *TableManage) parseEntity(ist *statement.Insert) []fd.Field {
 func (this *TableManage) LoadTuple(create *statement.Create) {
 	this.TableName = create.TableName
 	for _, v := range create.Fields {
-		f := &fd.Field{Name: v.Name, FType: v.FType, Length: v.Length, Precision: v.Precision}
+		f := &Field{Name: v.Name, FType: v.FType, Length: v.Length, Precision: v.Precision}
 		this.fields = append(this.fields, f)
 	}
 }

@@ -1,13 +1,13 @@
 package page
 
 import (
-	// "github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/wrapper"
 	"math"
+	_ "github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
@@ -16,7 +16,11 @@ const (
 	FSPAGE_XDES_OFFSET = 139
 )
 
-var cachePool = cache.CP
+var cachePool *cache.CachePool
+
+func AttachCache() {
+	cachePool = cache.CP
+}
 
 type FSPage struct {
 	FH   *FilHeader
@@ -43,11 +47,13 @@ func (fsp *FSPage) SetCacheWrapper(c wp.Wrapper) {
 }
 
 func (fsp *FSPage) InitSysExtend() {
+	//TODO: fragfree initialize
 	fsp.FSH.FragFreeList.SetFirst(NPos(0, FSPAGE_XDES_OFFSET))
 	fsp.FSH.FragFreeList.SetLast(NPos(0, FSPAGE_XDES_OFFSET))
 	fsp.FSH.FragFreeList.SetLen(1)
 	// 设置第一个segment被占用
 	fsp.FSH.SetLimitPage(64)
+	// 扩展簇到128page
 	fsp.extendXdesSpace()
 	copy(fsp.data[FSPAGE_XDES_OFFSET:FSPAGE_XDES_OFFSET+XDES_ENTRY_SIZE*1], utils.PutUint32(1))
 	fsp.setUsedExtendPage(0)
@@ -87,22 +93,22 @@ func (fsp *FSPage) SetFreeInodeLen(len uint32) {
 // 获得XdexEntry
 func (fsp *FSPage) GetXdesEntryByPageNo(i uint32) XdesEntry {
 	// 0 - 0
-	fsNo := uint32(256 * (math.Ceil(float64(i/256) - 1)))
+	fsNo := uint32(256 * (math.Ceil(float64(i)/256) - 1))
 	fsPage := fsp
 	if (fsp.BP.PageNo() != fsNo) {
-		fsPage = NewFSPage(cachePool.GetPage(fsp.wp, uint32(fsNo)))
+		fsPage = NewFSPage(cachePool.GetPage(fsp.wp, fsNo))
 	}
 	fsNo = fsPage.BP.PageNo()
-	offset := uint16(FSPAGE_XDES_OFFSET + i%256)
-	return parseXDES(fsp.wp,NPos(fsNo, offset))
+	oi := i - 256*fsNo
+	offset := uint16(FSPAGE_XDES_OFFSET + oi/64)
+	return parseXDES(fsp.wp, NPos(fsNo, offset))
 }
-
 
 // 从簇中获取空白页
 func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
 	fpge := cache.CP.GetPage(wrap, page)
 	fsp_bp := NewFSPage(fpge)
-	xdes := parseXdes(fsp_bp.data[offset : offset+XDES_ENTRY_SIZE])
+	xdes := parseXdes(fsp_bp.data[offset: offset+XDES_ENTRY_SIZE])
 	var freePage int
 	for k, v := range xdes.BitMap() {
 		if (v == 255) {
@@ -136,16 +142,18 @@ func getSpaceFsp(wp wp.Wrapper) *FSPage {
 // 扩展簇 返回偏移
 func (fsp *FSPage) extendXdesSpace() {
 	// 寻找未使用
-	limit := math.Ceil(float64(fsp.FSH.LimitPage()/256) - 1)
-	extend := math.Ceil(float64((fsp.FSH.LimitPage()+64)/256) - 1)
+	limit := math.Ceil(float64(fsp.FSH.LimitPage() / 256))
 	extendToPage := fsp.FSH.LimitPage() + 64
+	extend := math.Ceil(float64((extendToPage) / 256))
 	fsp.FSH.SetLimitPage(extendToPage)
 	if (limit < extend) {
 		// 需初始化新fsp页 移动到最后
 		fsp = NewFSPage(cachePool.GetPage(fsp.wp, uint32(math.Ceil(float64((fsp.FSH.LimitPage()+64)/256)-1))))
+		// 要被加入到frag链表
+
 	}
 	// 初始化后放入extend free 链表
-	xe:=fsp.GetXdesEntryByPageNo(extendToPage)
-	fsp0:= getSpaceFsp(fsp.wp)
+	xe := fsp.GetXdesEntryByPageNo(extendToPage)
+	fsp0 := getSpaceFsp(fsp.wp)
 	fsp0.FSH.FreeList.AddToLast(xe.xdesNode)
 }

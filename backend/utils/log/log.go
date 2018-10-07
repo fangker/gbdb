@@ -13,6 +13,8 @@ const (
 	LOG_DEBUG = true
 )
 
+type Debug bool
+
 const (
 	color_black   = uint8(iota + 30)
 	color_red
