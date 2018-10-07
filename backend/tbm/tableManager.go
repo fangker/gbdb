@@ -28,9 +28,10 @@ func NewTableManage(tableName string) *TableManage {
 	return this
 }
 
-func LoadTableManage(tableName string, root uint32) *TableManage {
+func LoadTableManage(tableName string, fmt *tfm.TableFileManage, root uint32) *TableManage {
 	this := &TableManage{TableName: tableName}
-	//this.tree
+	this.tfm = fmt
+	this.tree = &im.CreateBPlusTree()
 	return this
 }
 
@@ -48,8 +49,8 @@ func (this *TableManage) LoadTfm(tfm *tfm.TableFileManage) {
 
 func (this *TableManage) Insert(trx *tm.Transaction, st *statement.Insert) {
 	sc.SC.SysTrxIDStore().HdrRowID()
-	t:=this.parseEntity(st)
-	log.Trace("assd",log.AnyViewToString(t))
+	t := this.parseEntity(st)
+	log.Trace("assd", log.AnyViewToString(t))
 }
 
 func (this *TableManage) Update() {

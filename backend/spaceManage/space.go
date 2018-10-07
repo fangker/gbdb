@@ -39,7 +39,8 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 	sm.tbm.TableID = 0
 	sys := sm.tbm
 	stfm := sys.Tfm()
-	dirct_bp := sm.cb.GetPage(sm.tbm.Tfm().CacheWrapper(), 8)
+	cacheWrapper:=sm.tbm.Tfm().CacheWrapper()
+	dirct_bp := sm.cb.GetPage(cacheWrapper, 8)
 	dirct := page.NewDictPage(dirct_bp);
 	var tem_id = 0;
 	newTfm := func() *tfm.TableFileManage {
@@ -47,10 +48,10 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 		tem_id++
 		return tbm;
 	}
-	tables := tbm.LoadTableManage("sys_tables", dirct.HdrTables())
-	indexes := tbm.LoadTableManage("sys_indexes", dirct.HdrIndex())
-	fields := tbm.LoadTableManage("sys_fields", dirct.HdrFields())
-	columns := tbm.LoadTableManage("sys_columns", dirct.HdrColumns())
+	tables := tbm.LoadTableManage("sys_tables", newTfm(),dirct.HdrTables())
+	indexes := tbm.LoadTableManage("sys_indexes", newTfm(),dirct.HdrIndex())
+	fields := tbm.LoadTableManage("sys_fields", newTfm(),dirct.HdrFields())
+	columns := tbm.LoadTableManage("sys_columns", newTfm(),dirct.HdrColumns())
 
 	tables.LoadTfm(newTfm())
 	SM.AddSpace(0,tables)
