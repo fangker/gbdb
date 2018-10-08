@@ -3,7 +3,6 @@ package pcache
 import (
 	"sync"
 	"github.com/fangker/gbdb/backend/constants/cType"
-	"os"
 	"github.com/fangker/gbdb/backend/wrapper"
 )
 
@@ -14,11 +13,14 @@ type BuffPage struct {
 	data   cType.PageData
 	pType  uint16
 	wp     wp.Wrapper
-	File   *os.File
 }
 
 func NewBuffPage(wrapper wp.Wrapper) *BuffPage {
 	return &BuffPage{wp: wrapper, data: cType.PageData{}}
+}
+
+func (bp BuffPage) Wp() wp.Wrapper {
+	return bp.wp
 }
 
 func (bp *BuffPage) SetDirty() {
@@ -60,6 +62,7 @@ func (bp *BuffPage) SetWrapper(wp wp.Wrapper) {
 func (bp *BuffPage) PageNo() uint32 {
 	return bp.pageNo
 }
+
 //
 //func (bp *BuffPage) SetTableID(tbID uint32) {
 //	bp.tableID = tbID
@@ -72,5 +75,3 @@ func (bp *BuffPage) PageNo() uint32 {
 func (bp *BuffPage) SetPageNo(pNo uint32) {
 	bp.pageNo = pNo
 }
-
-

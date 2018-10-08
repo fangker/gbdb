@@ -51,6 +51,7 @@ func (fsp *FSPage) InitSysExtend() {
 	fsp.FSH.FragFreeList.SetFirst(NPos(0, FSPAGE_XDES_OFFSET))
 	fsp.FSH.FragFreeList.SetLast(NPos(0, FSPAGE_XDES_OFFSET))
 	fsp.FSH.FragFreeList.SetLen(1)
+	fsp.FSH.FragFreeList.GetFirst()
 	// 设置第一个segment被占用
 	fsp.FSH.SetLimitPage(64)
 	// 扩展簇到128page
@@ -122,7 +123,9 @@ func GetFragFreePage(wrap wp.Wrapper, page uint32, offset uint16) uint32 {
 		}
 	}
 result:
-	return uint32(freePage) + page*256*64;
+	p:=uint32(freePage) + page*256*64;
+	SetUsedPage(wrap,p)
+	return p
 }
 
 func SetUsedPage(wp wp.Wrapper, p uint32) {

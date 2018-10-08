@@ -79,16 +79,17 @@ func (fbn *FistBaseNode) GetFirst() (p Pos) {
 	return NPos(page, offset)
 }
 
+func (fbn *FistBaseNode) SetFirst(p Pos) {
+	fbn.setData(FLST_FIRST_OFFSET, 4, utils.PutUint32(p.page))
+	fbn.setData(FLST_FIRST_OFFSET+4, 2, utils.PutUint16(p.offset))
+}
+
 func (fbn *FistBaseNode) GetLast() (p Pos) {
 	pageNo := utils.GetUint32(fbn.getData(FLST_LAST_OFFSET, 4))
 	offset := utils.GetUint16(fbn.getData(FLST_LAST_OFFSET+4, 2))
 	return NPos(pageNo, offset)
 }
 
-func (fbn *FistBaseNode) SetFirst(p Pos) {
-	fbn.setData(FLST_FIRST_OFFSET, 4, utils.PutUint32(p.page))
-	fbn.setData(FLST_FIRST_OFFSET+4, 2, utils.PutUint16(p.offset))
-}
 
 func (fbn *FistBaseNode) SetLast(p Pos) {
 	fbn.setData(FLST_LAST_OFFSET, 4, utils.PutUint32(p.page))

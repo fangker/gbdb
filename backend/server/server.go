@@ -9,6 +9,7 @@ import (
 	"github.com/fangker/gbdb/backend/tbm"
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/parser/statement"
+	_ "github.com/fangker/gbdb/backend/utils/log"
 )
 
 func main() {

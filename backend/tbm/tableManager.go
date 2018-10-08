@@ -28,10 +28,10 @@ func NewTableManage(tableName string) *TableManage {
 	return this
 }
 
-func LoadTableManage(tableName string, fmt *tfm.TableFileManage, root uint32) *TableManage {
+func LoadTableManage(tableName string, tfm *tfm.TableFileManage, root uint32) *TableManage {
 	this := &TableManage{TableName: tableName}
-	this.tfm = fmt
-	this.tree = &im.CreateBPlusTree()
+	this.tfm = tfm
+	this.tree = im.CreateBPlusTree(tfm,root)
 	return this
 }
 

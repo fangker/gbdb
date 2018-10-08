@@ -50,8 +50,8 @@ func (cb *CachePool) GetPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
 	pg.SetPageNo(pageNo)
 	// read data
 	var data cType.PageData
-	pg.File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
-	pg.File.Read(data[:])
+	pg.Wp().File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
+	pg.Wp().File.Read(data[:])
 	pg.SetData(data)
 	//pn := make(map[uint32]*pcache.BuffPage)
 	//cb.pagePool[tpID][tbID] = pn
@@ -88,8 +88,8 @@ func (cb *CachePool) ForceFlush(wrap wp.Wrapper) {
 		val := l.Value.(*CacheNode);
 		pg := val.Value.(*pcache.BuffPage);
 		if (pg.Dirty() == true) {
-			wrap.File.WriteAt(pg.GetData()[:], int64(pg.PageNo()*cType.PAGE_SIZE))
-			wrap.File.Sync()
+				wrap.File.WriteAt(pg.GetData()[:], int64(pg.PageNo()*cType.PAGE_SIZE))
+				wrap.File.Sync()
 		}
 	}
 }

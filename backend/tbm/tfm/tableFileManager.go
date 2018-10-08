@@ -19,6 +19,10 @@ type TableFileManager interface {
 	SysDir() *page.DictPage
 }
 
+func (sm *TableFileManage) CacheWrapper() wp.Wrapper {
+	return sm.cacheWrapper
+}
+
 func NewTableFileManage(spaceID, tableID uint32, filePath string) *TableFileManage {
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
@@ -44,19 +48,16 @@ func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
 //}
 //
 
-func (sm *TableFileManage) CacheWrapper() wp.Wrapper {
-	return sm.cacheWrapper
-}
 
 func (sm *TableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
 	return sm.CacheBuffer.GetFlushPage(sm.cacheWrapper, pageNo)
 }
 
 func (sm *TableFileManage) InitSysFile() {
-
 	fsp_bp := sm.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
+
 	fsp.InitSysExtend()
 	// segment
 	//fsp.FSH.
@@ -67,8 +68,10 @@ func (sm *TableFileManage) InitSysFile() {
 
 	dict_bp := sm.getFlushPage(8)
 	dirct := page.NewDictPage(dict_bp)
+
 	// sys_tables
 	dirct.SetHdrTables(sm.getFragmentPage())
+
 	sm.createTree(sm.getFragmentPage())
 	// sys_indexes
 	dirct.SetHdrIndex(sm.getFragmentPage())
@@ -76,7 +79,6 @@ func (sm *TableFileManage) InitSysFile() {
 	dirct.SetHdrFields(sm.getFragmentPage())
 	// sys_columns
 	dirct.SetHdrColumns(sm.getFragmentPage())
-
 	sm.CacheBuffer.ForceFlush(sm.cacheWrapper)
 }
 
@@ -156,5 +158,4 @@ func (sm *TableFileManage) SysDir() *page.DictPage {
 	dict_bp := sm.CacheBuffer.GetPage(sm.cacheWrapper, 8)
 	return page.NewDictPage(dict_bp)
 }
-
 
