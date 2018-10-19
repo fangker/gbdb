@@ -5,7 +5,6 @@ import (
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/tm"
-	"github.com/fangker/gbdb/backend/cache/system"
 	"github.com/fangker/gbdb/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/utils/log"
 )
@@ -48,9 +47,8 @@ func (this *TableManage) LoadTfm(tfm *tfm.TableFileManage) {
 }
 
 func (this *TableManage) Insert(trx *tm.Transaction, st *statement.Insert) {
-	sc.SC.SysTrxIDStore().HdrRowID()
 	t := this.parseEntity(st)
-	log.Trace("assd", log.AnyViewToString(t))
+	log.Trace(log.AnyViewToString(t))
 }
 
 func (this *TableManage) Update() {

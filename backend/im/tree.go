@@ -5,6 +5,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/wrapper"
 	"github.com/fangker/gbdb/backend/tbm/tfm"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 var (
@@ -20,6 +21,7 @@ type BPlusTree struct {
 }
 
 func CreateBPlusTree(tfm *tfm.TableFileManage, rootPage uint32) *BPlusTree {
+	log.Info(tfm.GetPage(rootPage))
 	// 检测是否存在
 	return &BPlusTree{}
 }

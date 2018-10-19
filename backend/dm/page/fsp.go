@@ -148,6 +148,7 @@ func (fsp *FSPage) extendXdesSpace() {
 	limit := math.Ceil(float64(fsp.FSH.LimitPage() / 256))
 	extendToPage := fsp.FSH.LimitPage() + 64
 	extend := math.Ceil(float64((extendToPage) / 256))
+	// todo: 需要初始化页头
 	fsp.FSH.SetLimitPage(extendToPage)
 	if (limit < extend) {
 		// 需初始化新fsp页 移动到最后

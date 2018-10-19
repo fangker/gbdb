@@ -110,7 +110,6 @@ func (sm *TableFileManage) FSPExtendFile() {
 	fsp_bp := sm.getFlushPage(0)
 	fsp := page.NewFSPage(fsp_bp)
 	fsp.FSH.SetMaxPage(64)
-
 	// 设定初始化成功
 
 
@@ -152,6 +151,10 @@ func (sm *TableFileManage) space() *page.FSPage {
 func (sm *TableFileManage) getFragmentPage() uint32 {
 	pos := sm.space().FSH.FragFreeList.GetFirst()
 	return page.GetFragFreePage(sm.cacheWrapper, pos.Page(), pos.Offset())
+}
+
+func (sm *TableFileManage) GetPage(pageNo uint32) *pcache.BuffPage {
+  return sm.CacheBuffer.GetPage(sm.cacheWrapper,pageNo)
 }
 
 func (sm *TableFileManage) SysDir() *page.DictPage {
