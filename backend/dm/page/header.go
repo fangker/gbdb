@@ -158,44 +158,71 @@ func (fsp *FSPHeader) setReOffset(start uint16, end uint16, data []byte) {
 
 // page header 50bytes
 const (
-	PAGE_DIR_SLOTS_SIZE         = 2  //PageDirectory 个数
-	PAGE_HEAP_TOP_SIZE          = 2  // 堆中第一个记录偏移量(未分配空间)
-	PAGE_N_HEAP_SIZE            = 2  //堆中记录数
-	PAGE_FREE_SIZE              = 2  //指向可复用记录
-	PAGE_GARBAGE_SIZE           = 2  // 记录中已经删除字节数
-	PAGE_LAST_INSERT_SIZE       = 2  // 最近一次插入偏移量
-	PAGE_DIRECTION_SIZE         = 2  // 插入方向用于插入优化
-	PAGE_N_DIRECTION_SIZE       = 2  // 相同方向插入数量
-	PAGE_N_RECS_SIZE            = 2  // 该页面中记录个数
-	PAGE_MAX_TRX_ID_SIZE        = 8  // 修改当前页最大事务ID(仅在二级索引页中定义)
-	PAGE_LEVEL_SIZE             = 2  //当前页在索引树中的位置
-	PAGE_INDEX_ID_SIZE          = 8  //当前页所在索引ID
-	PAGE_BTR_SEGEMENT_LEAF_SIZE = 10 //数据页叶节点
-	PAGE_BTR_SEG_TOP_SIZE       = 10 // 数据页非页节点
+	PAGE_DIR_SLOTS_SIZE    = 2  //PageDirectory 个数
+	PAGE_HEAP_TOP_SIZE     = 2  // 堆中第一个记录偏移量(未分配空间)
+	PAGE_N_HEAP_SIZE       = 2  //堆中记录数
+	PAGE_FREE_SIZE         = 2  //指向可复用记录
+	PAGE_GARBAGE_SIZE      = 2  // 记录中已经删除字节数
+	PAGE_LAST_INSERT_SIZE  = 2  // 最近一次插入偏移量
+	PAGE_DIRECTION_SIZE    = 2  // 插入方向用于插入优化
+	PAGE_N_DIRECTION_SIZE  = 2  // 相同方向插入数量
+	PAGE_N_RECS_SIZE       = 2  // 该页面中记录个数
+	PAGE_MAX_TRX_ID_SIZE   = 8  // 修改当前页最大事务ID(仅在二级索引页中定义)
+	PAGE_LEVEL_SIZE        = 2  //当前页在索引树中的位置
+	PAGE_INDEX_ID_SIZE     = 8  //当前页所在索引ID
+	PAGE_BTR_SEG_LEAF_SIZE = 10 //数据页叶节点
+	PAGE_BTR_SEG_TOP_SIZE  = 10 // 数据页非页节点
 )
 
 const (
-	PAGE_DIR_SLOYS_OFFSET         = 0
-	PAGE_HEAP_TOP_OFFSET          = PAGE_DIR_SLOYS_OFFSET + PAGE_HEAP_TOP_SIZE
-	PAGE_N_HEAP_OFFSET            = PAGE_HEAP_TOP_OFFSET + PAGE_N_HEAP_SIZE
-	PAGE_FREE_OFFSET              = PAGE_N_HEAP_OFFSET + PAGE_FREE_SIZE
-	PAGE_GARBAGE_OFFSET           = PAGE_FREE_OFFSET + PAGE_GARBAGE_SIZE
-	PAGE_LAST_INSERT_OFFSET       = PAGE_GARBAGE_OFFSET + PAGE_LAST_INSERT_SIZE
-	PAGE_DIRECTION_OFFSET         = PAGE_LAST_INSERT_OFFSET + PAGE_DIRECTION_SIZE
-	PAGE_N_DIRECTION_OFFSET       = PAGE_DIRECTION_OFFSET + PAGE_N_DIRECTION_SIZE
-	PAGE_N_RECS_OFFSET            = PAGE_N_DIRECTION_OFFSET + PAGE_N_RECS_SIZE
-	PAGE_MAX_TRX_ID_OFFSET        = PAGE_N_RECS_OFFSET + PAGE_MAX_TRX_ID_SIZE
-	PAGE_LEVEL_OFFSET             = PAGE_MAX_TRX_ID_OFFSET + PAGE_LEVEL_SIZE
-	PAGE_INDEX_ID_OFFSET          = PAGE_LEVEL_OFFSET + PAGE_INDEX_ID_SIZE
-	PAGE_BTR_SEGEMENT_LEAF_OFFSET = PAGE_INDEX_ID_OFFSET + PAGE_BTR_SEGEMENT_LEAF_SIZE
-	PAGE_BTR_SEG_TOP_OFFSET       = PAGE_BTR_SEGEMENT_LEAF_OFFSET + PAGE_BTR_SEG_TOP_SIZE
+	PAGE_DIR_SLOYS_OFFSET     = 0
+	PAGE_HEAP_TOP_OFFSET      = PAGE_DIR_SLOYS_OFFSET + PAGE_HEAP_TOP_SIZE
+	PAGE_N_HEAP_OFFSET        = PAGE_HEAP_TOP_OFFSET + PAGE_N_HEAP_SIZE
+	PAGE_FREE_OFFSET          = PAGE_N_HEAP_OFFSET + PAGE_FREE_SIZE
+	PAGE_GARBAGE_OFFSET       = PAGE_FREE_OFFSET + PAGE_GARBAGE_SIZE
+	PAGE_LAST_INSERT_OFFSET   = PAGE_GARBAGE_OFFSET + PAGE_LAST_INSERT_SIZE
+	PAGE_DIRECTION_OFFSET     = PAGE_LAST_INSERT_OFFSET + PAGE_DIRECTION_SIZE
+	PAGE_N_DIRECTION_OFFSET   = PAGE_DIRECTION_OFFSET + PAGE_N_DIRECTION_SIZE
+	PAGE_N_RECS_OFFSET        = PAGE_N_DIRECTION_OFFSET + PAGE_N_RECS_SIZE
+	PAGE_MAX_TRX_ID_OFFSET    = PAGE_N_RECS_OFFSET + PAGE_MAX_TRX_ID_SIZE
+	PAGE_LEVEL_OFFSET         = PAGE_MAX_TRX_ID_OFFSET + PAGE_LEVEL_SIZE
+	PAGE_INDEX_ID_OFFSET      = PAGE_LEVEL_OFFSET + PAGE_INDEX_ID_SIZE
+	PAGE_BTR_SEGE_LEAF_OFFSET = PAGE_INDEX_ID_OFFSET + PAGE_BTR_SEG_LEAF_SIZE
+	PAGE_BTR_SEG_TOP_OFFSET   = PAGE_BTR_SEGE_LEAF_OFFSET + PAGE_BTR_SEG_TOP_SIZE
 )
 
 type IndexHeader struct {
 	data    *cType.PageData
-	_offset int
+	_offset uint16
 }
 
-func (idx *IndexHeader) reOffset(start int, end int) []byte {
-	return idx.data[idx._offset+start : idx._offset+end]
+func (idx *IndexHeader) LeafSegment() (spaceId uint32, pageNo uint32, offset uint16) {
+	return utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET, PAGE_BTR_SEG_TOP_SIZE)),
+	utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET+4, 4)),
+	utils.GetUint16(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET+6, 2))
+}
+
+func (idx *IndexHeader) TopSegment() (spaceId uint32, pageNo uint32, offset uint16) {
+	return utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET, PAGE_BTR_SEG_TOP_SIZE)),
+		utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET+4, 4)),
+		utils.GetUint16(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET+6, 2))
+}
+
+func (idx *IndexHeader) SetTopSegment(spaceId uint32, pageNo uint32, offset uint16) {
+	idx.setReOffset(PAGE_BTR_SEG_TOP_OFFSET, PAGE_BTR_SEG_TOP_SIZE, utils.PutUint32(spaceId))
+	idx.setReOffset(PAGE_BTR_SEG_TOP_OFFSET+4, 4, utils.PutUint32(pageNo))
+	idx.setReOffset(PAGE_BTR_SEG_TOP_OFFSET+6, 2, utils.PutUint16(offset))
+}
+
+func (idx *IndexHeader) SetLeafSegment(spaceId uint32, pageNo uint32, offset uint16) {
+	idx.setReOffset(PAGE_BTR_SEGE_LEAF_OFFSET, PAGE_BTR_SEG_LEAF_SIZE, utils.PutUint32(spaceId))
+	idx.setReOffset(PAGE_BTR_SEGE_LEAF_OFFSET+4, 4, utils.PutUint32(pageNo))
+	idx.setReOffset(PAGE_BTR_SEGE_LEAF_OFFSET+6, 2, utils.PutUint16(offset))
+}
+
+func (idx *IndexHeader) reOffset(start uint16, end uint16) []byte {
+	return idx.data[idx._offset+start : idx._offset+start+end]
+}
+func (idx *IndexHeader) setReOffset(start uint16, end uint16, data []byte) {
+	copy(idx.data[idx._offset+start:idx._offset+start+end], data)
 }

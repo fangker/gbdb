@@ -13,11 +13,11 @@ import (
 )
 
 func main() {
-	sc,sm := loadDBSys()
-	test(sc,sm)
+	sc, sm := loadDBSys()
+	test(sc, sm)
 }
 
-func loadDBSys() (*sc.SystemCache,*spaceManage.SpaceManage) {
+func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	//	//if err != nil {
 	//	//	log.Fatal(err)
@@ -28,25 +28,26 @@ func loadDBSys() (*sc.SystemCache,*spaceManage.SpaceManage) {
 	sm := spaceManage.NewSpaceManage(cb)
 	// Undo
 	undo_log := undo.NewUndoLogFileManage(utils.ENV_DIR+"/a.undo", 1)
-	undo_space:=sm.AddUndoSpace(1,undo.NewUndoLogManager(undo_log, "sys_table"))
+	undo_space := sm.AddUndoSpace(1, undo.NewUndoLogManager(undo_log, "sys_table"))
 	undo_space.InitSysUndoFileStructure()
 	// Sys
 	sys_space := sm.AddSpace(0, tbm.NewTableManage("sys_table"))
-	if !sys_space.IsInitialized() {
+	isInitSys := sys_space.IsInitialized()
+	if ! isInitSys {
 		sys_space.InitSysFileStructure()
 	}
-	return sys_space.LoadSysCache(),sm
+	return sys_space.LoadSysCache(isInitSys), sm
 }
 
-func test(sct *sc.SystemCache,smt *spaceManage.SpaceManage) {
+func test(sct *sc.SystemCache, smt *spaceManage.SpaceManage) {
 	// 载入事物管理器
 	tm.NewTransactionManage(sc.SC)
 	// 创建一个新的表
-	trx:=tm.TM.TrxStart();
-	sct.Sys_tables.Insert(trx,&statement.Insert{
-		TableName :"Sys_tables",
-		Fields: []string{"name", "id","n_cols", "type", "space"},
-		Values:[]string{"students","4","3","1","3"},
+	trx := tm.TM.TrxStart();
+	sct.Sys_tables.Insert(trx, &statement.Insert{
+		TableName: "Sys_tables",
+		Fields:    []string{"name", "id", "n_cols", "type", "space"},
+		Values:    []string{"students", "4", "3", "1", "3"},
 	})
 
 }

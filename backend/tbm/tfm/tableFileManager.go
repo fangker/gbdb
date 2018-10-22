@@ -9,6 +9,8 @@ import (
 	"github.com/fangker/gbdb/backend/wrapper"
 )
 
+var cachePool *cache.CachePool
+
 type TableFileManage struct {
 	CacheBuffer  *cache.CachePool
 	FilePath     string
@@ -136,8 +138,8 @@ func (sm *TableFileManage) IsInitialized() bool {
 	return true
 }
 
-func (sm *TableFileManage) CreateIndex() {
-
+func (sm *TableFileManage) CreateIndex(pageNo uint32) {
+	page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper,pageNo))
 }
 
 func (sm *TableFileManage) crateFSPExtend() {

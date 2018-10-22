@@ -35,7 +35,7 @@ func (sm *Space) GetTf() *tbm.TableManage {
 }
 
 // 载入sys缓存
-func (sm *Space) LoadSysCache() *sc.SystemCache {
+func (sm *Space) LoadSysCache(init bool) *sc.SystemCache {
 	sm.tbm.TableID = 0
 	sys := sm.tbm
 	stfm := sys.Tfm()
@@ -47,6 +47,13 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 		tbm := tfm.NewTableFileManage(0,uint32(tem_id),stfm.FilePath)
 		tem_id++
 		return tbm;
+	}
+	if init {
+		tfm:= newTfm()
+		tbm.CreateTree(tfm,dirct.HdrTables())
+		tbm.CreateTree(tfm,dirct.HdrIndex())
+		tbm.CreateTree(tfm,dirct.HdrFields())
+		tbm.CreateTree(tfm,dirct.HdrColumns())
 	}
 	tables := tbm.LoadTableManage("sys_tables", newTfm(),dirct.HdrTables())
 	indexes := tbm.LoadTableManage("sys_indexes", newTfm(),dirct.HdrIndex())
@@ -66,4 +73,3 @@ func (sm *Space) LoadSysCache() *sc.SystemCache {
 	sct.LoadSysTuple()
 	return sct;
 }
-
