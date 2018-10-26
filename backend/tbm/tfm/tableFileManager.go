@@ -33,6 +33,7 @@ func NewTableFileManage(spaceID, tableID uint32, filePath string) *TableFileMana
 	tfm := &TableFileManage{cacheWrapper: wp.GetWrapper(spaceID, tableID, file), FilePath: filePath, CacheBuffer: cache.CP}
 	return tfm
 }
+
 func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
 	offset := pageNum * cType.PAGE_SIZE
 	sm.cacheWrapper.File.WriteAt(data[:], int64(offset))
@@ -59,10 +60,10 @@ func (sm *TableFileManage) InitSysFile() {
 	fsp_bp := sm.getFlushPage(0)
 	fsp_bp.Lock()
 	fsp := page.NewFSPage(fsp_bp)
-
 	fsp.InitSysExtend()
+	// 设置
+	fsp.ExtendInodePage(sm.getFragmentPage())
 	// segment
-	//fsp.FSH.
 	// 为了建立索引树先初始化一个Inode entity
 	fsp_trx_bp := sm.getFlushPage(3)
 	fsp_trx := page.NewFSPageTrx(fsp_trx_bp)
@@ -73,14 +74,13 @@ func (sm *TableFileManage) InitSysFile() {
 
 	// sys_tables
 	dirct.SetHdrTables(sm.getFragmentPage())
-
-	sm.createTree(sm.getFragmentPage())
 	// sys_indexes
 	dirct.SetHdrIndex(sm.getFragmentPage())
 	// sys_fields
 	dirct.SetHdrFields(sm.getFragmentPage())
 	// sys_columns
 	dirct.SetHdrColumns(sm.getFragmentPage())
+
 	sm.CacheBuffer.ForceFlush(sm.cacheWrapper)
 }
 
@@ -88,15 +88,12 @@ func (sm *TableFileManage) createSegment() {
 	//fsp:=CB.GetPage()
 }
 
-func (sm *TableFileManage) createTree(rootPage uint32) {
-	inode_bp := sm.getFlushPage(1)
-	// 创建段描述页
-	inode := page.NewINodePage(inode_bp, sm.cacheWrapper)
-	inode.FH.SetOffset(1)
-	inode.Init()
-	inode_bp.Dirty()
-	inode.CreateInode()
-}
+//func (sm *TableFileManage) createTree(rootPage uint32) {
+//	inode_bp := sm.getFlushPage(1)
+//	// 创建段描述页
+//	inode := page.NewINodePage(inode_bp, sm.cacheWrapper)
+//	inode.FH.SetOffset(1)
+//}
 
 //
 //func (sm *TableFileManage) GetPage(offset uint64)cType.PageData{
@@ -139,7 +136,11 @@ func (sm *TableFileManage) IsInitialized() bool {
 }
 
 func (sm *TableFileManage) CreateIndex(pageNo uint32) {
-	page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper,pageNo))
+	ip:=page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper,pageNo))
+	p:=sm.space().FSH.FreeInodeList.GetFirst();
+	page.NewINodePage(cachePool.GetPage(sm.cacheWrapper,p.Page()))
+
+
 }
 
 func (sm *TableFileManage) crateFSPExtend() {
@@ -152,7 +153,7 @@ func (sm *TableFileManage) space() *page.FSPage {
 
 func (sm *TableFileManage) getFragmentPage() uint32 {
 	pos := sm.space().FSH.FragFreeList.GetFirst()
-	return page.GetFragFreePage(sm.cacheWrapper, pos.Page(), pos.Offset())
+	return page.GetFreePageByXdes(sm.cacheWrapper, pos.Page(), pos.Offset())
 }
 
 func (sm *TableFileManage) GetPage(pageNo uint32) *pcache.BuffPage {

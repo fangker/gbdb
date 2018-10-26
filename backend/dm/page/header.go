@@ -108,8 +108,8 @@ type FSPHeader struct {
 	FragFreeList  *FistBaseNode
 	FragFullList  *FistBaseNode
 	segmentID     uint64
-	fullInodeList *FistBaseNode
-	freeInodeList *FistBaseNode
+	FullInodeList *FistBaseNode
+	FreeInodeList *FistBaseNode
 }
 
 func newFSPHeader(offset uint16, data *cType.PageData) *FSPHeader {
@@ -119,8 +119,8 @@ func newFSPHeader(offset uint16, data *cType.PageData) *FSPHeader {
 	fspHeader.FreeList = &FistBaseNode{_offset: offset + FS_FREE_LIST_SIZE, data: fspHeader.data}
 	fspHeader.FragFreeList = &FistBaseNode{_offset: offset + FS_FRAG_FREE_LIST_OFFSET, data: fspHeader.data}
 	fspHeader.FragFullList = &FistBaseNode{_offset: offset + FS_FRAG_FULL_LIST_OFFSET, data: fspHeader.data}
-	fspHeader.fullInodeList = &FistBaseNode{_offset: offset + FS_FULL_INODE_LIST_OFFSET, data: fspHeader.data}
-	fspHeader.freeInodeList = &FistBaseNode{_offset: offset + FS_FREE_INODE_LIST_OFFSET, data: fspHeader.data}
+	fspHeader.FullInodeList = &FistBaseNode{_offset: offset + FS_FULL_INODE_LIST_OFFSET, data: fspHeader.data}
+	fspHeader.FreeInodeList = &FistBaseNode{_offset: offset + FS_FREE_INODE_LIST_OFFSET, data: fspHeader.data}
 	return fspHeader
 }
 
@@ -187,8 +187,8 @@ const (
 	PAGE_MAX_TRX_ID_OFFSET    = PAGE_N_RECS_OFFSET + PAGE_MAX_TRX_ID_SIZE
 	PAGE_LEVEL_OFFSET         = PAGE_MAX_TRX_ID_OFFSET + PAGE_LEVEL_SIZE
 	PAGE_INDEX_ID_OFFSET      = PAGE_LEVEL_OFFSET + PAGE_INDEX_ID_SIZE
-	PAGE_BTR_SEGE_LEAF_OFFSET = PAGE_INDEX_ID_OFFSET + PAGE_BTR_SEG_LEAF_SIZE
-	PAGE_BTR_SEG_TOP_OFFSET   = PAGE_BTR_SEGE_LEAF_OFFSET + PAGE_BTR_SEG_TOP_SIZE
+	PAGE_BTR_SEG_LEAF_OFFSET = PAGE_INDEX_ID_OFFSET + PAGE_BTR_SEG_LEAF_SIZE
+	PAGE_BTR_SEG_TOP_OFFSET   = PAGE_BTR_SEG_LEAF_OFFSET + PAGE_BTR_SEG_TOP_SIZE
 )
 
 type IndexHeader struct {
@@ -198,8 +198,8 @@ type IndexHeader struct {
 
 func (idx *IndexHeader) LeafSegment() (spaceId uint32, pageNo uint32, offset uint16) {
 	return utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET, PAGE_BTR_SEG_TOP_SIZE)),
-	utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET+4, 4)),
-	utils.GetUint16(idx.reOffset(PAGE_BTR_SEG_TOP_OFFSET+6, 2))
+	utils.GetUint32(idx.reOffset(PAGE_BTR_SEG_LEAF_OFFSET+4, 4)),
+	utils.GetUint16(idx.reOffset(PAGE_BTR_SEG_LEAF_OFFSET+6, 2))
 }
 
 func (idx *IndexHeader) TopSegment() (spaceId uint32, pageNo uint32, offset uint16) {
@@ -215,9 +215,9 @@ func (idx *IndexHeader) SetTopSegment(spaceId uint32, pageNo uint32, offset uint
 }
 
 func (idx *IndexHeader) SetLeafSegment(spaceId uint32, pageNo uint32, offset uint16) {
-	idx.setReOffset(PAGE_BTR_SEGE_LEAF_OFFSET, PAGE_BTR_SEG_LEAF_SIZE, utils.PutUint32(spaceId))
-	idx.setReOffset(PAGE_BTR_SEGE_LEAF_OFFSET+4, 4, utils.PutUint32(pageNo))
-	idx.setReOffset(PAGE_BTR_SEGE_LEAF_OFFSET+6, 2, utils.PutUint16(offset))
+	idx.setReOffset(PAGE_BTR_SEG_LEAF_OFFSET, PAGE_BTR_SEG_LEAF_SIZE, utils.PutUint32(spaceId))
+	idx.setReOffset(PAGE_BTR_SEG_LEAF_OFFSET+4, 4, utils.PutUint32(pageNo))
+	idx.setReOffset(PAGE_BTR_SEG_LEAF_OFFSET+6, 2, utils.PutUint16(offset))
 }
 
 func (idx *IndexHeader) reOffset(start uint16, end uint16) []byte {

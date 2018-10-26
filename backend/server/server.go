@@ -3,13 +3,13 @@ package main
 import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/spaceManage"
-	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/cache/system"
 	"github.com/fangker/gbdb/backend/tbm"
 	"github.com/fangker/gbdb/backend/tm"
 	"github.com/fangker/gbdb/backend/parser/statement"
 	_ "github.com/fangker/gbdb/backend/utils/log"
+	"github.com/fangker/gbdb/backend/log/undo"
+	"github.com/fangker/gbdb/backend/utils"
 )
 
 func main() {
@@ -33,10 +33,10 @@ func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
 	// Sys
 	sys_space := sm.AddSpace(0, tbm.NewTableManage("sys_table"))
 	isInitSys := sys_space.IsInitialized()
-	if ! isInitSys {
+	if !isInitSys {
 		sys_space.InitSysFileStructure()
 	}
-	return sys_space.LoadSysCache(isInitSys), sm
+	return sys_space.LoadSysCache(!isInitSys), sm
 }
 
 func test(sct *sc.SystemCache, smt *spaceManage.SpaceManage) {

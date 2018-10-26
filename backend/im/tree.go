@@ -33,7 +33,3 @@ func LoadBPlusTree(tfm *tfm.TableFileManage, rootPage uint32) *BPlusTree {
 func (bpt BPlusTree) WP() wp.Wrapper {
 	return bpt.tfm.CacheWrapper()
 }
-
-func Search() {
-
-}
