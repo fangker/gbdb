@@ -136,11 +136,17 @@ func (sm *TableFileManage) IsInitialized() bool {
 }
 
 func (sm *TableFileManage) CreateIndex(pageNo uint32) {
+
 	ip:=page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper,pageNo))
 	p:=sm.space().FSH.FreeInodeList.GetFirst();
-	page.NewINodePage(cachePool.GetPage(sm.cacheWrapper,p.Page()))
-
-
+	inp_l,off_l:=page.NewINodePage(
+		cachePool.GetPage(sm.cacheWrapper,p.Page()),
+	).GetFreeInode()
+	inp_t,off_t:=page.NewINodePage(
+		cachePool.GetPage(sm.cacheWrapper,p.Page()),
+	).GetFreeInode()
+	ip.IH.SetLeafSegment(0,inp_l,off_l)
+	ip.IH.SetTopSegment(0,inp_t,off_t)
 }
 
 func (sm *TableFileManage) crateFSPExtend() {

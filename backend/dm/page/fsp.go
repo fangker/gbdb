@@ -164,3 +164,7 @@ func (fsp *FSPage) ExtendInodePage(pageNo uint32) {
 	fsp.FSH.FreeInodeList.AddToLast(NewINodePage(cachePool.GetPage(fsp.wp, pageNo)).INL)
 }
 
+// extend inode(segment) - add xdes
+func (fsp *FSPage) AddExtentToSegment(p uint32,ofs uint16){
+
+}
