@@ -164,7 +164,23 @@ func (fsp *FSPage) ExtendInodePage(pageNo uint32) {
 	fsp.FSH.FreeInodeList.AddToLast(NewINodePage(cachePool.GetPage(fsp.wp, pageNo)).INL)
 }
 
-// extend inode(segment) - add xdes
-func (fsp *FSPage) AddExtentToSegment(p uint32,ofs uint16){
+// 扩展InodePage Entry
+func (fsp *FSPage) AddExtendToInodeEntry(p uint32, ofs uint16) {
+	// 
+	fsp0:=getSpaceFsp(fsp.wp);
+	fsp0.FSH.FreeList.GetFirst()
 
+
+}
+
+// extend inode(segment) - add xdes
+func (fsp *FSPage) AddExtentToSegment(p uint32, ofs uint16) {
+
+}
+
+
+// ExtendChecker
+
+func ExtendChecker()  {
+	
 }

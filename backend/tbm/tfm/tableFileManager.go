@@ -51,7 +51,6 @@ func (sm *TableFileManage) writeSync(pageNum uint32, data cType.PageData) {
 //}
 //
 
-
 func (sm *TableFileManage) getFlushPage(pageNo uint32) *pcache.BuffPage {
 	return sm.CacheBuffer.GetFlushPage(sm.cacheWrapper, pageNo)
 }
@@ -111,7 +110,6 @@ func (sm *TableFileManage) FSPExtendFile() {
 	fsp.FSH.SetMaxPage(64)
 	// 设定初始化成功
 
-
 }
 
 func (sm *TableFileManage) IsInitialized() bool {
@@ -137,16 +135,19 @@ func (sm *TableFileManage) IsInitialized() bool {
 
 func (sm *TableFileManage) CreateIndex(pageNo uint32) {
 
-	ip:=page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper,pageNo))
-	p:=sm.space().FSH.FreeInodeList.GetFirst();
-	inp_l,off_l:=page.NewINodePage(
-		cachePool.GetPage(sm.cacheWrapper,p.Page()),
-	).GetFreeInode()
-	inp_t,off_t:=page.NewINodePage(
-		cachePool.GetPage(sm.cacheWrapper,p.Page()),
-	).GetFreeInode()
-	ip.IH.SetLeafSegment(0,inp_l,off_l)
-	ip.IH.SetTopSegment(0,inp_t,off_t)
+	ip := page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper, pageNo))
+	p := sm.space().FSH.FreeInodeList.GetFirst();
+	l := page.NewINodePage(
+		cachePool.GetPage(sm.cacheWrapper, p.Page()),
+	)
+	t := page.NewINodePage(
+		cachePool.GetPage(sm.cacheWrapper, p.Page()),
+	)
+	inp_l, off_l := l.GetFreeInode()
+	inp_t, off_t := t.GetFreeInode()
+	ip.IH.SetLeafSegment(0, inp_l, off_l)
+	ip.IH.SetTopSegment(0, inp_t, off_t)
+	sm.space().AddExtendToInodeEntry(inp_l, off_l)
 }
 
 func (sm *TableFileManage) crateFSPExtend() {
@@ -163,11 +164,10 @@ func (sm *TableFileManage) getFragmentPage() uint32 {
 }
 
 func (sm *TableFileManage) GetPage(pageNo uint32) *pcache.BuffPage {
-  return sm.CacheBuffer.GetPage(sm.cacheWrapper,pageNo)
+	return sm.CacheBuffer.GetPage(sm.cacheWrapper, pageNo)
 }
 
 func (sm *TableFileManage) SysDir() *page.DictPage {
 	dict_bp := sm.CacheBuffer.GetPage(sm.cacheWrapper, 8)
 	return page.NewDictPage(dict_bp)
 }
-

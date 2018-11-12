@@ -69,7 +69,7 @@ func (inp *INodePage) GetFreeInode() (page uint32, offset uint16) {
 		continue
 	}
 	// TODO:
-	return 99999, 9999
+	return 9999, 9999
 }
 
 // 获得本页空闲 inode Entry
