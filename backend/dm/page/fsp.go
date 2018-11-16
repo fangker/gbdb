@@ -166,9 +166,9 @@ func (fsp *FSPage) ExtendInodePage(pageNo uint32) {
 
 // 扩展InodePage Entry
 func (fsp *FSPage) AddExtendToInodeEntry(p uint32, ofs uint16) {
-	// 
+	//
 	fsp0:=getSpaceFsp(fsp.wp);
-	fsp0.FSH.FreeList.GetFirst()
+	fsp0.FSH.FreeList.GetFirst();
 
 
 }
@@ -179,8 +179,12 @@ func (fsp *FSPage) AddExtentToSegment(p uint32, ofs uint16) {
 }
 
 
-// ExtendChecker
 
-func ExtendChecker()  {
-	
+type ExtendHandle  struct{
+	  FreeXdes uint32
+	  InodeEntry uint32
+}
+// ExtendChecker
+func ExtendChecker(baseNode FistBaseNode){
+
 }
