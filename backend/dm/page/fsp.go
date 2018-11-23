@@ -15,10 +15,17 @@ const (
 	FSPAGE_XDES_OFFSET = 138
 )
 
-var cachePool *cache.CachePool
+const (
+	EXTEND_FREE_LIST_TYPE = iota
+	EXTEND__
+)
 
-func AttachCache() {
-	cachePool = cache.CP
+var cachePool *cache.CachePool
+var extendHandel *ExtendHandle
+
+func Init() {
+	cachePool = cache.CP;
+	extendHandel =  &ExtendHandle{}
 }
 
 type FSPage struct {
@@ -185,6 +192,6 @@ type ExtendHandle  struct{
 	  InodeEntry uint32
 }
 // ExtendChecker
-func ExtendChecker(baseNode FistBaseNode){
+func  ExtendChecker(baseNode FistBaseNode,  extendType int){
 
 }
