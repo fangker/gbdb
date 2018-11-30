@@ -25,7 +25,7 @@ var extendHandel *ExtendHandle
 
 func Init() {
 	cachePool = cache.CP;
-	extendHandel =  &ExtendHandle{}
+	extendHandel = &ExtendHandle{}
 }
 
 type FSPage struct {
@@ -174,10 +174,9 @@ func (fsp *FSPage) ExtendInodePage(pageNo uint32) {
 // 扩展InodePage Entry
 func (fsp *FSPage) AddExtendToInodeEntry(p uint32, ofs uint16) {
 	//
-	fsp0:=getSpaceFsp(fsp.wp);
+	fsp0 := getSpaceFsp(fsp.wp);
 	fsp0.FSH.FreeList.GetFirst();
-
-
+	extendHandel.FreeListExtendChecker(fsp0.FSH.FreeList, )
 }
 
 // extend inode(segment) - add xdes
@@ -185,13 +184,20 @@ func (fsp *FSPage) AddExtentToSegment(p uint32, ofs uint16) {
 
 }
 
-
-
-type ExtendHandle  struct{
-	  FreeXdes uint32
-	  InodeEntry uint32
+type ExtendHandle struct {
+	FreeXdes   uint32
+	InodeEntry uint32
 }
+
 // ExtendChecker
-func  ExtendChecker(baseNode FistBaseNode,  extendType int){
+func (eh *ExtendHandle) FreeListExtendChecker(baseNode FistBaseNode) {
+
+}
+
+func (eh *ExtendHandle) FragFreeListExtendChecker(baseNode FistBaseNode) {
+
+}
+
+func (eh *ExtendHandle) FreeInodeListExtendChecker(baseNode FistBaseNode) {
 
 }
