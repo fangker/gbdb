@@ -176,7 +176,7 @@ func (fsp *FSPage) AddExtendToInodeEntry(p uint32, ofs uint16) {
 	//
 	fsp0 := getSpaceFsp(fsp.wp);
 	fsp0.FSH.FreeList.GetFirst();
-	extendHandel.FreeListExtendChecker(fsp0.FSH.FreeList, )
+	extendHandel.FreeListExtendChecker(fsp0.FSH.FreeList);
 }
 
 // extend inode(segment) - add xdes
@@ -190,8 +190,8 @@ type ExtendHandle struct {
 }
 
 // ExtendChecker
-func (eh *ExtendHandle) FreeListExtendChecker(baseNode FistBaseNode) {
-
+func (eh *ExtendHandle) FreeListExtendChecker(baseNode *FistBaseNode) {
+	if()
 }
 
 func (eh *ExtendHandle) FragFreeListExtendChecker(baseNode FistBaseNode) {
