@@ -34,6 +34,12 @@ func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
 	sys_space := sm.AddSpace(0, tbm.NewTableManage("sys_table"))
 	isInitSys := sys_space.IsInitialized()
 	if !isInitSys {
+		/*
+		初始化Trx页面(4)
+		初始化FreeFrag(1)
+		初始化首个Inode页面
+		初始化Dir页面(8)
+		*/
 		sys_space.InitSysFileStructure()
 	}
 	return sys_space.LoadSysCache(!isInitSys), sm
@@ -49,5 +55,4 @@ func test(sct *sc.SystemCache, smt *spaceManage.SpaceManage) {
 		Fields:    []string{"name", "id", "n_cols", "type", "space"},
 		Values:    []string{"students", "4", "3", "1", "3"},
 	})
-
 }

@@ -69,6 +69,10 @@ func (sm *TableFileManage) InitSysFile() {
 	fsp_trx.SetSysTrxIDStore(0)
 
 	dict_bp := sm.getFlushPage(8)
+
+	/*
+	初始化目录页并刷新
+	*/
 	dirct := page.NewDictPage(dict_bp)
 
 	// sys_tables
