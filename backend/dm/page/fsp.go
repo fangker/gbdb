@@ -191,7 +191,7 @@ type ExtendHandle struct {
 
 // ExtendChecker
 func (eh *ExtendHandle) FreeListExtendChecker(baseNode *FistBaseNode) {
-	
+
 }
 
 func (eh *ExtendHandle) FragFreeListExtendChecker(baseNode FistBaseNode) {
