@@ -1,5 +1,7 @@
-InnoDB多版本(MVCC)实现简要分析
-http://hedengcheng.com/?p=148
+[InnoDB多版本(MVCC)实现简要分析](http://hedengcheng.com/?p=148)
+
+
+[对于锁的认识](http://www.cnblogs.com/shihuvini/p/9852667.html)
 
 MTR:
 mtr是最小的事物单位,保证一个物理事物的完成。
@@ -17,3 +19,4 @@ mtr操作没有提交那么内存就不变,如果已经提交,修改即生效。
 * 1 一个mtr产生的redoLog是连续的
 * 2 一个事物可能包含多个mtr 事物的状态由undolog事物状态决定
 * 3 redoLog的刷新是事物无关的 log可能有完成的T1也有可能有未完成的T2
+
