@@ -7,6 +7,8 @@ import (
 	"container/list"
 	"strconv"
 	"github.com/fangker/gbdb/backend/wrapper"
+	"github.com/fangker/gbdb/backend/utils/log"
+	"github.com/fangker/gbdb/backend/mtr"
 )
 
 type CachePool struct {
@@ -15,7 +17,7 @@ type CachePool struct {
 	freeList    *list.List
 	flushList   *LRUCache
 	lruList     *LRUCache
-	mux         *sync.Mutex
+	mux         sync.RWMutex
 }
 
 var CP *CachePool
@@ -33,10 +35,13 @@ func NewCacheBuffer(maxCacheNum uint32) *CachePool {
 	return cb
 }
 
-func (cb *CachePool) GetPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
+func (cb *CachePool) GetPage(wrap wp.Wrapper) *pcache.BuffPage {
 	// 如果缓存中存在使用缓存
 	tbID := wrap.TableID
 	tpID := wrap.SpaceID
+	pageNo:=wrap.PageNo
+	log.Trace(wrap, pageNo)
+	cb.mux.RLock()
 	if _, exist := cb.pagePool[tpID]; !exist {
 		cb.pagePool[tpID] = make(map[uint32]map[uint32]*pcache.BuffPage)
 	}
@@ -44,8 +49,12 @@ func (cb *CachePool) GetPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
 		cb.pagePool[tpID][tbID] = make(map[uint32]*pcache.BuffPage)
 	}
 	if pg, exist := cb.pagePool[tpID][tbID][pageNo]; exist {
+		cb.mux.RUnlock()
 		return pg
 	}
+	cb.mux.RUnlock()
+	cb.mux.Lock()
+	defer cb.mux.Unlock()
 	pg := cb.GetFreePage(wrap)
 	pg.SetPageNo(pageNo)
 	// read data
@@ -88,8 +97,13 @@ func (cb *CachePool) ForceFlush(wrap wp.Wrapper) {
 		val := l.Value.(*CacheNode);
 		pg := val.Value.(*pcache.BuffPage);
 		if (pg.Dirty() == true) {
-				wrap.File.WriteAt(pg.GetData()[:], int64(pg.PageNo()*cType.PAGE_SIZE))
-				wrap.File.Sync()
+			wrap.File.WriteAt(pg.GetData()[:], int64(pg.PageNo()*cType.PAGE_SIZE))
+			wrap.File.Sync()
 		}
 	}
+}
+
+func CachePoolGetPage(wp wp.Wrapper,lockMode uint,mtr *mtr.Mtr) {
+	CP.GetPage(wp);
+
 }

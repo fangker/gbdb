@@ -4,6 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/utils/log"
 )
 
 const (
@@ -224,5 +225,6 @@ func (idx *IndexHeader) reOffset(start uint16, end uint16) []byte {
 	return idx.data[idx._offset+start : idx._offset+start+end]
 }
 func (idx *IndexHeader) setReOffset(start uint16, end uint16, data []byte) {
+	log.Info(log.AnyViewToString(idx),111111)
 	copy(idx.data[idx._offset+start:idx._offset+start+end], data)
 }

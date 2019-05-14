@@ -34,7 +34,7 @@ const (
 )
 
 const (
-	log_caller = false
+	log_caller = true
 )
 
 func Trace(details ...interface{}) {
@@ -74,7 +74,7 @@ func formatLog(prefix string, details ...interface{}) string {
 	return line
 }
 func caller() string {
-	_, file, line, _ := runtime.Caller(1)
+	_, file, line, _ := runtime.Caller(3)
 	return "  <file>" + string(file) + " <line> " + strconv.Itoa(line)
 }
 

@@ -15,7 +15,7 @@ type IndexPage struct {
 func NewIndexPage(bf *pcache.BuffPage) *IndexPage {
 	index := &IndexPage{
 		FH: &FilHeader{data: bf.GetData()},
-		IH: &IndexHeader{_offset: FIL_HEADER_END},
+		IH: &IndexHeader{data:bf.GetData(),_offset: FIL_HEADER_END},
 	}
 	return index
 }

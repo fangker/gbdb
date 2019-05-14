@@ -10,9 +10,12 @@ import (
 	_ "github.com/fangker/gbdb/backend/utils/log"
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/utils"
+	"github.com/fangker/gbdb/backend/dm/page"
+	"runtime"
 )
 
 func main() {
+	runtime.GOMAXPROCS(1)
 	sc, sm := loadDBSys()
 	test(sc, sm)
 }
@@ -26,6 +29,9 @@ func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
 	cb := cache.NewCacheBuffer(22)
 	// 加载字典表的过程
 	sm := spaceManage.NewSpaceManage(cb)
+	// 初始化页全局
+	page.Init()
+
 	// Undo
 	undo_log := undo.NewUndoLogFileManage(utils.ENV_DIR+"/a.undo", 1)
 	undo_space := sm.AddUndoSpace(1, undo.NewUndoLogManager(undo_log, "sys_table"))
@@ -33,7 +39,7 @@ func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
 	// Sys
 	sys_space := sm.AddSpace(0, tbm.NewTableManage("sys_table"))
 	isInitSys := sys_space.IsInitialized()
-	if !isInitSys {
+	if isInitSys {
 		/*
 		初始化Trx页面(4)
 		初始化FreeFrag(1)

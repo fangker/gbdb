@@ -6,6 +6,7 @@ import (
 	"unsafe"
 	. "github.com/fangker/gbdb/backend/constants/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
+	"github.com/fangker/gbdb/backend/mtr"
 )
 
 type tmSysInfoManager interface {
@@ -28,7 +29,7 @@ func NewTransactionManage(scp tmSysInfoManager) *TransactionManage {
 	return this;
 }
 
-func (this *TransactionManage) AddToRWTrxList(tr *Transaction) {
+func (this *TransactionManage) AddToRWTrxList(tr *mtr.Transaction) {
 	this.rwTrxList.AddTo(tr)
 }
 
@@ -38,9 +39,9 @@ func (tm *TransactionManage) generateXID() XID {
 	return tm.TrID
 }
 
-func (tm *TransactionManage) TrxStart() *Transaction {
+func (tm *TransactionManage) TrxStart() *mtr.Transaction {
 	trID := tm.generateXID()
-	t := &Transaction{TrxID: trID}
+	t := &mtr.Transaction{TrxID: trID}
 	tm.AddToRWTrxList(t)
 	return t
 }

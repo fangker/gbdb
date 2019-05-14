@@ -17,7 +17,6 @@ const (
 
 const (
 	EXTEND_FREE_LIST_TYPE = iota
-	EXTEND__
 )
 
 var cachePool *cache.CachePool

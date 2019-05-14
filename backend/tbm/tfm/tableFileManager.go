@@ -7,6 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/dm/page"
 	"os"
 	"github.com/fangker/gbdb/backend/wrapper"
+	//"github.com/fangker/gbdb/backend/utils/log"
 )
 
 var cachePool *cache.CachePool
@@ -138,14 +139,13 @@ func (sm *TableFileManage) IsInitialized() bool {
 }
 
 func (sm *TableFileManage) CreateIndex(pageNo uint32) {
-
-	ip := page.NewIndexPage(cachePool.GetPage(sm.cacheWrapper, pageNo))
+	ip := page.NewIndexPage(sm.CacheBuffer.GetPage(sm.cacheWrapper, pageNo))
 	p := sm.space().FSH.FreeInodeList.GetFirst();
 	l := page.NewINodePage(
-		cachePool.GetPage(sm.cacheWrapper, p.Page()),
+		sm.CacheBuffer.GetPage(sm.cacheWrapper, p.Page()),
 	)
 	t := page.NewINodePage(
-		cachePool.GetPage(sm.cacheWrapper, p.Page()),
+		sm.CacheBuffer.GetPage(sm.cacheWrapper, p.Page()),
 	)
 	inp_l, off_l := l.GetFreeInode()
 	inp_t, off_t := t.GetFreeInode()
