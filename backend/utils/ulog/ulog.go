@@ -1,7 +1,6 @@
 package ulog
 
 import (
-	"log"
 	"runtime"
 	"strconv"
 	"fmt"
@@ -9,7 +8,7 @@ import (
 	"time"
 )
 
-var LOG_LEVEL = TRACE;
+var log_level = TRACE;
 
 const (
 	color_black   = uint8(iota + 30)
@@ -23,12 +22,13 @@ const (
 )
 
 const (
-	succ = "[SUCC]"
-	info = "[INFO]"
-	capt = "[CAPT]"
-	trac = "[TRAC]"
-	erro = "[ERRO]"
-	warn = "[WARN]"
+	succ  = "[SUCC]"
+	info  = "[INFO]"
+	capt  = "[CAPT]"
+	trac  = "[TRAC]"
+	erro  = "[ERRO]"
+	warn  = "[WARN]"
+	debug = "[DEBUG]"
 )
 
 const (
@@ -37,6 +37,7 @@ const (
 	SUCCESS
 	INFO
 	CAPTION
+	DEBUG
 	TRACE
 )
 
@@ -45,43 +46,47 @@ const (
 )
 
 func Trace(details ...interface{}) {
-	if LOG_LEVEL >= TRACE {
-		log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
+	if log_level >= TRACE {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
 	}
 }
 
 func Info(details ...interface{}) {
-	if LOG_LEVEL >= INFO {
-		log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
+	if log_level >= INFO {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
 	}
 }
 
 func Error(details ...interface{}) {
-	if LOG_LEVEL >= ERROR {
-		log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
+	if log_level >= ERROR {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
 	}
 }
 
 func Success(details ...interface{}) {
-	if LOG_LEVEL >= SUCCESS {
-		log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
+	if log_level >= SUCCESS {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
 	}
 }
 
 func Warn(details ...interface{}) {
-	if LOG_LEVEL >= WARNING {
-		log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
+	if log_level >= WARNING {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
 	}
 }
 
 func Caption(details ...interface{}) {
-	if LOG_LEVEL >= CAPTION {
-		log.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
+	if log_level >= CAPTION {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
 	}
 }
 
+func Debug(details ...interface{}) {
+	if log_level >= DEBUG {
+		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_blue, background(color_white), 1, formatLog(debug, details...))
+	}
+}
 func formatLog(prefix string, details ...interface{}) string {
-	log.SetFlags(0)
 	var detailsInfo string
 	for _, value := range details {
 		detailsInfo = detailsInfo + " " + fmt.Sprint("", value)

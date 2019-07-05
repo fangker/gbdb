@@ -17,7 +17,7 @@ func (cnode *CacheNode) NewCacheNode(k, v interface{}) *CacheNode {
 }
 
 type LRUCache struct {
-	rwLock *sync.RWMutex
+	rwLock sync.RWMutex
 	Capacity int
 	dlist    *list.List
 	cacheMap map[interface{}]*list.Element

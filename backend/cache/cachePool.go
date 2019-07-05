@@ -8,6 +8,7 @@ import (
 	"container/list"
 	"github.com/fangker/gbdb/backend/dstr"
 	"fmt"
+	"github.com/fangker/gbdb/backend/utils/ulog"
 )
 
 var UNION_PAGE_SIZE uint64 = 16 * 1024
@@ -39,10 +40,12 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	}
 	cb.mux.Lock()
 	defer cb.mux.Unlock()
-	maddr := new([maxCacheNum * UNION_PAGE_SIZE] byte);
+	// + 1 for align
+	maddr := make([]byte, maxCacheNum*UNION_PAGE_SIZE+1);
 	cb.frameAddr = (*byte)(unsafe.Pointer(&maddr))
-	for i := uint64(0); i <= maxCacheNum; i++ {
-		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UNION_PAGE_SIZE)
+	ulog.Debug("init buffer pool frame addr is ", cb.frameAddr)
+	for i := uint64(0); i < maxCacheNum; i++ {
+		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UNION_PAGE_SIZE*(i+1))
 		cb.blockPages[i] = pcache.NewBlockPage(uptr)
 		cb.freeList.PushBack(cb.blockPages[i])
 	}
@@ -50,7 +53,7 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 		cb.lruList.Set(uintptr(unsafe.Pointer(&cb.blockPages[i])), *cb.blockPages[i]);
 	}
 	CP = cb
-	fmt.Println("[CacheBuffer] builed now %d mb %d pages", maxCacheNum*16<<1024, )
+	ulog.Info(fmt.Sprintf("[CacheBuffer] builed now %0.3f mb %d pages ", float32(maxCacheNum*16)/(2<<9), maxCacheNum))
 	return cb
 }
 
@@ -93,4 +96,14 @@ func (cb *CachePool) addToUrlList(tpID, pageNo uint64) *pcache.BlockPage {
 	pg := cb.freeList.Front().Value.(*pcache.BlockPage)
 	cb.freeList.Remove(listEle)
 	return pg
+}
+
+// 查找匹配block
+func (cb *CachePool) blockPageAlign(b *byte) *pcache.BlockPage {
+	ptr := uintptr(unsafe.Pointer(b)) - uintptr(UNION_PAGE_SIZE)
+	for _, v := range cb.blockPages {
+		if ptr <= uintptr(unsafe.Pointer(v.Ptr)) {
+			return v
+		}
+	}
 }

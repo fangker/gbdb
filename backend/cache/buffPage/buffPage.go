@@ -12,14 +12,14 @@ type BlockPage struct {
 	spaceId uint64
 	dirty  bool
 	rwLock sync.RWMutex
-	ptr    *cType.PageData
+	Ptr    *cType.PageData
 	pType  uint16
 	loaded bool
 	wp     wp.Wrapper
 }
 
 func NewBlockPage(uptr uintptr) *BlockPage {
-	return &BlockPage{ptr: (* cType.PageData)(unsafe.Pointer(uptr))}
+	return &BlockPage{Ptr: (* cType.PageData)(unsafe.Pointer(uptr))}
 }
 
 func (bp BlockPage) Wp() wp.Wrapper {
@@ -44,12 +44,12 @@ func (bp *BlockPage) Unlock() {
 	bp.rwLock.Unlock()
 }
 
-func (bp *BlockPage) GetData() cType.PageData {
-	return *bp.ptr
+func (bp *BlockPage) GetData() *cType.PageData {
+	return bp.Ptr
 }
 
 func (bp *BlockPage) SetData(data cType.PageData) {
-	*bp.ptr = data
+	*bp.Ptr = data
 }
 
 func (bp *BlockPage) getPtype() uint16 {

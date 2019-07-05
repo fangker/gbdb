@@ -17,7 +17,7 @@ const (
 
 type mo struct {
 	mode uint
-	obj  *pcache.BuffPage
+	obj  *pcache.BlockPage
 }
 type Mtr struct {
 	TrxID        XID

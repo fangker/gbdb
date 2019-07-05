@@ -1,7 +1,5 @@
 package wp
 
-import "os"
-
 /*
 static wrapper for global file location
 */
