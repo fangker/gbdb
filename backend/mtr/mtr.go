@@ -2,7 +2,7 @@ package mtr
 
 import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
-	. "github.com/fangker/gbdb/backend/constants/cType"
+	. "github.com/fangker/gbdb/backend/def/cType"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 	X_LOCK = 0
 	S_LOCK = 1
 )
-interface
+
 type mo struct {
 	mode uint
 	obj  *pcache.BuffPage
@@ -38,8 +38,14 @@ func MtrStart(this *Mtr) *Mtr {
 func (this *Mtr) AddToMemo(lockMode uint, obj *pcache.BuffPage) *Mtr {
 	mo := mo{mode: lockMode, obj: obj}
 	this.memo = append(this.memo, mo);
-	if (X_LOCK == lockMode) {
-		mo.obj.RLock()
+	switch (lockMode) {
+	case X_LOCK:
+		obj.Lock();
+	case S_LOCK:
+		obj.RLock();
 	}
 	return this;
+}
+func MtrWriteSint(this *mtr, val uint8,) {
+
 }

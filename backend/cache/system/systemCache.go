@@ -2,7 +2,7 @@ package sc
 
 import (
 	"github.com/fangker/gbdb/backend/dm/page"
-	. "github.com/fangker/gbdb/backend/constants/cType"
+	. "github.com/fangker/gbdb/backend/def/cType"
 	"github.com/fangker/gbdb/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 	"github.com/fangker/gbdb/backend/mtr"

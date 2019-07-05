@@ -1,7 +1,8 @@
-package cache
+package dstr
 
 import (
 	"container/list"
+	"sync"
 )
 
 // 自己也实现了一个 支持RUL的linked hash map
@@ -16,12 +17,13 @@ func (cnode *CacheNode) NewCacheNode(k, v interface{}) *CacheNode {
 }
 
 type LRUCache struct {
+	rwLock *sync.RWMutex
 	Capacity int
 	dlist    *list.List
 	cacheMap map[interface{}]*list.Element
 }
 
-func NewLRUCache(cap uint32) (*LRUCache) {
+func NewLRUCache(cap uint64) (*LRUCache) {
 	return &LRUCache{
 		Capacity: int(cap),
 		dlist:    list.New(),
@@ -29,10 +31,14 @@ func NewLRUCache(cap uint32) (*LRUCache) {
 }
 
 func (lru *LRUCache) Size() (int) {
+	lru.rwLock.RLock()
+	defer lru.rwLock.RUnlock()
 	return lru.dlist.Len()
 }
 
 func (lru *LRUCache) Set(k, v interface{}) {
+	lru.rwLock.RLock()
+	defer lru.rwLock.RUnlock()
 	if pElement, ok := lru.cacheMap[k]; ok {
 		lru.dlist.MoveToFront(pElement)
 		pElement.Value.(*CacheNode).Value = v
@@ -53,7 +59,8 @@ func (lru *LRUCache) Set(k, v interface{}) {
 }
 
 func (lru *LRUCache) Get(k interface{}) (v interface{}, ret bool, err error) {
-
+	lru.rwLock.RLock()
+	defer lru.rwLock.RUnlock()
 	if pElement, ok := lru.cacheMap[k]; ok {
 		lru.dlist.MoveToFront(pElement)
 		return pElement.Value.(*CacheNode).Value, true, nil
@@ -62,7 +69,8 @@ func (lru *LRUCache) Get(k interface{}) (v interface{}, ret bool, err error) {
 }
 
 func (lru *LRUCache) Remove(k interface{}) (bool) {
-
+	lru.rwLock.Lock()
+	defer lru.rwLock.Unlock()
 	if lru.cacheMap == nil {
 		return false
 	}

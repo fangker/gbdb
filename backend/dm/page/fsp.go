@@ -3,10 +3,10 @@ package page
 import (
 	"github.com/fangker/gbdb/backend/cache"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
-	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/def/cType"
 	"github.com/fangker/gbdb/backend/wrapper"
 	"math"
-	_ "github.com/fangker/gbdb/backend/utils/log"
+	_ "github.com/fangker/gbdb/backend/utils/ulog"
 )
 
 const (

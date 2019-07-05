@@ -1,4 +1,4 @@
-package cType
+package constant
 
 // Filed cType
 const (
@@ -21,8 +21,8 @@ const (
 	DDL_KEY_TYPE_INDEX
 )
 
-type LSN uint64
-type XID uint64
-type RID uint64
-type INDEX_TYPE int
-type FIELD_TYPE int
+// SIZE
+const (
+	UNIT_PAGE_SIZE uint64 = 16 * 1024
+	LOG_BLOCK_SIZE uint64 = 512
+)

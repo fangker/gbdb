@@ -2,76 +2,74 @@ package pcache
 
 import (
 	"sync"
-	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/def/cType"
 	"github.com/fangker/gbdb/backend/wrapper"
+	"unsafe"
 )
 
-type BuffPage struct {
-	pageNo uint32
+type BlockPage struct {
+	pageNo uint64
+	spaceId uint64
 	dirty  bool
 	rwLock sync.RWMutex
-	data   cType.PageData
+	ptr    *cType.PageData
 	pType  uint16
+	loaded bool
 	wp     wp.Wrapper
 }
 
-func NewBuffPage(wrapper wp.Wrapper) *BuffPage {
-	return &BuffPage{wp: wrapper, data: cType.PageData{}}
+func NewBlockPage(uptr uintptr) *BlockPage {
+	return &BlockPage{ptr: (* cType.PageData)(unsafe.Pointer(uptr))}
 }
 
-func (bp BuffPage) Wp() wp.Wrapper {
+func (bp BlockPage) Wp() wp.Wrapper {
 	return bp.wp
 }
 
-func (bp *BuffPage) SetDirty() {
+func (bp *BlockPage) SetDirty() {
 	bp.dirty = true
 }
 
-func (bp *BuffPage) Dirty() bool {
+func (bp *BlockPage) Dirty() bool {
 	return bp.dirty
 }
-func (bp *BuffPage) RLock() {
+func (bp *BlockPage) RLock() {
 	bp.rwLock.RLock()
 }
 
-func (bp *BuffPage) Lock() {
+func (bp *BlockPage) Lock() {
 	bp.rwLock.Lock()
 }
-func (bp *BuffPage) Unlock() {
+func (bp *BlockPage) Unlock() {
 	bp.rwLock.Unlock()
 }
 
-func (bp *BuffPage) GetData() *cType.PageData {
-	return &bp.data
+func (bp *BlockPage) GetData() cType.PageData {
+	return *bp.ptr
 }
-func (bp *BuffPage) SetData(data cType.PageData) {
-	bp.data = data
+
+func (bp *BlockPage) SetData(data cType.PageData) {
+	*bp.ptr = data
 }
-func (bp *BuffPage) getPtype() uint16 {
+
+func (bp *BlockPage) getPtype() uint16 {
 	return bp.pType
 }
 
-func (bp *BuffPage) SetWrapper(wp wp.Wrapper) {
+func (bp *BlockPage) SetWrapper(wp wp.Wrapper) {
 	bp.wp = wp;
 }
 
-//func (bp *BuffPage) TableId() uint32 {
-//	return bp.tableID
-//}
-//
-func (bp *BuffPage) PageNo() uint32 {
+
+func (bp *BlockPage) PageNo() uint64 {
 	return bp.pageNo
 }
 
-//
-//func (bp *BuffPage) SetTableID(tbID uint32) {
-//	bp.tableID = tbID
-//}
-//
-//func (bp *BuffPage) SetSpaceID(tsID uint32) {
-//	bp.spaceID = tsID
-//}
-//
-func (bp *BuffPage) SetPageNo(pNo uint32) {
+
+func (bp *BlockPage) SetSpaceId(spaceId uint64) {
+	bp.spaceId = spaceId
+}
+
+func (bp *BlockPage) SetPageNo(pNo uint64) {
 	bp.pageNo = pNo
 }

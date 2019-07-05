@@ -3,107 +3,94 @@ package cache
 import (
 	"sync"
 	"github.com/fangker/gbdb/backend/cache/buffPage"
-	"github.com/fangker/gbdb/backend/constants/cType"
-	"container/list"
-	"strconv"
 	"github.com/fangker/gbdb/backend/wrapper"
-	"github.com/fangker/gbdb/backend/utils/log"
-	"github.com/fangker/gbdb/backend/mtr"
+	"unsafe"
+	"container/list"
+	"github.com/fangker/gbdb/backend/dstr"
+	"fmt"
 )
 
+var UNION_PAGE_SIZE uint64 = 16 * 1024
+
 type CachePool struct {
-	pagePool    map[uint32]map[uint32]map[uint32]*pcache.BuffPage
-	maxCacheNum uint32
+	pagePool    map[uint64]map[uint64]*pcache.BlockPage
+	maxCacheNum uint64
 	freeList    *list.List
-	flushList   *LRUCache
-	lruList     *LRUCache
+	flushList   *list.List
+	lock        *sync.Mutex
+	lruList     *dstr.LRUCache
+	blockPages  []*pcache.BlockPage
+	frameAddr   *byte // 数据页缓存地址
 	mux         sync.RWMutex
 }
 
 var CP *CachePool
 
-func NewCacheBuffer(maxCacheNum uint32) *CachePool {
+func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	cb := &CachePool{
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
-		flushList:   NewLRUCache(maxCacheNum),
-		lruList:     NewLRUCache(maxCacheNum),
-		pagePool:    make(map[uint32]map[uint32]map[uint32]*pcache.BuffPage),
+		flushList:   list.New(),
+		lruList:     dstr.NewLRUCache(maxCacheNum),
+		lock:        &sync.Mutex{},
+		pagePool:    make(map[uint64]map[uint64]*pcache.BlockPage),
+		blockPages:  make([]*pcache.BlockPage, maxCacheNum),
+		frameAddr:   nil,
 	}
-	cb.init()
+	cb.mux.Lock()
+	defer cb.mux.Unlock()
+	maddr := new([maxCacheNum * UNION_PAGE_SIZE] byte);
+	cb.frameAddr = (*byte)(unsafe.Pointer(&maddr))
+	for i := uint64(0); i <= maxCacheNum; i++ {
+		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UNION_PAGE_SIZE)
+		cb.blockPages[i] = pcache.NewBlockPage(uptr)
+		cb.freeList.PushBack(cb.blockPages[i])
+	}
+	for i := uint64(0); i < maxCacheNum; i++ {
+		cb.lruList.Set(uintptr(unsafe.Pointer(&cb.blockPages[i])), *cb.blockPages[i]);
+	}
 	CP = cb
+	fmt.Println("[CacheBuffer] builed now %d mb %d pages", maxCacheNum*16<<1024, )
 	return cb
 }
 
-func (cb *CachePool) GetPage(wrap wp.Wrapper) *pcache.BuffPage {
-	// 如果缓存中存在使用缓存
-	tbID := wrap.TableID
-	tpID := wrap.SpaceID
-	pageNo:=wrap.PageNo
-	log.Trace(wrap, pageNo)
-	cb.mux.RLock()
-	if _, exist := cb.pagePool[tpID]; !exist {
-		cb.pagePool[tpID] = make(map[uint32]map[uint32]*pcache.BuffPage)
-	}
-	if _, exist := cb.pagePool[tpID][tbID]; !exist {
-		cb.pagePool[tpID][tbID] = make(map[uint32]*pcache.BuffPage)
-	}
-	if pg, exist := cb.pagePool[tpID][tbID][pageNo]; exist {
-		cb.mux.RUnlock()
-		return pg
-	}
-	cb.mux.RUnlock()
+func (cb *CachePool) GetPage(wrap wp.Wrapper) *pcache.BlockPage {
 	cb.mux.Lock()
 	defer cb.mux.Unlock()
-	pg := cb.GetFreePage(wrap)
-	pg.SetPageNo(pageNo)
-	// read data
-	var data cType.PageData
-	pg.Wp().File.Seek(int64(pageNo)*cType.PAGE_SIZE, 0)
-	pg.Wp().File.Read(data[:])
-	pg.SetData(data)
-	//pn := make(map[uint32]*pcache.BuffPage)
-	//cb.pagePool[tpID][tbID] = pn
-	cb.pagePool[tpID][tbID][pageNo] = pg
-	return pg
+	// 如果缓存中存在使用缓存
+	tpID := wrap.SpaceID
+	pageNo := wrap.PageNo
+	if (cb.poolMapCheck(tpID, pageNo)) {
+		return cb.pagePool[tpID][pageNo];
+	}
+	return cb.GetFreePage(tpID, pageNo);
 }
 
-func (cb *CachePool) init() {
-	num := int(cb.maxCacheNum)
-	for i := 0; i < num; i++ {
-		cb.freeList.PushBack(pcache.NewBuffPage(wp.Wrapper{}))
+// 检查是否存在
+func (cb *CachePool) poolMapCheck(tpID, pageNo uint64) bool {
+	cb.mux.RLock()
+	defer cb.mux.RUnlock()
+	if _, exist := cb.pagePool[tpID]; !exist {
+		cb.pagePool[tpID] = make(map[uint64]*pcache.BlockPage)
 	}
-	CP = cb
+	if _, exist := cb.pagePool[tpID][pageNo]; exist {
+		return true
+	}
+	return false;
+}
+
+// add  pageBuffer to bufferPool
+func (cb *CachePool) GetFreePage(tpID, pageNo uint64) *pcache.BlockPage {
+	bp := (cb.freeList.Remove(cb.freeList.Front())).(*pcache.BlockPage)
+	bp.SetPageNo(pageNo)
+	bp.SetSpaceId(tpID)
+	return bp;
 }
 
 // 将缓存等待页面移除加入LRU链表返回bufferPage
-func (cb *CachePool) GetFreePage(wp wp.Wrapper) *pcache.BuffPage {
+func (cb *CachePool) addToUrlList(tpID, pageNo uint64) *pcache.BlockPage {
 	listEle := cb.freeList.Front()
-	pg := cb.freeList.Front().Value.(*pcache.BuffPage)
+	pg := cb.freeList.Front().Value.(*pcache.BlockPage)
 	cb.freeList.Remove(listEle)
-	pg.SetWrapper(wp)
 	return pg
-}
-
-func (cb *CachePool) GetFlushPage(wrap wp.Wrapper, pageNo uint32) *pcache.BuffPage {
-	pg := cb.GetPage(wrap, pageNo)
-	pg.SetDirty()
-	cb.flushList.Set(strconv.Itoa(int(wrap.TableID))+strconv.Itoa(int(pageNo)), pg)
-	return pg;
-}
-
-func (cb *CachePool) ForceFlush(wrap wp.Wrapper) {
-	for l := cb.flushList.List().Front(); l != nil; l = l.Next() {
-		val := l.Value.(*CacheNode);
-		pg := val.Value.(*pcache.BuffPage);
-		if (pg.Dirty() == true) {
-			wrap.File.WriteAt(pg.GetData()[:], int64(pg.PageNo()*cType.PAGE_SIZE))
-			wrap.File.Sync()
-		}
-	}
-}
-
-func CachePoolGetPage(wp wp.Wrapper,lockMode uint,mtr *mtr.Mtr) {
-	CP.GetPage(wp);
-
 }

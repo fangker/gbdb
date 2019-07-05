@@ -1,7 +1,7 @@
 package tbm
 
 import (
-	. "github.com/fangker/gbdb/backend/constants/cType"
+	. "github.com/fangker/gbdb/backend/def/cType"
 )
 
 type Field struct {

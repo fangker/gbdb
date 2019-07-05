@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 	"path"
-	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/def/cType"
 )
 
 const (
@@ -45,14 +45,14 @@ func NewLogSys(fileDir string) *logSys {
 		}
 	}
 	if (!exist) {
-		for i := 0; i < REDO_LOG_GROUP; i++ {
-			file, err := os.OpenFile(path.Join(this.logDir, REDO_LOG_NAME+strconv.Itoa(i)), os.O_CREATE|os.O_RDWR|os.O_APPEND, 0777)
-			if err != nil {
-				panic(err)
-			}
-			file.WriteAt(make([]byte, REDO_LOG_SIZE), 0)
-			file.Sync()
-			this.logGroup.file = append(this.logGroup.file, file)
+			for i := 0; i < REDO_LOG_GROUP; i++ {
+				file, err := os.OpenFile(path.Join(this.logDir, REDO_LOG_NAME+strconv.Itoa(i)), os.O_CREATE|os.O_RDWR|os.O_APPEND, 0777)
+				if err != nil {
+					panic(err)
+				}
+				file.WriteAt(make([]byte, REDO_LOG_SIZE), 0)
+				file.Sync()
+				this.logGroup.file = append(this.logGroup.file, file)
 		}
 		this.init();
 	}

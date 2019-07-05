@@ -6,7 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/mtr"
 	"github.com/fangker/gbdb/backend/parser/statement"
-	"github.com/fangker/gbdb/backend/utils/log"
+	"github.com/fangker/gbdb/backend/utils/ulog"
 )
 
 type TableManage struct {

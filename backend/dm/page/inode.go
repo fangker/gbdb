@@ -6,7 +6,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache/buffPage"
 	"github.com/fangker/gbdb/backend/utils"
 	"github.com/fangker/gbdb/backend/wrapper"
-	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/def/cType"
 )
 
 const (

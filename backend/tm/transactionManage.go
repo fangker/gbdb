@@ -4,7 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/im"
 	"sync/atomic"
 	"unsafe"
-	. "github.com/fangker/gbdb/backend/constants/cType"
+	. "github.com/fangker/gbdb/backend/def/cType"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"github.com/fangker/gbdb/backend/mtr"
 )

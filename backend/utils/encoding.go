@@ -3,7 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/fangker/gbdb/backend/constants/cType"
+	"github.com/fangker/gbdb/backend/def/cType"
 )
 
 
@@ -14,15 +14,13 @@ func PutUint16(n uint16) []byte {
 	return bytesBuffer.Bytes()
 }
 
-func PutUint32(n uint32) []byte {
-	x := uint32(n)
+func PutUint32(x uint32) []byte {
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
 	return bytesBuffer.Bytes()
 }
 
-func PutUint64(n uint64) []byte {
-	x := uint64(n)
+func PutUint64(x uint64) []byte {
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
 	return bytesBuffer.Bytes()

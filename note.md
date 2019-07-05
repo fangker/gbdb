@@ -20,3 +20,5 @@ mtr操作没有提交那么内存就不变,如果已经提交,修改即生效。
 * 2 一个事物可能包含多个mtr 事物的状态由undolog事物状态决定
 * 3 redoLog的刷新是事物无关的 log可能有完成的T1也有可能有未完成的T2
 
+https://www.kancloud.cn/digest/mysqlpri/181897 表空间文件管理
+
