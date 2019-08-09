@@ -29,14 +29,6 @@ func (fsys *FileSys) GetSpace(id uint64) *fileSpace {
 	return fsys.hSpaces[id]
 }
 
-func (fsys *FileSys) CreateFilSpace(name string, id uint64, sType int) *fileSpace {
-	fsys.Lock()
-	defer fsys.Unlock();
-	fspace := &fileSpace{name: name, id: id, sType: sType}
-	fsys.hSpaces[id] = fspace
-	return fspace;
-}
-
 func init() {
 	IFileSys = CreateFilSys()
 }

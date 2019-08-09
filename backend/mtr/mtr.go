@@ -35,7 +35,7 @@ func MtrStart(this *Mtr) *Mtr {
 	return this;
 }
 
-func (this *Mtr) AddToMemo(lockMode uint, obj *pcache.BuffPage) *Mtr {
+func (this *Mtr) AddToMemo(lockMode uint, obj *pcache.BlockPage) *Mtr {
 	mo := mo{mode: lockMode, obj: obj}
 	this.memo = append(this.memo, mo);
 	switch (lockMode) {
@@ -46,6 +46,6 @@ func (this *Mtr) AddToMemo(lockMode uint, obj *pcache.BuffPage) *Mtr {
 	}
 	return this;
 }
-func MtrWriteSint(this *mtr, val uint8,) {
+func MtrWriteSint(this *Mtr, val uint8,) {
 
 }

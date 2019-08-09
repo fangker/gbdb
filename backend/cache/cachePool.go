@@ -40,8 +40,7 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	}
 	cb.mux.Lock()
 	defer cb.mux.Unlock()
-	// + 1 for align
-	maddr := make([]byte, maxCacheNum*UNION_PAGE_SIZE+1);
+	maddr := make([]byte, maxCacheNum*UNION_PAGE_SIZE);
 	cb.frameAddr = (*byte)(unsafe.Pointer(&maddr))
 	ulog.Debug("init buffer pool frame addr is ", cb.frameAddr)
 	for i := uint64(0); i < maxCacheNum; i++ {
@@ -106,4 +105,5 @@ func (cb *CachePool) blockPageAlign(b *byte) *pcache.BlockPage {
 			return v
 		}
 	}
+	panic("BlockPage Align Not Found")
 }
