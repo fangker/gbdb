@@ -1,4 +1,5 @@
-// +build debug
+// +build !prod
+
 package uassert
 
 import "fmt"

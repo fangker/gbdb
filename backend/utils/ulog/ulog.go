@@ -47,43 +47,43 @@ const (
 
 func Trace(details ...interface{}) {
 	if log_level >= TRACE {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_cyan, background(0), 1, formatLog(trac, details...))
 	}
 }
 
 func Info(details ...interface{}) {
 	if log_level >= INFO {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_white, background(0), 1, formatLog(info, details...))
 	}
 }
 
 func Error(details ...interface{}) {
 	if log_level >= ERROR {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_red, background(0), 1, formatLog(erro, details...))
 	}
 }
 
 func Success(details ...interface{}) {
 	if log_level >= SUCCESS {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_green, background(0), 1, formatLog(succ, details...))
 	}
 }
 
 func Warn(details ...interface{}) {
 	if log_level >= WARNING {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_magenta, background(0), 1, formatLog(warn, details...))
 	}
 }
 
 func Caption(details ...interface{}) {
 	if log_level >= CAPTION {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_black, background(color_white), 1, formatLog(capt, details...))
 	}
 }
 
 func Debug(details ...interface{}) {
-	if log_level >= DEBUG {
-		fmt.Printf(getTimeStempString()+"\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_blue, background(color_white), 1, formatLog(debug, details...))
+	if log_level >= DEBUG && checkScopeEnable() {
+		fmt.Printf("\x1b[%d;%d;%dm%s  \x1b[;0m \n", color_blue, background(0), 1, formatLog(debug, details...))
 	}
 }
 func formatLog(prefix string, details ...interface{}) string {
@@ -93,7 +93,7 @@ func formatLog(prefix string, details ...interface{}) string {
 	}
 	line := fmt.Sprintf("%s%s", prefix+" : ", detailsInfo)
 	if (log_caller) {
-		line = line + caller()
+		line = getTimeStempString() + line + caller()
 	}
 	return line
 }

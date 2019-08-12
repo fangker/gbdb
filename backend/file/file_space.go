@@ -7,6 +7,7 @@ import (
 	. "github.com/fangker/gbdb/backend/def/constant"
 	"io/ioutil"
 	"regexp"
+	"math"
 )
 
 type fileSpace struct {
@@ -19,15 +20,23 @@ type fileSpace struct {
 	sType    int
 	filUnits []*filUnit
 	// 自增扩展大小
-	autoIncSize uint64
+	autoIncSize   uint64
+	nextExtendNum int
 	sync.Mutex
+}
+
+func (fs fileSpace) Size() uint64 {
+	return fs.size;
 }
 
 func (fs *fileSpace) scanDirWithFilUnit() {
 	files, _ := ioutil.ReadDir(fs.filDir)
 	for _, v := range files {
 		if ok, _ := regexp.MatchString(`^`+fs.name+`_$[\d]`, v.Name()); ok == true {
+			var i = 1;
 			fs.CreateFilUnit(fs.filDir+"/"+v.Name(), uint64(v.Size()))
+			fs.nextExtendNum = i;
+			i++
 		}
 	}
 }
@@ -69,10 +78,14 @@ const (
 func fileIo(action int, spaceId uint64, offset uint64, b []byte) {
 	fs := IFileSys.GetSpace(spaceId);
 	fs.Lock();
-	defer fs.Unlock()
+	fs.Unlock()
 	// 检查是否需要扩容
 	if (fs.size < offset) {
 		// 扩容函数
+		fillUnitCount := math.Ceil(float64((offset - fs.size) / fs.autoIncSize))
+		for i := 0; i < int(fillUnitCount); i++ {
+			fs.CreateFilUnit(fs.filDir+fs.name+"_"+string(fs.nextExtendNum), fs.autoIncSize)
+		}
 	}
 	var unitIndex uint64 = 0;
 	// 寻找unit
