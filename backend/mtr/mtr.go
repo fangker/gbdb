@@ -35,17 +35,37 @@ func MtrStart(this *Mtr) *Mtr {
 	return this;
 }
 
-func (this *Mtr) AddToMemo(lockMode uint, obj *pcache.BlockPage) *Mtr {
+func (mtr *Mtr) AddToMemo(lockMode uint, obj *pcache.BlockPage) *Mtr {
+	if (mtr.isInMemo(obj)) {
+		return mtr
+	}
 	mo := mo{mode: lockMode, obj: obj}
-	this.memo = append(this.memo, mo);
+	mtr.memo = append(mtr.memo, mo);
 	switch (lockMode) {
 	case X_LOCK:
 		obj.Lock();
 	case S_LOCK:
 		obj.RLock();
 	}
-	return this;
+	return mtr;
 }
-func MtrWriteSint(this *Mtr, val uint8,) {
+
+func (mtr *Mtr) isInMemo(t *pcache.BlockPage) bool {
+	for _, a := range mtr.memo {
+		if (t == a.obj) {
+			return true
+		}
+	}
+	//for _, a := range mtr.memo {
+	//	p, s := a.obj.GetPos()
+	//	_p, _s := t.GetPos()
+	//	if (p == _p && _s == s) {
+	//		return true
+	//	}
+	//}
+	return false
+}
+
+func MtrWriteUnt8(this *Mtr, pos , val uint8) {
 
 }

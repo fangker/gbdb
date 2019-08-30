@@ -8,18 +8,22 @@ import (
 )
 
 type BlockPage struct {
-	pageNo uint64
+	pageNo  uint64
 	spaceId uint64
-	dirty  bool
-	rwLock sync.RWMutex
-	Ptr    *cType.PageData
-	pType  uint16
-	loaded bool
-	wp     wp.Wrapper
+	dirty   bool
+	rwLock  sync.RWMutex
+	Ptr     *cType.PageData
+	pType   uint16
+	loaded  bool
+	wp      wp.Wrapper
 }
 
 func NewBlockPage(uptr uintptr) *BlockPage {
 	return &BlockPage{Ptr: (* cType.PageData)(unsafe.Pointer(uptr))}
+}
+
+func (bp *BlockPage) GetPos() (spaceId, pageNum uint64) {
+	return bp.spaceId, bp.pageNo
 }
 
 func (bp BlockPage) Wp() wp.Wrapper {
@@ -60,11 +64,9 @@ func (bp *BlockPage) SetWrapper(wp wp.Wrapper) {
 	bp.wp = wp;
 }
 
-
 func (bp *BlockPage) PageNo() uint64 {
 	return bp.pageNo
 }
-
 
 func (bp *BlockPage) SetSpaceId(spaceId uint64) {
 	bp.spaceId = spaceId

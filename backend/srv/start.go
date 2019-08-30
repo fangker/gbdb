@@ -9,6 +9,7 @@ import (
 	"github.com/fangker/gbdb/backend/log/undo"
 	"github.com/fangker/gbdb/backend/dm/page"
 	"runtime"
+	"github.com/fangker/gbdb/backend/conf"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 }
 
 func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
-	serverStartConfig := getSereStartConfig()
+	serverStartConfig := conf.GetServerStartConfig()
 	// 创建缓冲池子
 	cb := cache.NewCacheBuffer(serverStartConfig.BufferPageMemory * 1024 / 16)
 	// 加载字典表的过程

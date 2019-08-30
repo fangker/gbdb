@@ -1,4 +1,4 @@
-package srv
+package conf
 
 import (
 	"io/ioutil"
@@ -13,35 +13,38 @@ type GbdbConfig struct {
 
 type ServerStartConfig struct {
 	GbdbConfig
-	dbFiles  []string
-	logFiles []string
+	dbFiles  string
+	logFiles string
 }
+
+var _ssc *ServerStartConfig;
 
 func loadGbdbConfig() (c GbdbConfig) {
 	data, err := ioutil.ReadFile("../../gbdbconfig.json")
 	if err != nil {
 		panic(err)
-		return
 	}
 	var cnf = GbdbConfig{}
 	err = json.Unmarshal(data, &cnf)
 	if err != nil {
 		panic(err)
-		return
 	}
 	return cnf
 }
 
-func getSereStartConfig() (ssc ServerStartConfig) {
+func GetServerStartConfig() (ssc *ServerStartConfig) {
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	//	//if err != nil {
 	//	//	log.Fatal(err)
 	//	//}
-	ssc = ServerStartConfig{
+	if _ssc != nil {
+		return _ssc
+	}
+	ssc = &ServerStartConfig{
 		GbdbConfig: loadGbdbConfig(),
 	}
-	ssc.dbFiles = scanDirFiles(ssc.DbDirPath)
-	ssc.logFiles = scanDirFiles(ssc.LogDirPath)
+	ssc.dbFiles = ssc.DbDirPath
+	ssc.logFiles = ssc.LogDirPath
 	return
 }
 

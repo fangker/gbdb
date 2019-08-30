@@ -1,0 +1,13 @@
+package mtr
+
+const (
+	MLOG_TYPE_BYRE_1 = 0
+	MLOG_TYPE_BYRE_2 = 1
+	MLOG_TYPE_BYRE_4 = 2
+	MLOG_TYPE_BYRE_8 = 3
+	MLOG_TYPE_BYRE_STRING = 4
+)
+
+func MLOG()  {
+	
+}
