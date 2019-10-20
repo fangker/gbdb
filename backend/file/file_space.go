@@ -4,10 +4,13 @@ import (
 	"sync"
 	"os"
 	"github.com/fangker/gbdb/backend/utils/uassert"
-	. "github.com/fangker/gbdb/backend/def/constant"
+	"github.com/fangker/gbdb/backend/def/constant"
 	"math"
 	"path"
 	"strconv"
+	//"fmt"
+	//"fmt"
+	//"fmt"
 )
 
 type fileSpace struct {
@@ -50,15 +53,19 @@ func (fs fileSpace) Size() uint64 {
 func (fsys *FileSys) CreateFilSpace(name string, id uint64, cdbSpacePath string, sType int, autoIncSize uint64) *fileSpace {
 	os.MkdirAll(path.Dir(cdbSpacePath), os.ModePerm)
 	fsys.Lock()
-	defer fsys.Unlock();
+	defer func() {
+		fsys.Unlock();
+	}()
 	fspace := &fileSpace{name: name, id: id, sType: sType, fileDir: cdbSpacePath, autoIncSize: autoIncSize}
 	fsys.hSpaces[id] = fspace
 	return fspace;
 }
 
 func (fs *fileSpace) CreateFilUnit(filPath string, size uint64) *filUnit {
-	fs.Lock();
-	defer fs.Unlock()
+	fs.Lock()
+	defer func() {
+		fs.Unlock()
+	}()
 	f, err := os.OpenFile(filPath, os.O_CREATE|os.O_RDWR, 0660)
 	if err != nil {
 		panic(err.Error())
@@ -85,10 +92,8 @@ const (
 
 func fileIo(action int, spaceId uint64, offset uint64, b []byte) {
 	fs := IFileSys.GetSpace(spaceId);
-	fs.Lock();
 	// 检查是否需要扩容
 	if (fs.size < offset) {
-		fs.Unlock()
 		// 扩容函数
 		fillUnitCount := math.Ceil(float64((offset - fs.size) / fs.autoIncSize))
 		for i := 0; i < int(fillUnitCount); i++ {
@@ -105,8 +110,8 @@ func fileIo(action int, spaceId uint64, offset uint64, b []byte) {
 			offset -= fs.filUnits[unitIndex].size
 		}
 	}
-	uassert.True(offset%LOG_BLOCK_SIZE == 0)
-	uassert.True(uint64(len(b))%LOG_BLOCK_SIZE == 0)
+	uassert.True(offset%constant.LOG_BLOCK_SIZE == 0)
+	uassert.True(uint64(len(b))%constant.LOG_BLOCK_SIZE == 0)
 	if action == FILE_IO_WRITE {
 		fs.filUnits[unitIndex].write(offset, b)
 	}

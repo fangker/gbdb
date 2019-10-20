@@ -6,6 +6,12 @@ import (
 	"github.com/fangker/gbdb/backend/wrapper"
 	"unsafe"
 )
+type BpLockType uint
+
+const (
+	BP_S_LOCK BpLockType = 0
+	BP_X_LOCK BpLockType = 1
+)
 
 type BlockPage struct {
 	pageNo  uint64
@@ -15,10 +21,14 @@ type BlockPage struct {
 	Ptr     *cType.PageData
 	pType   uint16
 	loaded  bool
-	wp      wp.Wrapper
 }
 
-func NewBlockPage(uptr uintptr) *BlockPage {
+// Init block memory
+func InitBlockPage(uptr uintptr) *BlockPage {
+	return &BlockPage{Ptr: (* cType.PageData)(unsafe.Pointer(uptr))}
+}
+
+func getBlockPage(spaceId, page uint32, uptr uintptr) *BlockPage {
 	return &BlockPage{Ptr: (* cType.PageData)(unsafe.Pointer(uptr))}
 }
 
@@ -27,7 +37,7 @@ func (bp *BlockPage) GetPos() (spaceId, pageNum uint64) {
 }
 
 func (bp BlockPage) Wp() wp.Wrapper {
-	return bp.wp
+	return bp.Wp()
 }
 
 func (bp *BlockPage) SetDirty() {
@@ -58,10 +68,6 @@ func (bp *BlockPage) SetData(data cType.PageData) {
 
 func (bp *BlockPage) getPtype() uint16 {
 	return bp.pType
-}
-
-func (bp *BlockPage) SetWrapper(wp wp.Wrapper) {
-	bp.wp = wp;
 }
 
 func (bp *BlockPage) PageNo() uint64 {

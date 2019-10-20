@@ -18,14 +18,18 @@ func CreateFilSys() *FileSys {
 
 func (fsys *FileSys) AddSpace(fs *fileSpace) *FileSys {
 	fsys.Lock()
-	defer fsys.Unlock()
+	defer  func() {
+		fsys.Unlock()
+	}()
 	fsys.hSpaces[fs.id] = fs;
 	return fsys
 }
 
 func (fsys *FileSys) GetSpace(id uint64) *fileSpace {
 	fsys.Lock()
-	defer fsys.Unlock()
+	defer func() {
+		fsys.Unlock()
+	}()
 	return fsys.hSpaces[id]
 }
 

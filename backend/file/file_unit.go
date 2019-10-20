@@ -10,7 +10,9 @@ type filUnit struct {
 
 func (fu *filUnit) read(pos uint64, b []byte) {
 	fu.os.Seek(int64(pos), 0)
-	fu.os.Read(b)
+	c := []byte{}
+	fu.os.Read(c)
+	copy(b, c)
 }
 
 func (fu *filUnit) write(pos uint64, b []byte) {

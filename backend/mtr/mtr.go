@@ -1,7 +1,6 @@
 package mtr
 
 import (
-	"github.com/fangker/gbdb/backend/cache/buffPage"
 	. "github.com/fangker/gbdb/backend/def/cType"
 )
 
@@ -11,13 +10,17 @@ const (
 	MTR_NONE_UNDO_LOG = 2
 )
 const (
-	X_LOCK = 0
-	S_LOCK = 1
+	MTR_MEMO_PAGE_X_LOCK MtrMemoLock = 0
+	MTR_MEMO_PAGE_S_LOCK MtrMemoLock = 1
 )
 
+var MTR_MEMO_PAGE_X_LOCK_1 = 2
+
+type MtrMemoLock uint
+
 type mo struct {
-	mode uint
-	obj  *pcache.BlockPage
+	mode MtrMemoLock
+	obj  MtrLockObjer
 }
 type Mtr struct {
 	TrxID        XID
@@ -30,42 +33,36 @@ type Mtr struct {
 	modification bool
 }
 
-func MtrStart(this *Mtr) *Mtr {
-	this.logMode = MTR_ALL_LOG;
-	return this;
+func MtrStart() *Mtr {
+	mtr := &Mtr{}
+	mtr.logMode = MTR_ALL_LOG;
+	return mtr;
 }
 
-func (mtr *Mtr) AddToMemo(lockMode uint, obj *pcache.BlockPage) *Mtr {
-	if (mtr.isInMemo(obj)) {
+func (mtr *Mtr) AddToMemo(lockMode MtrMemoLock, obj MtrLockObjer) *Mtr {
+	if (mtr.IsMemoContains(lockMode, obj)) {
 		return mtr
 	}
 	mo := mo{mode: lockMode, obj: obj}
 	mtr.memo = append(mtr.memo, mo);
-	switch (lockMode) {
-	case X_LOCK:
-		obj.Lock();
-	case S_LOCK:
-		obj.RLock();
-	}
 	return mtr;
 }
 
-func (mtr *Mtr) isInMemo(t *pcache.BlockPage) bool {
+func (mtr *Mtr) IsMemoContains(lockMode MtrMemoLock, t MtrLockObjer) bool {
 	for _, a := range mtr.memo {
-		if (t == a.obj) {
+		if (t == a.obj && lockMode == a.mode) {
 			return true
 		}
 	}
-	//for _, a := range mtr.memo {
-	//	p, s := a.obj.GetPos()
-	//	_p, _s := t.GetPos()
-	//	if (p == _p && _s == s) {
-	//		return true
-	//	}
-	//}
 	return false
 }
 
-func MtrWriteUnt8(this *Mtr, pos , val uint8) {
+// * MTR obj Lock upgrade
 
+type MtrLockObjer interface {
+	Lock()
 }
+
+//func MtrWriteUnt8(this *Mtr, pos, val uint8) {
+//
+//}

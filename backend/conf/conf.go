@@ -20,7 +20,7 @@ type ServerStartConfig struct {
 var _ssc *ServerStartConfig;
 
 func loadGbdbConfig() (c GbdbConfig) {
-	data, err := ioutil.ReadFile("../../gbdbconfig.json")
+	data, err := ioutil.ReadFile("../../../gbdbConfig.json")
 	if err != nil {
 		panic(err)
 	}

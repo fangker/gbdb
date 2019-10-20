@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-func main() {
+func test1() {
 	//定义一个切片类型的指针
 	//给指针初始化
 	mm := new([66]byte)
@@ -22,5 +22,5 @@ func main() {
 }
 
 func Test(T *testing.T) {
-	main()
+	test1()
 }
