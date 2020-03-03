@@ -20,6 +20,4 @@ func TestMtr(t *testing.T) {
 	data := pg.GetData()
 	uassert.True(mtr_1.IsMemoContains(mtr.MTR_MEMO_PAGE_X_LOCK, pg))
 	fmt.Println("-->", data)
-	fmt.Println(data, 666)
-	//data[1] = 'a'
 }

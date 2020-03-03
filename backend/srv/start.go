@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	runtime.GOMAXPROCS(1)
+	runtime.GOMAXPROCS(3)
 	loadDBSys()
 }
 
@@ -27,7 +27,7 @@ func loadDBSys() (*sc.SystemCache, *spaceManage.SpaceManage) {
 	page.Init()
 
 	// Undo
-	undo_log := undo.NewUndoLogFileManage(serverStartConfig.+"/a.undo", 1)
+	undo_log := undo.NewUndoLogFileManage(serverStartConfig.DbDirPath+"/a.undo", 1)
 	undo_space := sm.AddUndoSpace(1, undo.NewUndoLogManager(undo_log, "sys_table"))
 	undo_space.InitSysUndoFileStructure()
 	// Sys

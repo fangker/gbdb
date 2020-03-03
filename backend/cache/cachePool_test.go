@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"unsafe"
 	"github.com/fangker/gbdb/backend/utils/uassert"
+	"github.com/fangker/gbdb/backend/cache/cachehelper"
 )
 
 func TestCacheBuffer(t *testing.T) {
@@ -13,6 +14,7 @@ func TestCacheBuffer(t *testing.T) {
 	data := cb.blockPages[0].GetData()
 	//fmt.Println(cb.blockPages[0].GetData())
 	data[0] = 1;
-	block := cb.blockPageAlign(&data[1])
-	uassert.True(block.GetData()[0]==1);
+	block := cachehelper.BlockPageAlign(&data[0])
+	uassert.True(block.GetData()[0] == 1);
+	uassert.True(cachehelper.BlockOffsetAlign(&data[0]) == 0);
 }

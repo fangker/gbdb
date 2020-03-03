@@ -10,8 +10,12 @@ import (
 	"github.com/fangker/gbdb/backend/utils/ulog"
 	"github.com/fangker/gbdb/backend/file"
 	"github.com/fangker/gbdb/backend/mtr"
+	"github.com/fangker/gbdb/backend/cache/cachehelper"
+	"github.com/fangker/gbdb/backend/cache/cacheCore"
+	"github.com/fangker/gbdb/backend/utils/uassert"
 )
 
+var CP *CachePool
 var UNION_PAGE_SIZE uint64 = 16 * 1024
 
 type CachePool struct {
@@ -25,15 +29,12 @@ type CachePool struct {
 	frameAddr   *byte // 数据页缓存地址
 }
 
-var CP *CachePool
-
 func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	cb := &CachePool{
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
 		flushList:   list.New(),
 		lruList:     dstr.NewLRUCache(maxCacheNum),
-		lock:        &sync.RWMutex{},
 		pagePool:    make(map[uint64]map[uint64]*pcache.BlockPage),
 		blockPages:  make([]*pcache.BlockPage, maxCacheNum),
 		frameAddr:   nil,
@@ -46,15 +47,12 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	cb.frameAddr = (*byte)(unsafe.Pointer(&maddr))
 	ulog.Debug("init buffer pool frame addr is ", cb.frameAddr)
 	for i := uint64(0); i < maxCacheNum; i++ {
-		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UNION_PAGE_SIZE*(i+1))
+		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UNION_PAGE_SIZE*(i))
 		cb.blockPages[i] = pcache.InitBlockPage(uptr)
 		cb.freeList.PushBack(cb.blockPages[i])
 	}
-	//for i := uint64(0); i < maxCacheNum; i++ {
-	//	cb.lruList.Set(uintptr(unsafe.Pointer(&cb.blockPages[i])), *cb.blockPages[i]);
-	//}
-	CP = cb
 	ulog.Info(fmt.Sprintf("[CacheBuffer] builded ==>  %0.3f mb %d pages ", float32(maxCacheNum*16)/(2<<9), maxCacheNum))
+	cachehelper.CpHelper = cb
 	return cb
 }
 
@@ -77,7 +75,7 @@ func (cb *CachePool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType,
 		strMemoLockType = mtr.MTR_MEMO_PAGE_X_LOCK
 		bp.Lock()
 	}
-	var lbp mtr.MtrLockObjer
+	var lbp mtr.MtrObjLocker
 	lbp = bp
 	imtr.AddToMemo(strMemoLockType, lbp);
 	return
@@ -114,6 +112,22 @@ func (cb *CachePool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage
 	return bp;
 }
 
+func (cb *CachePool) BlockPageAlign(b *byte) *pcache.BlockPage {
+	ptr := uintptr(unsafe.Pointer(b))
+	cachePoolFrameAddr:=uintptr(unsafe.Pointer(cb.frameAddr))
+	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
+	offset := uint64((ptr - cachePoolFrameAddr) / uintptr(UNION_PAGE_SIZE))
+	return cb.blockPages[offset]
+}
+
+func (cb *CachePool) BlockOffsetAlign(b *byte) uint64 {
+	ptr := uintptr(unsafe.Pointer(b))
+	cachePoolFrameAddr:=uintptr(unsafe.Pointer(cb.frameAddr))
+	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
+	offset := uint64((ptr - cachePoolFrameAddr) % uintptr(UNION_PAGE_SIZE))
+	return offset
+}
+
 // 将缓存等待页面移除加入LRU链表返回bufferPage
 //func (cb *CachePool) addToUrlList(tpID, pageNo uint64) *pcache.BlockPage {
 //	listEle := cb.freeList.Front()
@@ -121,14 +135,3 @@ func (cb *CachePool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage
 //	cb.freeList.Remove(listEle)
 //	return pg
 //}
-
-// 查找匹配block
-func (cb *CachePool) blockPageAlign(b *byte) *pcache.BlockPage {
-	ptr := uintptr(unsafe.Pointer(b)) - uintptr(UNION_PAGE_SIZE)
-	for _, v := range cb.blockPages {
-		if ptr <= uintptr(unsafe.Pointer(v.Ptr)) {
-			return v
-		}
-	}
-	panic("BlockPage Align Not Found")
-}
