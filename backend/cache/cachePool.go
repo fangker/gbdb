@@ -11,7 +11,6 @@ import (
 	"github.com/fangker/gbdb/backend/file"
 	"github.com/fangker/gbdb/backend/mtr"
 	"github.com/fangker/gbdb/backend/cache/cachehelper"
-	"github.com/fangker/gbdb/backend/cache/cacheCore"
 	"github.com/fangker/gbdb/backend/utils/uassert"
 )
 
@@ -38,6 +37,7 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 		pagePool:    make(map[uint64]map[uint64]*pcache.BlockPage),
 		blockPages:  make([]*pcache.BlockPage, maxCacheNum),
 		frameAddr:   nil,
+		lock:        &sync.RWMutex{},
 	}
 	cb.lock.Lock()
 	defer func() {
@@ -53,6 +53,7 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	}
 	ulog.Info(fmt.Sprintf("[CacheBuffer] builded ==>  %0.3f mb %d pages ", float32(maxCacheNum*16)/(2<<9), maxCacheNum))
 	cachehelper.CpHelper = cb
+	CP = cb
 	return cb
 }
 
@@ -114,7 +115,7 @@ func (cb *CachePool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage
 
 func (cb *CachePool) BlockPageAlign(b *byte) *pcache.BlockPage {
 	ptr := uintptr(unsafe.Pointer(b))
-	cachePoolFrameAddr:=uintptr(unsafe.Pointer(cb.frameAddr))
+	cachePoolFrameAddr := uintptr(unsafe.Pointer(cb.frameAddr))
 	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
 	offset := uint64((ptr - cachePoolFrameAddr) / uintptr(UNION_PAGE_SIZE))
 	return cb.blockPages[offset]
@@ -122,7 +123,7 @@ func (cb *CachePool) BlockPageAlign(b *byte) *pcache.BlockPage {
 
 func (cb *CachePool) BlockOffsetAlign(b *byte) uint64 {
 	ptr := uintptr(unsafe.Pointer(b))
-	cachePoolFrameAddr:=uintptr(unsafe.Pointer(cb.frameAddr))
+	cachePoolFrameAddr := uintptr(unsafe.Pointer(cb.frameAddr))
 	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
 	offset := uint64((ptr - cachePoolFrameAddr) % uintptr(UNION_PAGE_SIZE))
 	return offset

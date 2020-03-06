@@ -50,6 +50,12 @@ func (mtrlog *mtrLog) MLogWriteDUint(ptr *byte, v uint64, logType MLOG_TYPE) {
 		binary.Write(mtrlog.buf, binary.BigEndian, uint64(v))
 	}
 }
-func MLogInitialRecord(ptr *byte) {
-	cachehelper.BlockPageAlign(ptr)
+func MLogInitialRecord(ptr *byte, mlog *mtrLog) *mtrLog {
+	bp := cachehelper.BlockPageAlign(ptr)
+	offset := cachehelper.BlockOffsetAlign(ptr)
+	spaceId, pageOffset := bp.GetPos()
+	binary.Write(mlog.buf, binary.BigEndian, uint16(spaceId))
+	binary.Write(mlog.buf, binary.BigEndian, uint16(pageOffset))
+	binary.Write(mlog.buf, binary.BigEndian, uint16(offset))
+	return mlog
 }
