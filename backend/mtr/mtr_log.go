@@ -27,29 +27,36 @@ func MLogOpen() *mtrLog {
 
 func (mtrlog *mtrLog) MLogClose(mtr *Mtr) {
 	mtr.nLogRecs++
-	mtr.log.ReadFrom(mtrlog.buf);
+	mtr.log.ReadFrom(mtrlog.buf)
 }
 
 // mlog open 载入用于写入
 func (mtrlog *mtrLog) MLogWriteUint(ptr *byte, v uint32, logType MLOG_TYPE) {
-	mtrlog.buf.WriteByte(byte(logType))
 	if logType == MLOG_TYPE_BYRE_1 {
+		mtrlog.buf.WriteByte(byte(MLOG_TYPE_BYRE_1))
 		binary.Write(mtrlog.buf, binary.BigEndian, uint8(v))
 	}
 	if logType == MLOG_TYPE_BYRE_2 {
+		mtrlog.buf.WriteByte(byte(MLOG_TYPE_BYRE_2))
 		binary.Write(mtrlog.buf, binary.BigEndian, uint16(v))
 	}
 	if logType == MLOG_TYPE_BYRE_4 {
+		mtrlog.buf.WriteByte(byte(MLOG_TYPE_BYRE_4))
 		binary.Write(mtrlog.buf, binary.BigEndian, uint32(v))
 	}
 }
 
-func (mtrlog *mtrLog) MLogWriteDUint(ptr *byte, v uint64, logType MLOG_TYPE) {
-	mtrlog.buf.WriteByte(byte(logType))
-	if logType == MLOG_TYPE_BYRE_8 {
-		binary.Write(mtrlog.buf, binary.BigEndian, uint64(v))
-	}
+func (mtrlog *mtrLog) MLogWriteDUint(ptr *byte, v uint64) {
+	mtrlog.buf.WriteByte(byte(MLOG_TYPE_BYRE_8))
+	binary.Write(mtrlog.buf, binary.BigEndian, uint64(v))
 }
+
+func (mtrlog *mtrLog) MLogWriteString(ptr *byte, bs []byte) {
+	mtrlog.buf.WriteByte(byte(MLOG_TYPE_BYRE_STRING))
+	binary.Write(mtrlog.buf, binary.BigEndian, uint16(len(bs)))
+	binary.Write(mtrlog.buf, binary.BigEndian, bs)
+}
+
 func MLogInitialRecord(ptr *byte, mlog *mtrLog) *mtrLog {
 	bp := cachehelper.BlockPageAlign(ptr)
 	offset := cachehelper.BlockOffsetAlign(ptr)
