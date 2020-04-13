@@ -113,7 +113,7 @@ func (cb *CachePool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage
 	return bp;
 }
 
-func (cb *CachePool) BlockPageAlign(b *byte) *pcache.BlockPage {
+func (cb *CachePool) PosInBlockAlign(b *byte) *pcache.BlockPage {
 	ptr := uintptr(unsafe.Pointer(b))
 	cachePoolFrameAddr := uintptr(unsafe.Pointer(cb.frameAddr))
 	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
@@ -121,7 +121,7 @@ func (cb *CachePool) BlockPageAlign(b *byte) *pcache.BlockPage {
 	return cb.blockPages[offset]
 }
 
-func (cb *CachePool) BlockOffsetAlign(b *byte) uint64 {
+func (cb *CachePool) OffsetInBlockAlign(b *byte) uint64 {
 	ptr := uintptr(unsafe.Pointer(b))
 	cachePoolFrameAddr := uintptr(unsafe.Pointer(cb.frameAddr))
 	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")

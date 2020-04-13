@@ -58,8 +58,8 @@ func (mtrlog *mtrLog) MLogWriteString(ptr *byte, bs []byte) {
 }
 
 func MLogInitialRecord(ptr *byte, mlog *mtrLog) *mtrLog {
-	bp := cachehelper.BlockPageAlign(ptr)
-	offset := cachehelper.BlockOffsetAlign(ptr)
+	bp := cachehelper.PosInBlockAlign(ptr)
+	offset := cachehelper.OffsetInBlockAlign(ptr)
 	spaceId, pageOffset := bp.GetPos()
 	binary.Write(mlog.buf, binary.BigEndian, uint16(spaceId))
 	binary.Write(mlog.buf, binary.BigEndian, uint16(pageOffset))

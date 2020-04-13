@@ -7,13 +7,13 @@ import (
 var CpHelper ICpHelper;
 
 type ICpHelper interface {
-	BlockPageAlign(b *byte) *pcache.BlockPage
-	BlockOffsetAlign(b *byte) uint64
+	PosInBlockAlign(b *byte) *pcache.BlockPage
+	OffsetInBlockAlign(b *byte) uint64
 }
 
-func BlockPageAlign(b *byte) *pcache.BlockPage {
-	return CpHelper.BlockPageAlign(b)
+func PosInBlockAlign(b *byte) *pcache.BlockPage {
+	return CpHelper.PosInBlockAlign(b)
 }
-func BlockOffsetAlign(b *byte) uint64 {
-	return CpHelper.BlockOffsetAlign(b)
+func OffsetInBlockAlign(b *byte) uint64 {
+	return CpHelper.OffsetInBlockAlign(b)
 }
