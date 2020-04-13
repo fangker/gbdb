@@ -14,7 +14,7 @@ func TestCacheBuffer(t *testing.T) {
 	data := cb.blockPages[0].GetData()
 	//fmt.Println(cb.blockPages[0].GetData())
 	data[0] = 1;
-	block := cachehelper.BlockPageAlign(&data[0])
+	block := cachehelper.PosInBlockAlign(&data[0])
 	uassert.True(block.GetData()[0] == 1);
-	uassert.True(cachehelper.BlockOffsetAlign(&data[0]) == 0);
+	uassert.True(cachehelper.OffsetInBlockAlign(&data[0]) == 0);
 }
