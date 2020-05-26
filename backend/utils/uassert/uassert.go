@@ -18,7 +18,7 @@ func inAssertionf(cond bool, format string, a ...interface{}) {
 	}
 	fmt.Println("----- Assertion Failed -----");
 	if len(a) == 0 {
-		panic(format);
+		panic(format)
 	} else {
 		panic(fmt.Sprintf(format, a...))
 	}

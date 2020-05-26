@@ -8,12 +8,12 @@ import (
 )
 
 type SpaceManage struct {
-	cb        *cache.CachePool
+	cb        *cache.Pool
 	Spaces    map[uint32]*Space
 	UndoSpace *UndoSpace
 }
 var SM *SpaceManage
-func NewSpaceManage(cb *cache.CachePool) *SpaceManage {
+func NewSpaceManage(cb *cache.Pool) *SpaceManage {
 	 SM=&SpaceManage{cb: cb, Spaces: make(map[uint32]*Space)}
 	return SM
 }

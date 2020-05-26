@@ -1,23 +1,23 @@
 package cache
 
 import (
-	"sync"
-	"github.com/fangker/gbdb/backend/cache/buffPage"
-	"unsafe"
 	"container/list"
-	"github.com/fangker/gbdb/backend/dstr"
 	"fmt"
-	"github.com/fangker/gbdb/backend/utils/ulog"
+	"github.com/fangker/gbdb/backend/cache/buffPage"
+	"github.com/fangker/gbdb/backend/cache/cachehelper"
+	"github.com/fangker/gbdb/backend/dstr"
 	"github.com/fangker/gbdb/backend/file"
 	"github.com/fangker/gbdb/backend/mtr"
-	"github.com/fangker/gbdb/backend/cache/cachehelper"
 	"github.com/fangker/gbdb/backend/utils/uassert"
+	"github.com/fangker/gbdb/backend/utils/ulog"
+	"sync"
+	"unsafe"
 )
 
-var CP *CachePool
-var UNION_PAGE_SIZE uint64 = 16 * 1024
+var CP *Pool
+var UnionPageSize uint64 = 16 * 1024
 
-type CachePool struct {
+type Pool struct {
 	pagePool    map[uint64]map[uint64]*pcache.BlockPage
 	maxCacheNum uint64
 	freeList    *list.List
@@ -28,8 +28,8 @@ type CachePool struct {
 	frameAddr   *byte // 数据页缓存地址
 }
 
-func NewCacheBuffer(maxCacheNum uint64) *CachePool {
-	cb := &CachePool{
+func NewCacheBuffer(maxCacheNum uint64) *Pool {
+	cb := &Pool{
 		maxCacheNum: maxCacheNum,
 		freeList:    list.New(),
 		flushList:   list.New(),
@@ -43,11 +43,11 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	defer func() {
 		cb.lock.Unlock()
 	}()
-	maddr := make([]byte, maxCacheNum*UNION_PAGE_SIZE);
+	maddr := make([]byte, maxCacheNum*UnionPageSize);
 	cb.frameAddr = (*byte)(unsafe.Pointer(&maddr))
 	ulog.Debug("init buffer pool frame addr is ", cb.frameAddr)
 	for i := uint64(0); i < maxCacheNum; i++ {
-		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UNION_PAGE_SIZE*(i))
+		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UnionPageSize*(i))
 		cb.blockPages[i] = pcache.InitBlockPage(uptr)
 		cb.freeList.PushBack(cb.blockPages[i])
 	}
@@ -57,17 +57,17 @@ func NewCacheBuffer(maxCacheNum uint64) *CachePool {
 	return cb
 }
 
-func (cb *CachePool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr *mtr.Mtr) (bp *pcache.BlockPage) {
+func (cb *Pool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr *mtr.Mtr) (bp *pcache.BlockPage) {
 	cb.lock.Lock()
 	defer func() {
 		cb.lock.Unlock()
 	}()
 	// 如果缓存中存在使用缓存
-	if (cb.poolMapCheck(spaceId, pageNo)) {
+	if cb.poolMapCheck(spaceId, pageNo) {
 		bp = cb.pagePool[spaceId][pageNo];
 	}
 	bp = cb.ReadPageFromFile(spaceId, pageNo);
-	var strMemoLockType mtr.MtrMemoLock
+	var strMemoLockType mtr.MemoLock
 	if pcache.BP_S_LOCK == lockType {
 		strMemoLockType = mtr.MTR_MEMO_PAGE_S_LOCK
 		bp.RLock()
@@ -76,14 +76,14 @@ func (cb *CachePool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType,
 		strMemoLockType = mtr.MTR_MEMO_PAGE_X_LOCK
 		bp.Lock()
 	}
-	var lbp mtr.MtrObjLocker
+	var lbp mtr.ObjLocker
 	lbp = bp
 	imtr.AddToMemo(strMemoLockType, lbp);
 	return
 }
 
 // 检查是否存在
-func (cb *CachePool) poolMapCheck(tpID, pageNo uint64) bool {
+func (cb *Pool) poolMapCheck(tpID, pageNo uint64) bool {
 	if _, exist := cb.pagePool[tpID]; !exist {
 		cb.pagePool[tpID] = make(map[uint64]*pcache.BlockPage)
 	}
@@ -94,38 +94,38 @@ func (cb *CachePool) poolMapCheck(tpID, pageNo uint64) bool {
 }
 
 // add  pageBuffer to bufferPool
-func (cb *CachePool) ReadPageFromFile(spaceID, pageNo uint64) *pcache.BlockPage {
+func (cb *Pool) ReadPageFromFile(spaceID, pageNo uint64) *pcache.BlockPage {
 	bp := (cb.freeList.Remove(cb.freeList.Front())).(*pcache.BlockPage)
 	bp.SetSpaceId(spaceID)
 	bp.SetPageNo(pageNo)
 	t := file.IFileSys.GetSpace(spaceID)
-	t.Read(spaceID, pageNo*UNION_PAGE_SIZE, bp.Ptr[:])
+	t.Read(spaceID, pageNo*UnionPageSize, bp.Ptr[:])
 	cb.lruList.Set(uintptr(unsafe.Pointer(&bp)), bp);
 	return bp;
 }
 
-func (cb *CachePool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage {
+func (cb *Pool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage {
 	bp := (cb.freeList.Remove(cb.freeList.Front())).(*pcache.BlockPage)
 	bp.SetSpaceId(spaceID)
 	bp.SetSpaceId(pageNo)
-	file.IFileSys.GetSpace(spaceID).Write(spaceID, pageNo*UNION_PAGE_SIZE, bp.Ptr[:])
+	file.IFileSys.GetSpace(spaceID).Write(spaceID, pageNo*UnionPageSize, bp.Ptr[:])
 	cb.flushList.PushFront(bp)
 	return bp;
 }
 
-func (cb *CachePool) PosInBlockAlign(b *byte) *pcache.BlockPage {
+func (cb *Pool) PosInBlockAlign(b *byte) *pcache.BlockPage {
 	ptr := uintptr(unsafe.Pointer(b))
 	cachePoolFrameAddr := uintptr(unsafe.Pointer(cb.frameAddr))
-	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
-	offset := uint64((ptr - cachePoolFrameAddr) / uintptr(UNION_PAGE_SIZE))
+	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UnionPageSize*(cb.maxCacheNum)) >= ptr, "buf not found")
+	offset := uint64((ptr - cachePoolFrameAddr) / uintptr(UnionPageSize))
 	return cb.blockPages[offset]
 }
 
-func (cb *CachePool) OffsetInBlockAlign(b *byte) uint64 {
+func (cb *Pool) OffsetInBlockAlign(b *byte) uint64 {
 	ptr := uintptr(unsafe.Pointer(b))
 	cachePoolFrameAddr := uintptr(unsafe.Pointer(cb.frameAddr))
-	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UNION_PAGE_SIZE*(cb.maxCacheNum)) >= ptr, "buf not found")
-	offset := uint64((ptr - cachePoolFrameAddr) % uintptr(UNION_PAGE_SIZE))
+	uassert.True(ptr >= cachePoolFrameAddr && cachePoolFrameAddr+uintptr(UnionPageSize*(cb.maxCacheNum)) >= ptr, "buf not found")
+	offset := uint64((ptr - cachePoolFrameAddr) % uintptr(UnionPageSize))
 	return offset
 }
 

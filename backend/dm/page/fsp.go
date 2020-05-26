@@ -19,7 +19,7 @@ const (
 	EXTEND_FREE_LIST_TYPE = iota
 )
 
-var cachePool *cache.CachePool
+var cachePool *cache.Pool
 var extendHandel *ExtendHandle
 
 func Init() {

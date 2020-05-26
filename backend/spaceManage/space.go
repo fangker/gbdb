@@ -12,13 +12,13 @@ import (
 var S *Space
 
 type Space struct {
-	cb    *cache.CachePool
+	cb    *cache.Pool
 	tbm   *tbm.TableManage
 	ubm   *undo.UndoLogManager
 	Space uint32
 }
 
-func NewSpace(space uint32, cb *cache.CachePool) *Space {
+func NewSpace(space uint32, cb *cache.Pool) *Space {
 	return &Space{cb: cb, Space: space}
 }
 

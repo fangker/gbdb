@@ -7,7 +7,7 @@ import (
 )
 
 type UndoSpace struct {
-	cb    *cache.CachePool
+	cb    *cache.Pool
 	tbm   *tbm.TableManage
 	ubm   *undo.UndoLogManager
 	Space uint32

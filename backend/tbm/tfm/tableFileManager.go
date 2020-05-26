@@ -10,10 +10,10 @@ import (
 	//"github.com/fangker/gbdb/backend/utils/log"
 )
 
-var cachePool *cache.CachePool
+var cachePool *cache.Pool
 
 type TableFileManage struct {
-	CacheBuffer  *cache.CachePool
+	CacheBuffer  *cache.Pool
 	FilePath     string
 	cacheWrapper wp.Wrapper
 }

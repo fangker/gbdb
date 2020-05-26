@@ -1,8 +1,9 @@
 package mtr
 
 import (
-	. "github.com/fangker/gbdb/backend/def/cType"
 	"bytes"
+	. "github.com/fangker/gbdb/backend/def/cType"
+	"github.com/fangker/gbdb/backend/utils/ulog"
 )
 
 const (
@@ -10,20 +11,20 @@ const (
 	MTR_ALL_LOG  = 1
 )
 const (
-	MTR_MEMO_PAGE_X_LOCK MtrMemoLock = 0
-	MTR_MEMO_PAGE_S_LOCK MtrMemoLock = 1
-	MTR_MEMO_BUF_FIX     MtrMemoLock = 3
-	MTR_MEMO_S_LOCK      MtrMemoLock = 11
-	MTR_MEMO_L_LOCK      MtrMemoLock = 12
+	MTR_MEMO_PAGE_X_LOCK MemoLock = 0
+	MTR_MEMO_PAGE_S_LOCK MemoLock = 1
+	MTR_MEMO_BUF_FIX     MemoLock = 3
+	MTR_MEMO_S_LOCK      MemoLock = 11
+	MTR_MEMO_L_LOCK      MemoLock = 12
 )
 
 var MTR_MEMO_PAGE_X_LOCK_1 = 2
 
-type MtrMemoLock uint
+type MemoLock uint
 
 type mo struct {
-	mode MtrMemoLock
-	obj  MtrObjLocker
+	mode MemoLock
+	obj  ObjLocker
 }
 type Mtr struct {
 	TrxID        XID
@@ -36,30 +37,33 @@ type Mtr struct {
 	modification bool
 }
 
-func MtrStart() *Mtr {
+func (mtr *Mtr)PrintDetail(){
+	ulog.Debug(ulog.AnyViewToString(mtr))
+}
+func Start() *Mtr {
 	mtr := &Mtr{}
-	mtr.logMode = MTR_NONE_LOG;
-	return mtr;
+	mtr.logMode = MTR_NONE_LOG
+	return mtr
 }
 
-func MtrCommit(mtr *Mtr) bool {
+func Commit(mtr *Mtr) bool {
 	mtr.modification = true
-	mtr.logMode = MTR_ALL_LOG;
+	mtr.logMode = MTR_ALL_LOG
 	return true
 }
 
-func (mtr *Mtr) AddToMemo(lockMode MtrMemoLock, obj MtrObjLocker) *Mtr {
-	if (mtr.IsMemoContains(lockMode, obj)) {
+func (mtr *Mtr) AddToMemo(lockMode MemoLock, obj ObjLocker) *Mtr {
+	if mtr.IsMemoContains(lockMode, obj) {
 		return mtr
 	}
 	mo := mo{mode: lockMode, obj: obj}
-	mtr.memo = append(mtr.memo, mo);
-	return mtr;
+	mtr.memo = append(mtr.memo, mo)
+	return mtr
 }
 
-func (mtr *Mtr) IsMemoContains(lockMode MtrMemoLock, t MtrObjLocker) bool {
+func (mtr *Mtr) IsMemoContains(lockMode MemoLock, t ObjLocker) bool {
 	for _, a := range mtr.memo {
-		if (t == a.obj && lockMode == a.mode) {
+		if t == a.obj && lockMode == a.mode {
 			return true
 		}
 	}
@@ -67,7 +71,7 @@ func (mtr *Mtr) IsMemoContains(lockMode MtrMemoLock, t MtrObjLocker) bool {
 }
 
 // * MTR  Obj Locker
-type MtrObjLocker interface {
+type ObjLocker interface {
 	Lock()
 	RLock()
 }

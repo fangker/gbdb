@@ -11,7 +11,7 @@ import (
 const UNDO_SPACE = 0;
 
 type UndoFileManager struct {
-	CacheBuffer *cache.CachePool
+	CacheBuffer *cache.Pool
 	FilePath    string
 	wp.Wrapper
 }
