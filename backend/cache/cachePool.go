@@ -7,7 +7,7 @@ import (
 	"github.com/fangker/gbdb/backend/cache/cachehelper"
 	"github.com/fangker/gbdb/backend/dstr"
 	"github.com/fangker/gbdb/backend/file"
-	"github.com/fangker/gbdb/backend/mtr"
+	mtr2 "github.com/fangker/gbdb/backend/mtrs/mtr"
 	"github.com/fangker/gbdb/backend/utils/uassert"
 	"github.com/fangker/gbdb/backend/utils/ulog"
 	"sync"
@@ -57,7 +57,7 @@ func NewCacheBuffer(maxCacheNum uint64) *Pool {
 	return cb
 }
 
-func (cb *Pool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr *mtr.Mtr) (bp *pcache.BlockPage) {
+func (cb *Pool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr *mtr2.Mtr) (bp *pcache.BlockPage) {
 	cb.lock.Lock()
 	defer func() {
 		cb.lock.Unlock()
@@ -67,16 +67,16 @@ func (cb *Pool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr
 		bp = cb.pagePool[spaceId][pageNo];
 	}
 	bp = cb.ReadPageFromFile(spaceId, pageNo);
-	var strMemoLockType mtr.MemoLock
+	var strMemoLockType mtr2.MemoLock
 	if pcache.BP_S_LOCK == lockType {
-		strMemoLockType = mtr.MTR_MEMO_PAGE_S_LOCK
+		strMemoLockType = mtr2.MTR_MEMO_PAGE_S_LOCK
 		bp.RLock()
 	}
 	if pcache.BP_X_LOCK == lockType {
-		strMemoLockType = mtr.MTR_MEMO_PAGE_X_LOCK
+		strMemoLockType = mtr2.MTR_MEMO_PAGE_X_LOCK
 		bp.Lock()
 	}
-	var lbp mtr.ObjLocker
+	var lbp mtr2.ObjLocker
 	lbp = bp
 	imtr.AddToMemo(strMemoLockType, lbp);
 	return

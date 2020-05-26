@@ -1,30 +1,30 @@
 package conf
 
 import (
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 )
 
-type GbdbConfig struct {
-	DbDirPath        string `json:dbDirPath`
-	LogDirPath       string `json:logDirPath`
-	BufferPageMemory uint64 `json:bufferPageMemory`
+type GbDbConfig struct {
+	DbDirPath        string `json:"dbDirPath"`
+	LogDirPath       string `json:"logDirPath"`
+	BufferPageMemory uint64 `json:"bufferPageMemory"`
 }
 
 type ServerStartConfig struct {
-	GbdbConfig
+	GbDbConfig
 	dbFiles  string
 	logFiles string
 }
 
-var _ssc *ServerStartConfig;
+var _ssc *ServerStartConfig
 
-func loadGbdbConfig() (c GbdbConfig) {
-	data, err := ioutil.ReadFile("../../../gbdbConfig.json")
+func loadGbDbConfig() (c GbDbConfig) {
+	data, err := ioutil.ReadFile("../../gbDbConfig.json")
 	if err != nil {
 		panic(err)
 	}
-	var cnf = GbdbConfig{}
+	var cnf = GbDbConfig{}
 	err = json.Unmarshal(data, &cnf)
 	if err != nil {
 		panic(err)
@@ -41,7 +41,7 @@ func GetServerStartConfig() (ssc *ServerStartConfig) {
 		return _ssc
 	}
 	ssc = &ServerStartConfig{
-		GbdbConfig: loadGbdbConfig(),
+		GbDbConfig: loadGbDbConfig(),
 	}
 	ssc.dbFiles = ssc.DbDirPath
 	ssc.logFiles = ssc.LogDirPath
@@ -49,12 +49,12 @@ func GetServerStartConfig() (ssc *ServerStartConfig) {
 }
 
 func scanDirFiles(dir string) (farray []string) {
-	dir_list, e := ioutil.ReadDir(dir)
+	dirList, e := ioutil.ReadDir(dir)
 	if e != nil {
 		panic(e)
 		return
 	}
-	for _, v := range dir_list {
+	for _, v := range dirList {
 		farray = append(farray, dir+v.Name())
 	}
 	return

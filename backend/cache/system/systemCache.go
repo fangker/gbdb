@@ -5,12 +5,12 @@ import (
 	. "github.com/fangker/gbdb/backend/def/cType"
 	"github.com/fangker/gbdb/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/tbm/tfm"
-	"github.com/fangker/gbdb/backend/mtr"
+	"github.com/fangker/gbdb/backend/mtrs"
 )
 
 type SysTabler interface {
 	Tree()
-	Insert(trx *mtr.Transaction, st *statement.Insert)
+	Insert(trx *mtrs.Transaction, st *statement.Insert)
 	Tfm() *tfm.TableFileManage
 	// 用于载入元组
 	LoadTuple(create *statement.Create)

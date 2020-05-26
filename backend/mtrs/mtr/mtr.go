@@ -28,7 +28,7 @@ type mo struct {
 }
 type Mtr struct {
 	TrxID        XID
-	memo         [] mo
+	memo         []mo
 	log          bytes.Buffer
 	nLogRecs     uint32
 	logMode      int
@@ -37,9 +37,15 @@ type Mtr struct {
 	modification bool
 }
 
-func (mtr *Mtr)PrintDetail(){
+func (mtr *Mtr) PrintDetail() {
 	ulog.Debug(ulog.AnyViewToString(mtr))
 }
+
+func MergeMLog(mtr *Mtr, buf *bytes.Buffer) {
+	mtr.nLogRecs++
+	_, _ = mtr.log.ReadFrom(buf)
+}
+
 func Start() *Mtr {
 	mtr := &Mtr{}
 	mtr.logMode = MTR_NONE_LOG
@@ -75,4 +81,3 @@ type ObjLocker interface {
 	Lock()
 	RLock()
 }
-

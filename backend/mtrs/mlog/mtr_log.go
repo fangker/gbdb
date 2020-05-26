@@ -1,9 +1,10 @@
-package mtr
+package mlog
 
 import (
 	"bytes"
 	"encoding/binary"
 	"github.com/fangker/gbdb/backend/cache/cachehelper"
+	. "github.com/fangker/gbdb/backend/mtrs/mtr"
 )
 
 const (
@@ -21,13 +22,12 @@ type mtrLog struct {
 	buf *bytes.Buffer
 }
 
-func MLogOpen() *mtrLog {
-	return &mtrLog{buf:bytes.NewBuffer([]byte{})}
+func Open() *mtrLog {
+	return &mtrLog{buf: bytes.NewBuffer([]byte{})}
 }
 
-func MLogClose(mtr *Mtr,ml *mtrLog) {
-	mtr.nLogRecs++
-	_, _ = mtr.log.ReadFrom(ml.buf)
+func Close(mtr *Mtr, ml *mtrLog) {
+	MergeMLog(mtr, ml.buf)
 }
 
 // mLog open 载入用于写入
@@ -57,7 +57,7 @@ func (ml *mtrLog) MLogWriteString(ptr *byte, bs []byte) {
 	binary.Write(ml.buf, binary.BigEndian, bs)
 }
 
-func MLogInitialRecord(ptr *byte, ml *mtrLog) *mtrLog {
+func InitialRecord(ptr *byte, ml *mtrLog) *mtrLog {
 	bp := cachehelper.PosInBlockAlign(ptr)
 	offset := cachehelper.OffsetInBlockAlign(ptr)
 	spaceId, pageOffset := bp.GetPos()

@@ -4,7 +4,7 @@ import (
 	"github.com/fangker/gbdb/backend/im"
 	"github.com/fangker/gbdb/backend/tbm/tfm"
 	"github.com/fangker/gbdb/backend/utils"
-	"github.com/fangker/gbdb/backend/mtr"
+	"github.com/fangker/gbdb/backend/mtrs"
 	"github.com/fangker/gbdb/backend/parser/statement"
 	"github.com/fangker/gbdb/backend/utils/ulog"
 )
@@ -50,7 +50,7 @@ func (this *TableManage) LoadTfm(tfm *tfm.TableFileManage) {
 	this.tfm = tfm
 }
 
-func (this *TableManage) Insert(trx *mtr.Transaction, st *statement.Insert) {
+func (this *TableManage) Insert(trx *mtrs.Transaction, st *statement.Insert) {
 	t := this.parseEntity(st)
 	log.Trace(log.AnyViewToString(t))
 }
