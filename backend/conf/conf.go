@@ -48,14 +48,14 @@ func GetServerStartConfig() (ssc *ServerStartConfig) {
 	return
 }
 
-func scanDirFiles(dir string) (farray []string) {
+func scanDirFiles(dir string) (fArray []string) {
 	dirList, e := ioutil.ReadDir(dir)
 	if e != nil {
 		panic(e)
 		return
 	}
 	for _, v := range dirList {
-		farray = append(farray, dir+v.Name())
+		fArray = append(fArray, dir+v.Name())
 	}
 	return
 }
