@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"github.com/fangker/gbdb/backend/cache/cachehelper"
+	. "github.com/fangker/gbdb/backend/dm/matchData"
 	. "github.com/fangker/gbdb/backend/mtrs/mtr"
 )
 
@@ -31,25 +32,32 @@ func Close(mtr *Mtr, ml *mtrLog) {
 }
 
 // mLog open 载入用于写入
-func (ml *mtrLog) MLogWriteUint(ptr *byte, v uint32, logType MLOG_TYPE) {
+func WriteUint(ptr *byte, v uint, logType MLOG_TYPE) {
+	ml := Open()
+	var into interface{}
 	if logType == MLOG_TYPE_BYRE_1 {
-		ml.buf.WriteByte(byte(MLOG_TYPE_BYRE_1))
-		binary.Write(ml.buf, binary.BigEndian, uint8(v))
+		MatchWrite1(ptr, v)
+		into = uint8(v)
 	}
 	if logType == MLOG_TYPE_BYRE_2 {
-		ml.buf.WriteByte(byte(MLOG_TYPE_BYRE_2))
-		binary.Write(ml.buf, binary.BigEndian, uint16(v))
+		MatchWrite2(ptr, v)
+		into = uint16(v)
 	}
 	if logType == MLOG_TYPE_BYRE_4 {
-		ml.buf.WriteByte(byte(MLOG_TYPE_BYRE_4))
-		binary.Write(ml.buf, binary.BigEndian, uint32(v))
+		MatchWrite4(ptr, v)
+		into = uint32(v)
 	}
+	if logType == MLOG_TYPE_BYRE_8 {
+		MatchWrite8(ptr, v)
+		into = uint64(v)
+	}
+	ml.buf.WriteByte(byte(logType))
+	binary.Write(ml.buf, binary.BigEndian, into)
 }
 
-func (ml *mtrLog) MLogWriteDUint(ptr *byte, v uint64) {
-	ml.buf.WriteByte(byte(MLOG_TYPE_BYRE_8))
-	binary.Write(ml.buf, binary.BigEndian, uint64(v))
-}
+//func ParseUint(ptr *byte, uint offset, *byte page) {
+//
+//}
 
 func (ml *mtrLog) MLogWriteString(ptr *byte, bs []byte) {
 	ml.buf.WriteByte(byte(MLOG_TYPE_BYRE_STRING))

@@ -13,7 +13,7 @@ import (
 )
 
 func TestMtr(t *testing.T) {
-	fmt.Println("=======",conf.GetServerStartConfig().DbDirPath)
+	fmt.Println("=======", conf.GetServerStartConfig().DbDirPath)
 	cache.NewCacheBuffer(40)
 	fSys := file.CreateFilSys()
 	fSys.CreateFilSpace("space", 1, conf.GetServerStartConfig().DbDirPath+"/test/", 1, 1024)
@@ -21,9 +21,8 @@ func TestMtr(t *testing.T) {
 	pg := cache.CP.GetPage(1, 1, pcache.BP_X_LOCK, mtr1)
 	data := pg.GetData()
 	uassert.True(mtr1.IsMemoContains(mtr.MTR_MEMO_PAGE_X_LOCK, pg))
-	mLog := mlog.Open()
-	mlog.InitialRecord(&data[1], mLog)
-	mlog.Close(mtr1,mLog)
-	mtr1.PrintDetail()
-	fmt.Println("-->", mLog)
+	// mLog 测试
+	mlog.WriteUint(&data[0], 299, mlog.MLOG_TYPE_BYRE_2)
+	var c = []byte{1, 2, 3}
+	fmt.Println("======", c)
 }

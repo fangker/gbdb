@@ -1,6 +1,11 @@
 package file
 
-import "os"
+import (
+	"fmt"
+	"github.com/fangker/gbdb/backend/def/cType"
+	"os"
+	"unsafe"
+)
 
 type filUnit struct {
 	filPath string
@@ -8,16 +13,15 @@ type filUnit struct {
 	os      *os.File
 }
 
-func (fu *filUnit) read(pos uint64, b []byte) {
+func (fu *filUnit) read(pos uint64, b *byte) {
 	fu.os.Seek(int64(pos), 0)
-	c := []byte{}
-	fu.os.Read(c)
-	copy(b, c)
+	fu.os.Read((*cType.PageData)(unsafe.Pointer(b))[0:])
 }
 
-func (fu *filUnit) write(pos uint64, b []byte) {
-	_, err := fu.os.WriteAt(b, int64(pos));
-	if (err != nil) {
+func (fu *filUnit) write(pos uint64, b *byte) {
+	_, err := fu.os.WriteAt((*cType.PageData)(unsafe.Pointer(b))[0:], int64(pos))
+	fmt.Println(fu.os.Name(), (*cType.PageData)(unsafe.Pointer(b))[0:])
+	if err != nil {
 		panic(err)
 	}
 

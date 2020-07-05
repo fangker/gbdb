@@ -1,16 +1,13 @@
 package file
 
 import (
-	"sync"
-	"os"
-	"github.com/fangker/gbdb/backend/utils/uassert"
 	"github.com/fangker/gbdb/backend/def/constant"
+	"github.com/fangker/gbdb/backend/utils/uassert"
 	"math"
+	"os"
 	"path"
 	"strconv"
-	//"fmt"
-	//"fmt"
-	//"fmt"
+	"sync"
 )
 
 type fileSpace struct {
@@ -29,7 +26,7 @@ type fileSpace struct {
 }
 
 func (fs fileSpace) Size() uint64 {
-	return fs.size;
+	return fs.size
 }
 
 //func (fs *fileSpace) scanDirWithFilUnit() {
@@ -54,11 +51,11 @@ func (fsys *FileSys) CreateFilSpace(name string, id uint64, cdbSpacePath string,
 	os.MkdirAll(path.Dir(cdbSpacePath), os.ModePerm)
 	fsys.Lock()
 	defer func() {
-		fsys.Unlock();
+		fsys.Unlock()
 	}()
 	fspace := &fileSpace{name: name, id: id, sType: sType, fileDir: cdbSpacePath, autoIncSize: autoIncSize}
 	fsys.hSpaces[id] = fspace
-	return fspace;
+	return fspace
 }
 
 func (fs *fileSpace) CreateFilUnit(filPath string, size uint64) *filUnit {
@@ -71,52 +68,51 @@ func (fs *fileSpace) CreateFilUnit(filPath string, size uint64) *filUnit {
 		panic(err.Error())
 	}
 	fu := &filUnit{filPath: filPath, os: f, size: size}
-	fs.size += size;
+	fs.size += size
 	fs.filUnits = append(fs.filUnits, fu)
 	fs.nextExtendNum++
-	return fu;
+	return fu
 }
 
-func (fs *fileSpace) Read(spaceId uint64, offset uint64, b []byte) {
+func (fs *fileSpace) Read(spaceId uint64, offset uint64, b *byte) {
 	fileIo(FILE_IO_READ, spaceId, offset, b)
 }
 
-func (fs *fileSpace) Write(spaceId uint64, offset uint64, b []byte) {
-	fileIo(FILE_IO_WRITE, spaceId, offset, b)
+func (fs *fileSpace) Write(spaceId uint64, offset uint64, data *byte) {
+	fileIo(FILE_IO_WRITE, spaceId, offset, data)
 }
 
 const (
-	FILE_IO_READ  = iota
+	FILE_IO_READ = iota
 	FILE_IO_WRITE
 )
 
-func fileIo(action int, spaceId uint64, offset uint64, b []byte) {
-	fs := IFileSys.GetSpace(spaceId);
+func fileIo(action int, spaceId uint64, offset uint64, data *byte) {
+	fs := IFileSys.GetSpace(spaceId)
 	// 检查是否需要扩容
-	if (fs.size < offset) {
+	if fs.size < offset {
 		// 扩容函数
 		fillUnitCount := math.Ceil(float64((offset - fs.size) / fs.autoIncSize))
 		for i := 0; i < int(fillUnitCount); i++ {
-			filePath := fs.fileDir + fs.name + "_" + strconv.Itoa(fs.nextExtendNum) + ".db";
+			filePath := fs.fileDir + fs.name + "_" + strconv.Itoa(fs.nextExtendNum) + ".db"
 			fs.CreateFilUnit(filePath, fs.autoIncSize)
 		}
 	}
-	var unitIndex uint64 = 0;
+	var unitIndex uint64 = 0
 	// 寻找unit
 	for ; unitIndex < uint64(len(fs.filUnits))-1; unitIndex++ {
-		if (fs.filUnits[unitIndex].size > offset) {
+		if fs.filUnits[unitIndex].size > offset {
 			break
 		} else {
 			offset -= fs.filUnits[unitIndex].size
 		}
 	}
 	uassert.True(offset%constant.LOG_BLOCK_SIZE == 0)
-	uassert.True(uint64(len(b))%constant.LOG_BLOCK_SIZE == 0)
 	if action == FILE_IO_WRITE {
-		fs.filUnits[unitIndex].write(offset, b)
+		fs.filUnits[unitIndex].write(offset, data)
 	}
 	if action == FILE_IO_READ {
-		fs.filUnits[unitIndex].read(offset, b)
+		fs.filUnits[unitIndex].read(offset, data)
 	}
 }
 

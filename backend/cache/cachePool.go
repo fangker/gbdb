@@ -43,12 +43,12 @@ func NewCacheBuffer(maxCacheNum uint64) *Pool {
 	defer func() {
 		cb.lock.Unlock()
 	}()
-	maddr := make([]byte, maxCacheNum*UnionPageSize);
+	maddr := make([]byte, maxCacheNum*UnionPageSize)
 	cb.frameAddr = (*byte)(unsafe.Pointer(&maddr))
 	ulog.Debug("init buffer pool frame addr is ", cb.frameAddr)
 	for i := uint64(0); i < maxCacheNum; i++ {
-		uptr := uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UnionPageSize*(i))
-		cb.blockPages[i] = pcache.InitBlockPage(uptr)
+		uptr := unsafe.Pointer(uintptr(unsafe.Pointer(cb.frameAddr)) + uintptr(UnionPageSize*(i)))
+		cb.blockPages[i] = pcache.InitBlockPage((* byte)(uptr))
 		cb.freeList.PushBack(cb.blockPages[i])
 	}
 	ulog.Info(fmt.Sprintf("[CacheBuffer] builded ==>  %0.3f mb %d pages ", float32(maxCacheNum*16)/(2<<9), maxCacheNum))
@@ -64,9 +64,9 @@ func (cb *Pool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr
 	}()
 	// 如果缓存中存在使用缓存
 	if cb.poolMapCheck(spaceId, pageNo) {
-		bp = cb.pagePool[spaceId][pageNo];
+		bp = cb.pagePool[spaceId][pageNo]
 	}
-	bp = cb.ReadPageFromFile(spaceId, pageNo);
+	bp = cb.ReadPageFromFile(spaceId, pageNo)
 	var strMemoLockType mtr2.MemoLock
 	if pcache.BP_S_LOCK == lockType {
 		strMemoLockType = mtr2.MTR_MEMO_PAGE_S_LOCK
@@ -78,7 +78,7 @@ func (cb *Pool) GetPage(spaceId, pageNo uint64, lockType pcache.BpLockType, imtr
 	}
 	var lbp mtr2.ObjLocker
 	lbp = bp
-	imtr.AddToMemo(strMemoLockType, lbp);
+	imtr.AddToMemo(strMemoLockType, lbp)
 	return
 }
 
@@ -90,7 +90,7 @@ func (cb *Pool) poolMapCheck(tpID, pageNo uint64) bool {
 	if _, exist := cb.pagePool[tpID][pageNo]; exist {
 		return true
 	}
-	return false;
+	return false
 }
 
 // add  pageBuffer to bufferPool
@@ -99,18 +99,19 @@ func (cb *Pool) ReadPageFromFile(spaceID, pageNo uint64) *pcache.BlockPage {
 	bp.SetSpaceId(spaceID)
 	bp.SetPageNo(pageNo)
 	t := file.IFileSys.GetSpace(spaceID)
-	t.Read(spaceID, pageNo*UnionPageSize, bp.Ptr[:])
-	cb.lruList.Set(uintptr(unsafe.Pointer(&bp)), bp);
-	return bp;
+	t.Read(spaceID, pageNo*UnionPageSize, bp.Ptr)
+	cb.lruList.Set(uintptr(unsafe.Pointer(&bp)), bp)
+	return bp
 }
 
 func (cb *Pool) WritePageFromFile(spaceID, pageNo uint64) *pcache.BlockPage {
 	bp := (cb.freeList.Remove(cb.freeList.Front())).(*pcache.BlockPage)
 	bp.SetSpaceId(spaceID)
 	bp.SetSpaceId(pageNo)
-	file.IFileSys.GetSpace(spaceID).Write(spaceID, pageNo*UnionPageSize, bp.Ptr[:])
+	p := unsafe.Pointer(bp.Ptr)
+	file.IFileSys.GetSpace(spaceID).Write(spaceID, pageNo*UnionPageSize,(* byte)(p))
 	cb.flushList.PushFront(bp)
-	return bp;
+	return bp
 }
 
 func (cb *Pool) PosInBlockAlign(b *byte) *pcache.BlockPage {
@@ -128,11 +129,3 @@ func (cb *Pool) OffsetInBlockAlign(b *byte) uint64 {
 	offset := uint64((ptr - cachePoolFrameAddr) % uintptr(UnionPageSize))
 	return offset
 }
-
-// 将缓存等待页面移除加入LRU链表返回bufferPage
-//func (cb *CachePool) addToUrlList(tpID, pageNo uint64) *pcache.BlockPage {
-//	listEle := cb.freeList.Front()
-//	pg := cb.freeList.Front().Value.(*pcache.BlockPage)
-//	cb.freeList.Remove(listEle)
-//	return pg
-//}
