@@ -54,7 +54,6 @@ func Start() *Mtr {
 
 func Commit(mtr *Mtr) bool {
 	mtr.modification = true
-	mtr.logMode = MTR_ALL_LOG
 	return true
 }
 

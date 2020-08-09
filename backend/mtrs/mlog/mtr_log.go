@@ -32,7 +32,7 @@ func Close(mtr *Mtr, ml *mtrLog) {
 }
 
 // mLog open 载入用于写入
-func WriteUint(ptr *byte, v uint, logType MLOG_TYPE) {
+func WriteUint(ptr *byte, v uint, logType MLOG_TYPE, mtr *Mtr) {
 	ml := Open()
 	var into interface{}
 	if logType == MLOG_TYPE_BYRE_1 {
@@ -51,8 +51,10 @@ func WriteUint(ptr *byte, v uint, logType MLOG_TYPE) {
 		MatchWrite8(ptr, v)
 		into = uint64(v)
 	}
+	InitialRecord(ptr, ml)
 	ml.buf.WriteByte(byte(logType))
 	binary.Write(ml.buf, binary.BigEndian, into)
+	Close(mtr, ml)
 }
 
 //func ParseUint(ptr *byte, uint offset, *byte page) {

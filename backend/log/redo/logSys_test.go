@@ -1,11 +1,13 @@
 package redo
 
 import (
-	"testing"
+	"fmt"
+	"github.com/fangker/gbdb/backend/conf"
 	"path"
+	"testing"
 )
 
-
 func TestLogSys(t *testing.T) {
-	NewLogSys(path.Join("","data"))
+	fmt.Printf("%+v", conf.GetConfig())
+	NewLogSys(path.Join("", "data"))
 }

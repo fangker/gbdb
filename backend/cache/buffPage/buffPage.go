@@ -1,8 +1,10 @@
 package pcache
 
 import (
+	"github.com/fangker/gbdb/backend/def/cType"
 	"github.com/fangker/gbdb/backend/wrapper"
 	"sync"
+	"unsafe"
 )
 
 type BpLockType uint
@@ -66,4 +68,8 @@ func (bp *BlockPage) SetSpaceId(spaceId uint64) {
 
 func (bp *BlockPage) SetPageNo(pNo uint64) {
 	bp.pageNo = pNo
+}
+
+func (cp *BlockPage) GetData() (page *cType.PageData) {
+	return (* cType.PageData)(unsafe.Pointer(cp.Ptr))
 }

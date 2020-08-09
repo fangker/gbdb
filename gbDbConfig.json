@@ -1,5 +1,6 @@
 {
-  "dbDirPath": "/Users/renge/go/src/github.com/fangker/gbdb/data",
-  "LogDirPath": "/Users/renge/go/src/github.com/fangker/gbdb/data",
+  "basePath": "/Users/renge/go/src/github.com/fangker",
+  "dbDirPath": "./gbdb/data/dbfile",
+  "LogDirPath": "./gbdb/data/dblog",
   "bufferPageMemory": 10
 }
