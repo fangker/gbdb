@@ -17,7 +17,7 @@ type fileSpace struct {
 	size    uint64
 	fileDir string
 	// 文件类型
-	sType    int
+	FType    fileType
 	filUnits []*filUnit
 	// 自增扩展大小
 	autoIncSize   uint64
@@ -47,13 +47,16 @@ func (fs fileSpace) Size() uint64 {
 //	}
 //}
 
-func (fsys *FileSys) CreateFilSpace(name string, id uint64, cdbSpacePath string, sType int, autoIncSize uint64) *fileSpace {
-	os.MkdirAll(path.Dir(cdbSpacePath), os.ModePerm)
+func (fsys *FileSys) CreateFilSpace(name string, id uint64, cdbSpacePath string, sType fileType, autoIncSize uint64) *fileSpace {
 	fsys.Lock()
 	defer func() {
 		fsys.Unlock()
 	}()
-	fspace := &fileSpace{name: name, id: id, sType: sType, fileDir: cdbSpacePath, autoIncSize: autoIncSize}
+	err := os.MkdirAll(path.Dir(cdbSpacePath), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	fspace := &fileSpace{name: name, id: id, FType: sType, fileDir: cdbSpacePath, autoIncSize: autoIncSize}
 	fsys.hSpaces[id] = fspace
 	return fspace
 }
@@ -94,7 +97,7 @@ func fileIo(action int, spaceId uint64, offset uint64, data *byte) {
 		// 扩容函数
 		fillUnitCount := math.Ceil(float64((offset - fs.size) / fs.autoIncSize))
 		for i := 0; i < int(fillUnitCount); i++ {
-			filePath := fs.fileDir + fs.name + "_" + strconv.Itoa(fs.nextExtendNum) + ".db"
+			filePath := fs.fileDir + fs.name + "_" + strconv.Itoa(fs.nextExtendNum) + fs.FType.FileType()
 			fs.CreateFilUnit(filePath, fs.autoIncSize)
 		}
 	}

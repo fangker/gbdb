@@ -19,7 +19,7 @@ func TestMtr(t *testing.T) {
 	fmt.Println("=======", conf.GetServerStartConfig().DbDirPath)
 	cache.NewCacheBuffer(40)
 	fSys := file.CreateFilSys()
-	fSys.CreateFilSpace("space", 1, conf.GetServerStartConfig().DbDirPath+"/test/", 1, 16*1024)
+	fSys.CreateFilSpace("space", 1, conf.GetServerStartConfig().DbDirPath, 1, 16*1024)
 	mtr1 := mtr.Start()
 	pg := cache.CP.GetPage(1, 1, pcache.BP_X_LOCK, mtr1)
 	data := pg.GetData()
