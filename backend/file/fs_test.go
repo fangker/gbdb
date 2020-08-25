@@ -11,7 +11,7 @@ import (
 
 func TestFileSys(t *testing.T) {
 	fsys := CreateFilSys()
-	fspace := fsys.CreateFilSpace("space", 1, conf.GetServerStartConfig().DbDirPath+"/test/", 1, 1024)
+	fspace := fsys.CreateFilSpace("space", 1, conf.GetServerStartConfig().DbDirPath, 1, 1024)
 	wd := &cType.PageData{'a', 'b', 'c', 'd'}
 	var wdp = unsafe.Pointer(wd)
 	rd := &cType.PageData{}

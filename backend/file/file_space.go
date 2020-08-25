@@ -97,7 +97,7 @@ func fileIo(action int, spaceId uint64, offset uint64, data *byte) {
 		// 扩容函数
 		fillUnitCount := math.Ceil(float64((offset - fs.size) / fs.autoIncSize))
 		for i := 0; i < int(fillUnitCount); i++ {
-			filePath := fs.fileDir + fs.name + "_" + strconv.Itoa(fs.nextExtendNum) + fs.FType.FileType()
+			filePath := path.Join(fs.fileDir, fs.name+"_"+strconv.Itoa(fs.nextExtendNum)+"."+fs.FType.FileType())
 			fs.CreateFilUnit(filePath, fs.autoIncSize)
 		}
 	}

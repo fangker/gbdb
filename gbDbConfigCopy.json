@@ -1,0 +1,6 @@
+{
+  "basePath": "C:\\Users\\Administrator\\go\\src\\github.com\\fangker\\",
+  "dbDirPath": "./gbdb/data/dbfile",
+  "LogDirPath": "./gbdb/data/dblog",
+  "bufferPageMemory": 10
+}
